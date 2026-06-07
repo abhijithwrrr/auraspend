@@ -80,9 +80,6 @@ dependencies {
     implementation("com.google.http-client:google-http-client-gson:1.44.2")
     implementation("com.google.guava:guava:33.0.0-android")
 
-    // AdMob
-    implementation("com.google.android.gms:play-services-ads:23.2.0")
-
     // Room
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")

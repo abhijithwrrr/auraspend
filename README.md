@@ -98,7 +98,6 @@ cp secrets.properties.example secrets.properties
 Edit `secrets.properties` with:
 - **WEB_CLIENT_ID**: Google OAuth 2.0 client ID for Drive sync
 - **DRIVE_API_KEY**: Google Drive API key (optional)
-- **ADMOB_APP_ID**: Your AdMob app ID (test ID is fine for dev)
 
 Build and run:
 
