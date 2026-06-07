@@ -140,6 +140,8 @@ Contributions are welcome! See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for:
 
 **First-time contributors**: Look for issues labeled `good first issue` or `help wanted`.
 
+**Release process**: Every merge to `main` updates a draft release via [Release Drafter](.github/release-drafter.yml), grouping PRs by label. When ready to ship, publish the draft and tag it `vX.Y.Z` — the version is auto-bumped based on the highest priority label (`breaking` → major, `enhancement`/`feature` → minor, `bug`/`fix` → patch).
+
 ## Security
 
 See [SECURITY.md](.github/SECURITY.md) for reporting vulnerabilities.
