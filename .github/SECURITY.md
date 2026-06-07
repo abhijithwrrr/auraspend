@@ -11,7 +11,6 @@ You should receive a response within 48 hours. If not, please follow up.
 ## Scope
 
 - Google Drive OAuth client credentials
-- AdMob app IDs
 - API keys or secrets in committed code
 - Authentication token leaks
 
