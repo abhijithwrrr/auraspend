@@ -73,7 +73,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.0")
 
     // Google Sign-In & Drive
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.android.gms:play-services-auth:21.6.0")
     implementation("com.google.apis:google-api-services-drive:v3-rev20230822-2.0.0")
     implementation("com.google.api-client:google-api-client:2.9.0")
     implementation("com.google.api-client:google-api-client-android:2.9.0")
