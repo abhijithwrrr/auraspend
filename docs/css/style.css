@@ -1,0 +1,150 @@
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #fafafa;
+    color: #1c1b1f;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+nav {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+nav .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 24px;
+    color: #6750A4;
+}
+
+.links a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #625B71;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.links a:hover {
+    color: #6750A4;
+}
+
+header {
+    padding: 120px 0;
+    text-align: center;
+    background: linear-gradient(180deg, #f3e5f5 0%, #fafafa 100%);
+}
+
+header h1 {
+    font-size: 64px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    line-height: 1.1;
+}
+
+.gradient-text {
+    background: linear-gradient(45deg, #6750A4, #D0BCFF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+header p {
+    font-size: 20px;
+    color: #625B71;
+    max-width: 600px;
+    margin: 0 auto 40px;
+}
+
+.cta-group {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.btn {
+    padding: 16px 32px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background: #6750A4;
+    color: white;
+}
+
+.btn-secondary {
+    background: white;
+    color: #6750A4;
+    border: 1px solid #6750A4;
+}
+
+.features {
+    padding: 100px 0;
+}
+
+.features h2 {
+    text-align: center;
+    font-size: 40px;
+    margin-bottom: 60px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.card {
+    background: white;
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.card h3 {
+    font-size: 24px;
+    margin-bottom: 16px;
+    color: #6750A4;
+}
+
+footer {
+    padding: 60px 0;
+    text-align: center;
+    background: #1C1B1F;
+    color: #E6E1E5;
+}
+
+footer p {
+    margin: 8px 0;
+    font-size: 14px;
+}
