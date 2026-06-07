@@ -19,6 +19,18 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("free") {
+            dimension = "distribution"
+            versionNameSuffix = "-free"
+        }
+        create("play") {
+            dimension = "distribution"
+            versionNameSuffix = "-play"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
