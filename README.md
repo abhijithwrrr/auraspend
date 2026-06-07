@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Min SDK](https://img.shields.io/badge/minSdk-30-green)](app/build.gradle.kts)
 [![Target SDK](https://img.shields.io/badge/targetSdk-36-green)](app/build.gradle.kts)
+[![CI](https://github.com/abhijithwrrr/auraspend/actions/workflows/ci.yml/badge.svg)](https://github.com/abhijithwrrr/auraspend/actions/workflows/ci.yml)
 
 A world-class expense manager for Android 16 with bank message classification, Material 3 UI, budget tracking, and Google Drive backup.
 
@@ -37,10 +38,46 @@ The `free` flavor has all premium features unlocked at no cost. Only the Play St
 
 - **Language**: Kotlin
 - **UI**: Jetpack Compose + Material 3
-- **Architecture**: Clean Architecture + MVI
+- **Architecture**: Clean Architecture + MVI (Unidirectional data flow)
+- **DI**: Manual (Application class) — no Hilt/Koin
 - **Local Storage**: Room Database
-- **Cloud**: Google Drive API (premium)
+- **Charts**: Canvas-based (no external charting library)
+- **Cloud**: Google Drive API v3 (premium)
 - **Target SDK**: Android 16 (API 36)
+- **Min SDK**: Android 13 (API 30)
+
+## Project Structure
+
+```
+app/src/
+├── main/java/com/awbuilds/auraspend/
+│   ├── data/
+│   │   ├── classification/   # Bank SMS parser + classifier
+│   │   ├── local/            # Room DB, DAOs, entities, CSV manager
+│   │   └── remote/           # Google Drive sync
+│   ├── domain/
+│   │   ├── model/            # Core domain models
+│   │   ├── repository/       # Repository interface
+│   │   └── usecase/          # Business logic use cases
+│   ├── ui/
+│   │   ├── analytics/        # Pie charts, spending insights
+│   │   ├── budget/           # Per-category budget tracking
+│   │   ├── category/         # Category management
+│   │   ├── classification/   # SMS classification screen
+│   │   ├── core/             # Shared scaffold, navigation bar
+│   │   ├── home/             # Dashboard with charts
+│   │   ├── navigation/       # NavGraph, route definitions
+│   │   ├── onboarding/       # First-launch wizard
+│   │   ├── premium/          # Premium feature gate
+│   │   ├── recurring/        # Subscription management
+│   │   ├── settings/         # Settings + premium upgrade
+│   │   ├── splash/           # Animated splash screen
+│   │   ├── theme/            # M3 colors, light/dark/AMOLED
+│   │   └── transaction/      # List + add/edit screens
+│   └── AuraSpendApp.kt       # Application class (DI)
+├── free/                     # Free flavor sources (BillingManager stub)
+└── play/                     # Play flavor sources (real IAP)
+```
 
 ## Getting Started
 
@@ -56,13 +93,56 @@ The `free` flavor has all premium features unlocked at no cost. Only the Play St
 git clone https://github.com/abhijithwrrr/auraspend.git
 cd auraspend
 cp secrets.properties.example secrets.properties
-# Edit secrets.properties with your API keys
+```
+
+Edit `secrets.properties` with:
+- **WEB_CLIENT_ID**: Google OAuth 2.0 client ID for Drive sync
+- **DRIVE_API_KEY**: Google Drive API key (optional)
+- **ADMOB_APP_ID**: Your AdMob app ID (test ID is fine for dev)
+
+Build and run:
+
+```bash
 ./gradlew assembleFreeDebug
+```
+
+**First launch**: The app auto-seeds 12 default categories and shows the onboarding screen.
+
+## Preview
+
+| Screen | Description |
+|--------|-------------|
+| Dashboard | Balance card, weekly bar chart, budget progress, subscription summary, category breakdown |
+| Classification | Paste bank SMS or read from inbox — auto-categorizes |
+| Transactions | Search, date-groups, swipe-to-delete, income/expense filters |
+| Analytics | Canvas pie chart, category breakdown with percentages, top merchants |
+| Settings | Theme selector, CSV export/import, manage categories/budgets/subscriptions |
+| Onboarding | 3-page carousel with Lottie animations, Google Drive restore option |
+
+## Testing
+
+```bash
+# Run unit tests
+./gradlew test
+
+# Run instrumented tests (requires emulator/device)
+./gradlew connectedAndroidTest
 ```
 
 ## Contributing
 
-See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for build flavors, code style, and PR process.
+Contributions are welcome! See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for:
+
+- Build flavor system explained
+- Code style guide
+- Pull request process
+- Issue reporting guidelines
+
+**First-time contributors**: Look for issues labeled `good first issue` or `help wanted`.
+
+## Security
+
+See [SECURITY.md](.github/SECURITY.md) for reporting vulnerabilities.
 
 ## License
 

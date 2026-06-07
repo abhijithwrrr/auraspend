@@ -1,0 +1,14 @@
+# Auto detect text files and set LF
+* text=auto
+
+# Batch files should use CRLF
+*.bat text eol=crlf
+
+# Shell scripts should use LF
+*.sh text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jar binary
+*.ico binary
