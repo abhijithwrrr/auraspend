@@ -3,57 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuraSpend - World Class Expense Management</title>
+    <title>AuraSpend — Beautiful Expense Management for Android</title>
+    <meta name="description" content="AuraSpend is a modern, open-source expense tracker for Android with bank message classification, budget tracking, Google Drive sync, and a stunning Material 3 AMOLED interface.">
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>">
 </head>
 <body>
     <nav>
         <div class="container">
-            <div class="logo">AuraSpend</div>
-            <div class="links">
+            <a href="index.html" class="logo">Aura<span>Spend</span></a>
+            <div class="nav-links">
                 <a href="#features">Features</a>
+                <a href="#why">Why AuraSpend</a>
                 <a href="privacy.html">Privacy</a>
                 <a href="terms.html">Terms</a>
+                <a href="https://github.com/abhijithwrrr/auraspend" class="btn-outline-small" target="_blank" rel="noopener">GitHub</a>
             </div>
         </div>
     </nav>
 
-    <header>
+    <section class="hero">
         <div class="container">
+            <div class="hero-badge">v0.1.0 &middot; Open Source &middot; Apache 2.0</div>
             <h1>Master Your Finances with <span class="gradient-text">AuraSpend</span></h1>
-            <p>Experience the most beautiful and seamless expense manager designed for Android 16.</p>
-            <div class="cta-group">
-                <a href="#" class="btn btn-primary">Download Now</a>
+            <p>A beautiful, privacy-first expense manager for Android. Smart bank message classification, budget tracking, Google Drive backup &mdash; all wrapped in a stunning Material 3 AMOLED interface.</p>
+            <div class="hero-actions">
+                <a href="https://github.com/abhijithwrrr/auraspend/releases" class="btn btn-primary" target="_blank" rel="noopener">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download APK
+                </a>
+                <a href="https://github.com/abhijithwrrr/auraspend" class="btn btn-github" target="_blank" rel="noopener">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    View on GitHub
+                </a>
                 <a href="#features" class="btn btn-secondary">Learn More</a>
             </div>
-        </div>
-    </header>
-
-    <section id="features" class="features">
-        <div class="container">
-            <h2>Out of this World Features</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Pure AMOLED Mode</h3>
-                    <p>Save battery and enjoy stunning contrast with our true black theme.</p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Open Source</div>
                 </div>
-                <div class="card">
-                    <h3>Google Drive Sync</h3>
-                    <p>Never lose your data. Securely backup and sync across devices.</p>
+                <div class="stat-item">
+                    <div class="stat-number">Android 16</div>
+                    <div class="stat-label">Latest SDK</div>
                 </div>
-                <div class="card">
-                    <h3>MVI Architecture</h3>
-                    <p>Blazing fast performance with fluid, high-end animations.</p>
+                <div class="stat-item">
+                    <div class="stat-number">Apache 2.0</div>
+                    <div class="stat-label">License</div>
                 </div>
             </div>
         </div>
     </section>
 
+    <section id="features" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Everything You Need to Manage Your Money</h2>
+                <p>AuraSpend combines powerful expense tracking with a gorgeous, battery-friendly interface.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Auto-Classification</h3>
+                    <p>Forward bank SMS messages and AuraSpend automatically extracts &amp; categorizes transactions. No manual entry required.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Budget Tracking</h3>
+                    <p>Set monthly budgets per category and track progress in real-time. Get notified when you're approaching limits.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Recurring Subscriptions</h3>
+                    <p>Track all your subscriptions in one place. Never miss a renewal or forget to cancel an unused service.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">☁️</div>
+                    <h3>Google Drive Backup</h3>
+                    <p>Secure, encrypted backups to Google Drive in a hidden app folder. Your data stays yours, accessible only by you.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📁</div>
+                    <h3>CSV Import / Export</h3>
+                    <p>Import transactions from your bank or export your data for analysis in spreadsheets. Full data portability.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Insights &amp; Analytics</h3>
+                    <p>Beautiful charts and spending breakdowns help you understand your habits and make smarter financial decisions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌙</div>
+                    <h3>Pure AMOLED Theme</h3>
+                    <p>True black pixels save battery on OLED screens. A stunning dark interface that's easy on the eyes, day or night.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Material 3 Design</h3>
+                    <p>Built from the ground up with Material Design 3, dynamic colors, spring animations, and edge-to-edge immersive UI.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔓</div>
+                    <h3>100% Open Source</h3>
+                    <p>Freely available under Apache 2.0. Build it yourself, audit the code, or contribute. No vendor lock-in, no hidden tracking.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="why" class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why AuraSpend?</h2>
+                <p>Thousands of expense trackers exist. Here is why AuraSpend is different.</p>
+            </div>
+            <div class="why-grid">
+                <div class="why-item">
+                    <div class="why-marker">1</div>
+                    <div>
+                        <h4>Privacy First, Always</h4>
+                        <p>Your financial data never touches our servers. Everything stays on your device and your Google Drive &mdash; encrypted and under your control. No accounts to create, no data to mine.</p>
+                    </div>
+                </div>
+                <div class="why-item">
+                    <div class="why-marker">2</div>
+                    <div>
+                        <h4>Smart &amp; Automated</h4>
+                        <p>Bank SMS auto-classification means you spend seconds, not minutes, tracking expenses. The app learns your patterns and categorizes transactions intelligently.</p>
+                    </div>
+                </div>
+                <div class="why-item">
+                    <div class="why-marker">3</div>
+                    <div>
+                        <h4>Beautiful by Design</h4>
+                        <p>Every pixel is crafted with care. Dynamic Material 3 theming, spring animations, AMOLED optimization, and an intuitive navigation pattern make expense management actually enjoyable.</p>
+                    </div>
+                </div>
+                <div class="why-item">
+                    <div class="why-marker">4</div>
+                    <div>
+                        <h4>Truly Open Source</h4>
+                        <p>Apache 2.0 licensed. No proprietary SDKs, no telemetry, no ad libraries in the core. Build the free flavor yourself with all premium features unlocked, or support development via the Play Store.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Open Source. Open Future.</h2>
+                <p>AuraSpend is built in the open and will always remain free.</p>
+            </div>
+            <div class="oss-content">
+                <div class="license-badge">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Apache License 2.0
+                </div>
+                <p>
+                    AuraSpend is 100% open source software licensed under Apache 2.0. You are free to use, modify, and distribute the application. The <strong>free</strong> build flavor includes all premium features at no cost. The <strong>Play Store</strong> version uses Google Play Billing to support ongoing development &mdash; but you never have to use it.
+                </p>
+                <div class="oss-links">
+                    <a href="https://github.com/abhijithwrrr/auraspend" class="btn btn-github" target="_blank" rel="noopener">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        Source Code
+                    </a>
+                    <a href="https://github.com/abhijithwrrr/auraspend/blob/main/LICENSE" class="btn btn-secondary" target="_blank" rel="noopener">View License</a>
+                    <a href="https://github.com/abhijithwrrr/auraspend/blob/main/CONTRIBUTING.md" class="btn btn-secondary" target="_blank" rel="noopener">Contributing Guide</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to Take Control of Your Finances?</h2>
+            <p>Download AuraSpend free today and experience expense management the way it should be.</p>
+            <a href="https://github.com/abhijithwrrr/auraspend/releases" class="btn" target="_blank" rel="noopener">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download AuraSpend
+            </a>
+        </div>
+    </section>
+
     <footer>
         <div class="container">
-            <p>Made with ❤️ by AW Builds</p>
-            <p>Support: awbuilds.support@gmail.com</p>
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">Aura<span>Spend</span></a>
+                    <p>A beautiful, open-source expense manager for Android. Built with Material 3, backed by privacy, powered by the community.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <a href="#features">Features</a>
+                    <a href="https://github.com/abhijithwrrr/auraspend/releases">Downloads</a>
+                    <a href="https://github.com/abhijithwrrr/auraspend">GitHub</a>
+                    <a href="https://github.com/abhijithwrrr/auraspend/blob/main/CHANGELOG.md">Changelog</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="https://github.com/abhijithwrrr/auraspend/blob/main/LICENSE">License</a>
+                    <a href="https://github.com/abhijithwrrr/auraspend/blob/main/SECURITY.md">Security</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Community</h4>
+                    <a href="https://github.com/abhijithwrrr/auraspend/blob/main/CONTRIBUTING.md">Contributing</a>
+                    <a href="https://github.com/abhijithwrrr/auraspend/issues">Report Bug</a>
+                    <a href="https://github.com/abhijithwrrr/auraspend/issues">Feature Request</a>
+                    <a href="https://github.com/abhijithwrrr/auraspend/discussions">Discussions</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 AW Builds. All rights reserved.</p>
+                <p>Made with ❤️ by AW Builds</p>
+            </div>
         </div>
     </footer>
 </body>

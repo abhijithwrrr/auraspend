@@ -2,7 +2,6 @@ package com.awbuilds.auraspend.ui.theme
 
 import android.app.Activity
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -96,27 +95,31 @@ fun AuraSpendTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        themeMode == AppThemeMode.AMOLED -> AmoledColorScheme
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (themeMode == AppThemeMode.DARK || isSystemInDarkTheme()) {
+    val context = LocalContext.current
+    val colorScheme = when (themeMode) {
+        AppThemeMode.AMOLED -> AmoledColorScheme
+        AppThemeMode.DARK -> {
+            if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 dynamicDarkColorScheme(context)
             } else {
-                dynamicLightColorScheme(context)
+                DarkColorScheme
             }
         }
-        themeMode == AppThemeMode.DARK || isSystemInDarkTheme() -> DarkColorScheme
-        else -> LightColorScheme
+        AppThemeMode.LIGHT -> {
+            if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                dynamicLightColorScheme(context)
+            } else {
+                LightColorScheme
+            }
+        }
     }
 
     val view = LocalView.current
-    val isDark = isSystemInDarkTheme()
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
-                themeMode != AppThemeMode.DARK && themeMode != AppThemeMode.AMOLED && !isDark
+                themeMode == AppThemeMode.LIGHT
         }
     }
 

@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import android.content.Context
 import kotlinx.coroutines.launch
 import com.awbuilds.auraspend.ui.analytics.AnalyticsScreen
 import com.awbuilds.auraspend.ui.classification.ClassificationScreen
@@ -63,10 +64,15 @@ fun AuraSpendNavHost(
     val currentEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
 
+    val context = LocalContext.current
+    val prefs = context.getSharedPreferences("auraspend_prefs", Context.MODE_PRIVATE)
+    val onboardingCompleted = prefs.getBoolean("onboarding_completed", false)
+    val startDestination = if (onboardingCompleted) Screen.MAIN else Screen.SPLASH
+
     SharedTransitionLayout {
         NavHost(
             navController = navController,
-            startDestination = Screen.SPLASH
+            startDestination = startDestination
         ) {
             composable(Screen.SPLASH) {
                 SplashScreen(
@@ -79,7 +85,6 @@ fun AuraSpendNavHost(
             }
 
             composable(Screen.ONBOARDING) {
-                val context = LocalContext.current
                 val app = context.applicationContext as com.awbuilds.auraspend.AuraSpendApp
                 val driveSyncManager = app.driveSyncManager
                 val scope = rememberCoroutineScope()
@@ -102,6 +107,7 @@ fun AuraSpendNavHost(
                                 backupData.budgets.forEach { repository.saveBudget(it) }
                                 backupData.subscriptions.forEach { repository.saveSubscription(it) }
                                 isRestoring = false
+                                prefs.edit().putBoolean("onboarding_completed", true).apply()
                                 navController.navigate(Screen.MAIN) {
                                     popUpTo(Screen.ONBOARDING) { inclusive = true }
                                 }
@@ -117,6 +123,7 @@ fun AuraSpendNavHost(
 
                 OnboardingScreen(
                     onFinished = {
+                        prefs.edit().putBoolean("onboarding_completed", true).apply()
                         navController.navigate(Screen.MAIN) {
                             popUpTo(Screen.ONBOARDING) { inclusive = true }
                         }

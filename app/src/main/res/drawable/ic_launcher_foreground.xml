@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Left leg of 'A' -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,82 L39,82 L54,24 L47,24 Z" />
+    <!-- Right leg of 'A' -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,24 L61,24 L76,82 L69,82 Z" />
+    <!-- Crossbar of 'A' -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M43,59 L65,59 L65,53 L43,53 Z" />
+    <!-- Accent coin/aura circle -->
+    <path
+        android:fillColor="#D0BCFF"
+        android:pathData="M68,40 m-9,0 a9,9 0,1,1 18,0 a9,9 0,1,1 -18,0" />
+    <!-- Inner dot detail -->
+    <path
+        android:fillColor="#6750A4"
+        android:pathData="M68,40 m-3,0 a3,3 0,1,1 6,0 a3,3 0,1,1 -6,0" />
+</vector>
