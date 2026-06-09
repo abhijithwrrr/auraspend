@@ -1,6 +1,7 @@
 package com.awbuilds.auraspend
 
 import android.app.Application
+import com.awbuilds.auraspend.data.classification.AutoClassificationWorker
 import com.awbuilds.auraspend.data.classification.defaultCategories
 import com.awbuilds.auraspend.data.local.AppDatabase
 import com.awbuilds.auraspend.data.local.entities.CategoryEntity
@@ -48,6 +49,8 @@ class AuraSpendApp : Application() {
         saveTransactionUseCase = SaveTransactionUseCase(transactionRepository)
 
         driveSyncManager = com.awbuilds.auraspend.data.remote.DriveSyncManager(this)
+
+        AutoClassificationWorker.schedule(this)
 
         applicationScope.launch {
             seedDefaultCategories()

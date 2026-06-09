@@ -1,5 +1,6 @@
 package com.awbuilds.auraspend.ui.classification
 
+import com.awbuilds.auraspend.data.classification.ClassifiedSms
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.ParsedBankMessage
 import com.awbuilds.auraspend.domain.model.TransactionType
@@ -19,7 +20,10 @@ data class ClassificationViewState(
     val saveSuccess: Boolean = false,
     val error: String? = null,
     val smsMessages: List<SmsInfo> = emptyList(),
-    val smsPermissionGranted: Boolean = false
+    val smsPermissionGranted: Boolean = false,
+    val classifiedSmsList: List<ClassifiedSms> = emptyList(),
+    val isBatchClassifying: Boolean = false,
+    val isSavingAll: Boolean = false
 )
 
 data class SmsInfo(
@@ -44,4 +48,9 @@ sealed class ClassificationViewIntent {
     data class SmsSelected(val sms: SmsInfo) : ClassificationViewIntent()
     object SaveTransaction : ClassificationViewIntent()
     object ResetSuccess : ClassificationViewIntent()
+    data class SetCategories(val categories: List<Category>) : ClassificationViewIntent()
+    object LoadAndClassifyAll : ClassificationViewIntent()
+    data class SaveClassifiedSms(val smsId: String) : ClassificationViewIntent()
+    object SaveAllClassified : ClassificationViewIntent()
+    data class DismissClassifiedSms(val smsId: String) : ClassificationViewIntent()
 }

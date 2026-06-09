@@ -6,7 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,24 +21,45 @@ import kotlinx.coroutines.launch
 data class OnboardingPage(
     val title: String,
     val description: String,
-    val icon: String
+    val icon: @Composable () -> Unit
 )
 
 val onboardingPages = listOf(
     OnboardingPage(
         "Track Your Wealth",
         "Manage your income and expenses effortlessly. Get insights into your spending habits.",
-        "💰"
+        icon = {
+            Icon(
+                Icons.Default.AccountBalanceWallet,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
     ),
     OnboardingPage(
         "Smart SMS Classification",
         "Paste bank messages and let AuraSpend auto-detect amounts, merchants, and categories.",
-        "🤖"
+        icon = {
+            Icon(
+                Icons.Default.AutoAwesome,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
     ),
     OnboardingPage(
         "Budgets & Subscriptions",
         "Set spending limits, track recurring subscriptions, and stay on top of your finances.",
-        "📊"
+        icon = {
+            Icon(
+                Icons.Default.Subscriptions,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
     )
 )
 
@@ -117,7 +139,7 @@ fun OnboardingScreen(
                             }
                         }
                     },
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.medium,
                     modifier = Modifier.height(48.dp),
                     enabled = !isRestoring
                 ) {
@@ -216,17 +238,15 @@ fun OnboardingPageContent(page: OnboardingPage, pageIndex: Int) {
             verticalArrangement = Arrangement.Center
         ) {
             // Icon Circle
-            Box(
-                modifier = Modifier
-                    .size(140.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
+            Surface(
+                modifier = Modifier.size(140.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                tonalElevation = 0.dp
             ) {
-                Text(
-                    page.icon,
-                    style = MaterialTheme.typography.displayLarge
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    page.icon()
+                }
             }
 
             Spacer(modifier = Modifier.height(48.dp))

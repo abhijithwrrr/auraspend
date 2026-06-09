@@ -23,6 +23,7 @@ import android.content.Context
 import kotlinx.coroutines.launch
 import com.awbuilds.auraspend.ui.analytics.AnalyticsScreen
 import com.awbuilds.auraspend.ui.classification.ClassificationScreen
+import com.awbuilds.auraspend.ui.classification.ClassificationViewIntent
 import com.awbuilds.auraspend.ui.classification.ClassificationViewModel
 import com.awbuilds.auraspend.ui.core.AuraSpendScaffold
 import com.awbuilds.auraspend.ui.home.DashboardScreen
@@ -58,7 +59,9 @@ object Screen {
 fun AuraSpendNavHost(
     repository: TransactionRepository,
     themeMode: AppThemeMode = AppThemeMode.LIGHT,
-    onThemeChanged: (AppThemeMode) -> Unit = {}
+    onThemeChanged: (AppThemeMode) -> Unit = {},
+    dynamicColor: Boolean = true,
+    onDynamicColorChanged: (Boolean) -> Unit = {}
 ) {
     val navController = rememberNavController()
     val currentEntry by navController.currentBackStackEntryAsState()
@@ -142,18 +145,29 @@ fun AuraSpendNavHost(
                     repository = repository,
                     navController = navController,
                     themeMode = themeMode,
-                    onThemeChanged = onThemeChanged
+                    onThemeChanged = onThemeChanged,
+                    dynamicColor = dynamicColor,
+                    onDynamicColorChanged = onDynamicColorChanged
                 )
             }
 
             composable(Screen.CLASSIFICATION) {
                 val context = LocalContext.current
+                val categories by repository.getAllCategories()
+                    .collectAsState(initial = emptyList())
                 val viewModel = remember {
                     ClassificationViewModel(
                         classifyMessageUseCase = com.awbuilds.auraspend.domain.usecase.ClassifyMessageUseCase(),
                         saveTransactionUseCase = com.awbuilds.auraspend.domain.usecase.SaveTransactionUseCase(repository),
                         context = context
                     )
+                }
+                LaunchedEffect(categories) {
+                    if (categories.isNotEmpty()) {
+                        viewModel.handleIntent(
+                            ClassificationViewIntent.SetCategories(categories)
+                        )
+                    }
                 }
                 ClassificationScreen(
                     viewModel = viewModel,
@@ -226,7 +240,9 @@ private fun MainScreen(
     repository: TransactionRepository,
     navController: NavHostController,
     themeMode: AppThemeMode = AppThemeMode.LIGHT,
-    onThemeChanged: (AppThemeMode) -> Unit = {}
+    onThemeChanged: (AppThemeMode) -> Unit = {},
+    dynamicColor: Boolean = true,
+    onDynamicColorChanged: (Boolean) -> Unit = {}
 ) {
     val dashboardViewModel = remember {
         DashboardViewModel(repository)
@@ -307,6 +323,8 @@ private fun MainScreen(
                 SettingsScreen(
                     currentTheme = themeMode,
                     onThemeChanged = onThemeChanged,
+                    dynamicColor = dynamicColor,
+                    onDynamicColorChanged = onDynamicColorChanged,
                     onBack = { currentTab = Screen.HOME },
                     onExportCsv = { csvLauncher.launch("AuraSpend_export.csv") },
                     onImportCsv = { importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values")) },
@@ -320,58 +338,93 @@ private fun MainScreen(
 
     if (showAddSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showAddSheet = false }
+            onDismissRequest = { showAddSheet = false },
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 3.dp
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 40.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     "Add Transaction",
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 24.dp)
                 )
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    OutlinedCard(
-                        onClick = {
-                            showAddSheet = false
-                            navController.navigate(Screen.CLASSIFICATION)
-                        },
-                        modifier = Modifier.size(140.dp, 120.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                        Card(
+                            onClick = {
+                                showAddSheet = false
+                                navController.navigate(Screen.CLASSIFICATION)
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                            ),
+                            shape = MaterialTheme.shapes.medium,
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(32.dp))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Smart Add", style = MaterialTheme.typography.labelLarge)
-                            Text("SMS / Paste", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    Icons.Default.AutoAwesome,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(36.dp),
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(
+                                    "Smart Add",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                                Text(
+                                    "SMS / Paste",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                                )
+                            }
                         }
-                    }
-                    OutlinedCard(
-                        onClick = {
-                            showAddSheet = false
-                            navController.navigate(Screen.ADD_TRANSACTION)
-                        },
-                        modifier = Modifier.size(140.dp, 120.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                        Card(
+                            onClick = {
+                                showAddSheet = false
+                                navController.navigate(Screen.ADD_TRANSACTION)
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            ),
+                            shape = MaterialTheme.shapes.medium,
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                         ) {
-                            Icon(Icons.Default.Create, contentDescription = null, modifier = Modifier.size(32.dp))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Manual", style = MaterialTheme.typography.labelLarge)
-                            Text("Enter details", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    Icons.Default.EditNote,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(36.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(
+                                    "Manual",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    "Enter details",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                )
+                            }
                         }
-                    }
                 }
             }
         }

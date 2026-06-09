@@ -18,6 +18,8 @@ import com.awbuilds.auraspend.ui.theme.AppThemeMode
 fun SettingsScreen(
     currentTheme: AppThemeMode,
     onThemeChanged: (AppThemeMode) -> Unit,
+    dynamicColor: Boolean = true,
+    onDynamicColorChanged: (Boolean) -> Unit = {},
     onBack: () -> Unit,
     onExportCsv: () -> Unit,
     onImportCsv: () -> Unit,
@@ -46,6 +48,7 @@ fun SettingsScreen(
             // Theme Section
             SectionHeader("Appearance")
             ThemeSelector(currentTheme = currentTheme, onThemeChanged = onThemeChanged)
+            DynamicColorToggle(dynamicColor = dynamicColor, onDynamicColorChanged = onDynamicColorChanged)
 
             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
@@ -129,6 +132,51 @@ fun SettingsScreen(
 }
 
 @Composable
+private fun DynamicColorToggle(
+    dynamicColor: Boolean,
+    onDynamicColorChanged: (Boolean) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.Palette,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "Dynamic Color",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    "Use wallpaper-based colors",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(
+                checked = dynamicColor,
+                onCheckedChange = onDynamicColorChanged
+            )
+        }
+    }
+}
+
+@Composable
 private fun SectionHeader(title: String) {
     Text(
         title,
@@ -153,24 +201,25 @@ private fun ThemeSelector(
         ),
         shape = MaterialTheme.shapes.medium
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
         ) {
-            Icon(
-                Icons.Default.DarkMode,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                "Theme",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
-            )
-            SingleChoiceSegmentedButtonRow {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.DarkMode,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    "Theme",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 SegmentedButton(
                     selected = currentTheme == AppThemeMode.LIGHT,
                     onClick = { onThemeChanged(AppThemeMode.LIGHT) },
