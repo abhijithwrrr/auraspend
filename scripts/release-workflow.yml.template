@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v0.1.0)'
+        required: true
+        type: string
+
+concurrency:
+  group: release-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Decode keystore
+        run: |
+          mkdir -p app/release
+          echo "${{ secrets.AURASPEND_KEYSTORE_BASE64 }}" | base64 -d > app/release/auraspend-keystore.p12
+
+      - name: Build free release APK
+        run: ./gradlew assembleFreeRelease
+        env:
+          AURASPEND_KEYSTORE_PASSWORD: ${{ secrets.AURASPEND_KEYSTORE_PASSWORD }}
+          AURASPEND_KEY_ALIAS: ${{ secrets.AURASPEND_KEY_ALIAS }}
+          AURASPEND_KEY_PASSWORD: ${{ secrets.AURASPEND_KEY_PASSWORD }}
+
+      - name: Build play release APK
+        run: ./gradlew assemblePlayRelease
+        env:
+          AURASPEND_KEYSTORE_PASSWORD: ${{ secrets.AURASPEND_KEYSTORE_PASSWORD }}
+          AURASPEND_KEY_ALIAS: ${{ secrets.AURASPEND_KEY_ALIAS }}
+          AURASPEND_KEY_PASSWORD: ${{ secrets.AURASPEND_KEY_PASSWORD }}
+
+      - name: Sign APKs with apksigner
+        run: |
+          for apk in app/build/outputs/apk/free/release/app-free-release.apk app/build/outputs/apk/play/release/app-play-release.apk; do
+            if [ -f "$apk" ]; then
+              echo "Signing $apk"
+              apksigner sign \
+                --ks app/release/auraspend-keystore.p12 \
+                --ks-pass "pass:${{ secrets.AURASPEND_KEYSTORE_PASSWORD }}" \
+                --ks-key-alias "${{ secrets.AURASPEND_KEY_ALIAS }}" \
+                --key-pass "pass:${{ secrets.AURASPEND_KEY_PASSWORD }}" \
+                "$apk"
+            fi
+          done
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+
+      - name: Rename APKs
+        run: |
+          mkdir -p release-artifacts
+          if [ -f app/build/outputs/apk/free/release/app-free-release.apk ]; then
+            cp app/build/outputs/apk/free/release/app-free-release.apk release-artifacts/AuraSpend-free-${{ github.ref_name }}.apk
+          fi
+          if [ -f app/build/outputs/apk/play/release/app-play-release.apk ]; then
+            cp app/build/outputs/apk/play/release/app-play-release.apk release-artifacts/AuraSpend-play-${{ github.ref_name }}.apk
+          fi
+
+      - name: Generate checksums
+        run: |
+          cd release-artifacts
+          sha256sum *.apk > checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: AuraSpend ${{ github.ref_name }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+          files: release-artifacts/*
+          generate_release_notes: true
