@@ -17,12 +17,15 @@ import kotlinx.coroutines.delay
 fun SplashScreen(onAnimationFinished: () -> Unit) {
     var visible by remember { mutableStateOf(false) }
     var subtitleVisible by remember { mutableStateOf(false) }
+    var footerVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         visible = true
         delay(400)
         subtitleVisible = true
-        delay(1600)
+        delay(600)
+        footerVisible = true
+        delay(1000)
         onAnimationFinished()
     }
 
@@ -39,7 +42,10 @@ fun SplashScreen(onAnimationFinished: () -> Unit) {
         ) {
             AnimatedVisibility(
                 visible = visible,
-                enter = fadeIn() + scaleIn(initialScale = 0.6f)
+                enter = fadeIn(animationSpec = androidx.compose.animation.core.tween(600)) + scaleIn(
+                    animationSpec = androidx.compose.animation.core.tween(600, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+                    initialScale = 0.6f
+                )
             ) {
                 Text(
                     "AuraSpend",
@@ -53,7 +59,10 @@ fun SplashScreen(onAnimationFinished: () -> Unit) {
 
             AnimatedVisibility(
                 visible = subtitleVisible,
-                enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
+                enter = fadeIn(animationSpec = androidx.compose.animation.core.tween(500)) + slideInVertically(
+                    animationSpec = androidx.compose.animation.core.tween(500),
+                    initialOffsetY = { it / 2 }
+                )
             ) {
                 Text(
                     "Your Personal Finance Manager",
@@ -64,13 +73,18 @@ fun SplashScreen(onAnimationFinished: () -> Unit) {
             }
         }
 
-        Text(
-            "Made with ❤️ by AW Builds",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 32.dp)
-        )
+        AnimatedVisibility(
+            visible = footerVisible,
+            enter = fadeIn(animationSpec = androidx.compose.animation.core.tween(400))
+        ) {
+            Text(
+                "Made with ❤️ by AW Builds",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 32.dp)
+            )
+        }
     }
 }

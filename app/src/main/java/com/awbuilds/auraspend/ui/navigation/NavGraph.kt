@@ -2,8 +2,14 @@ package com.awbuilds.auraspend.ui.navigation
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -45,14 +51,34 @@ object Screen {
     const val SUBSCRIPTIONS = "subscriptions"
     const val CATEGORIES = "categories"
 
-    // Bottom nav tab routes (relative to MainScreen)
     const val HOME = "home"
     const val TRANSACTIONS = "transactions"
     const val ANALYTICS = "analytics"
     const val SETTINGS = "settings"
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+private const val ANIM_DURATION = 350
+
+private fun slideInFromRight(): EnterTransition = slideInHorizontally(
+    animationSpec = tween(ANIM_DURATION),
+    initialOffsetX = { fullWidth -> fullWidth }
+) + fadeIn(animationSpec = tween(ANIM_DURATION))
+
+private fun slideOutToLeft(): ExitTransition = slideOutHorizontally(
+    animationSpec = tween(ANIM_DURATION),
+    targetOffsetX = { fullWidth -> -fullWidth }
+) + fadeOut(animationSpec = tween(ANIM_DURATION))
+
+private fun slideInFromLeft(): EnterTransition = slideInHorizontally(
+    animationSpec = tween(ANIM_DURATION),
+    initialOffsetX = { fullWidth -> -fullWidth }
+) + fadeIn(animationSpec = tween(ANIM_DURATION))
+
+private fun slideOutToRight(): ExitTransition = slideOutHorizontally(
+    animationSpec = tween(ANIM_DURATION),
+    targetOffsetX = { fullWidth -> fullWidth }
+) + fadeOut(animationSpec = tween(ANIM_DURATION))
+
 @Composable
 fun AuraSpendNavHost(
     repository: TransactionRepository,
@@ -63,152 +89,192 @@ fun AuraSpendNavHost(
     val currentEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
 
-    SharedTransitionLayout {
-        NavHost(
-            navController = navController,
-            startDestination = Screen.SPLASH
+    NavHost(
+        navController = navController,
+        startDestination = Screen.SPLASH
+    ) {
+        composable(
+            route = Screen.SPLASH,
+            enterTransition = { fadeIn(animationSpec = tween(500)) },
+            exitTransition = { fadeOut(animationSpec = tween(300)) }
         ) {
-            composable(Screen.SPLASH) {
-                SplashScreen(
-                    onAnimationFinished = {
-                        navController.navigate(Screen.ONBOARDING) {
-                            popUpTo(Screen.SPLASH) { inclusive = true }
-                        }
+            SplashScreen(
+                onAnimationFinished = {
+                    navController.navigate(Screen.ONBOARDING) {
+                        popUpTo(Screen.SPLASH) { inclusive = true }
                     }
-                )
-            }
+                }
+            )
+        }
 
-            composable(Screen.ONBOARDING) {
-                val context = LocalContext.current
-                val app = context.applicationContext as com.awbuilds.auraspend.AuraSpendApp
-                val driveSyncManager = app.driveSyncManager
-                val scope = rememberCoroutineScope()
+        composable(
+            route = Screen.ONBOARDING,
+            enterTransition = { slideInFromRight() },
+            exitTransition = { slideOutToLeft() }
+        ) {
+            val context = LocalContext.current
+            val app = context.applicationContext as com.awbuilds.auraspend.AuraSpendApp
+            val driveSyncManager = app.driveSyncManager
+            val scope = rememberCoroutineScope()
 
-                var isRestoring by remember { mutableStateOf(false) }
-                var restoreError by remember { mutableStateOf<String?>(null) }
+            var isRestoring by remember { mutableStateOf(false) }
+            var restoreError by remember { mutableStateOf<String?>(null) }
 
-                val signInLauncher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.StartActivityForResult()
-                ) { result ->
-                    scope.launch {
-                        val signedIn = driveSyncManager.handleSignInResult(result.data)
-                        if (signedIn) {
-                            isRestoring = true
-                            val json = driveSyncManager.restoreLocalData()
-                            if (json != null) {
-                                val backupData = com.awbuilds.auraspend.data.local.BackupSerializer.deserialize(json)
-                                repository.saveTransactions(backupData.transactions)
-                                repository.saveCategories(backupData.categories)
-                                backupData.budgets.forEach { repository.saveBudget(it) }
-                                backupData.subscriptions.forEach { repository.saveSubscription(it) }
-                                isRestoring = false
-                                navController.navigate(Screen.MAIN) {
-                                    popUpTo(Screen.ONBOARDING) { inclusive = true }
-                                }
-                            } else {
-                                isRestoring = false
-                                restoreError = "No backup found or restore failed"
+            val signInLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                scope.launch {
+                    val signedIn = driveSyncManager.handleSignInResult(result.data)
+                    if (signedIn) {
+                        isRestoring = true
+                        val json = driveSyncManager.restoreLocalData()
+                        if (json != null) {
+                            val backupData = com.awbuilds.auraspend.data.local.BackupSerializer.deserialize(json)
+                            repository.saveTransactions(backupData.transactions)
+                            repository.saveCategories(backupData.categories)
+                            backupData.budgets.forEach { repository.saveBudget(it) }
+                            backupData.subscriptions.forEach { repository.saveSubscription(it) }
+                            isRestoring = false
+                            navController.navigate(Screen.MAIN) {
+                                popUpTo(Screen.ONBOARDING) { inclusive = true }
                             }
                         } else {
-                            restoreError = "Sign-in failed"
+                            isRestoring = false
+                            restoreError = "No backup found or restore failed"
                         }
+                    } else {
+                        restoreError = "Sign-in failed"
                     }
                 }
-
-                OnboardingScreen(
-                    onFinished = {
-                        navController.navigate(Screen.MAIN) {
-                            popUpTo(Screen.ONBOARDING) { inclusive = true }
-                        }
-                    },
-                    onRestoreFromDrive = {
-                        signInLauncher.launch(driveSyncManager.getSignInIntent())
-                    },
-                    isRestoring = isRestoring,
-                    restoreError = restoreError,
-                    onRestoreErrorDismissed = { restoreError = null }
-                )
             }
 
-            composable(Screen.MAIN) {
-                MainScreen(
-                    repository = repository,
-                    navController = navController,
-                    themeMode = themeMode,
-                    onThemeChanged = onThemeChanged
+            OnboardingScreen(
+                onFinished = {
+                    navController.navigate(Screen.MAIN) {
+                        popUpTo(Screen.ONBOARDING) { inclusive = true }
+                    }
+                },
+                onRestoreFromDrive = {
+                    signInLauncher.launch(driveSyncManager.getSignInIntent())
+                },
+                isRestoring = isRestoring,
+                restoreError = restoreError,
+                onRestoreErrorDismissed = { restoreError = null }
+            )
+        }
+
+        composable(
+            route = Screen.MAIN,
+            enterTransition = { slideInFromRight() },
+            exitTransition = { slideOutToLeft() }
+        ) {
+            MainScreen(
+                repository = repository,
+                navController = navController,
+                themeMode = themeMode,
+                onThemeChanged = onThemeChanged
+            )
+        }
+
+        composable(
+            route = Screen.CLASSIFICATION,
+            enterTransition = { slideInFromRight() },
+            exitTransition = { slideOutToLeft() },
+            popEnterTransition = { slideInFromLeft() },
+            popExitTransition = { slideOutToRight() }
+        ) {
+            val context = LocalContext.current
+            val viewModel = remember {
+                ClassificationViewModel(
+                    classifyMessageUseCase = com.awbuilds.auraspend.domain.usecase.ClassifyMessageUseCase(),
+                    saveTransactionUseCase = com.awbuilds.auraspend.domain.usecase.SaveTransactionUseCase(repository),
+                    context = context
                 )
             }
+            ClassificationScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
 
-            composable(Screen.CLASSIFICATION) {
-                val context = LocalContext.current
-                val viewModel = remember {
-                    ClassificationViewModel(
-                        classifyMessageUseCase = com.awbuilds.auraspend.domain.usecase.ClassifyMessageUseCase(),
-                        saveTransactionUseCase = com.awbuilds.auraspend.domain.usecase.SaveTransactionUseCase(repository),
-                        context = context
-                    )
-                }
-                ClassificationScreen(
-                    viewModel = viewModel,
-                    onBack = { navController.popBackStack() }
-                )
-            }
+        composable(
+            route = Screen.BUDGETS,
+            enterTransition = { slideInFromRight() },
+            exitTransition = { slideOutToLeft() },
+            popEnterTransition = { slideInFromLeft() },
+            popExitTransition = { slideOutToRight() }
+        ) {
+            val viewModel = remember { com.awbuilds.auraspend.ui.budget.BudgetViewModel(repository) }
+            com.awbuilds.auraspend.ui.budget.BudgetScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
 
-            composable(Screen.BUDGETS) {
-                val viewModel = remember { com.awbuilds.auraspend.ui.budget.BudgetViewModel(repository) }
-                com.awbuilds.auraspend.ui.budget.BudgetScreen(
-                    viewModel = viewModel,
-                    onBack = { navController.popBackStack() }
-                )
-            }
+        composable(
+            route = Screen.SUBSCRIPTIONS,
+            enterTransition = { slideInFromRight() },
+            exitTransition = { slideOutToLeft() },
+            popEnterTransition = { slideInFromLeft() },
+            popExitTransition = { slideOutToRight() }
+        ) {
+            com.awbuilds.auraspend.ui.recurring.RecurringScreen(
+                repository = repository,
+                onBack = { navController.popBackStack() }
+            )
+        }
 
-            composable(Screen.SUBSCRIPTIONS) {
-                com.awbuilds.auraspend.ui.recurring.RecurringScreen(
-                    repository = repository,
-                    onBack = { navController.popBackStack() }
-                )
-            }
-
-            composable(Screen.ADD_TRANSACTION) {
-                val categories by repository.getAllCategories()
-                    .collectAsState(initial = emptyList())
-                val scope = rememberCoroutineScope()
-                AddTransactionScreen(
-                    categories = categories,
-                    onSave = { amount, categoryId, note, merchant, type, date ->
-                        scope.launch {
-                            repository.saveTransaction(
-                                com.awbuilds.auraspend.domain.model.Transaction(
-                                    amount = amount,
-                                    categoryId = categoryId,
-                                    note = note,
-                                    merchant = merchant,
-                                    date = date,
-                                    type = type
-                                )
+        composable(
+            route = Screen.ADD_TRANSACTION,
+            enterTransition = { slideInFromRight() },
+            exitTransition = { slideOutToLeft() },
+            popEnterTransition = { slideInFromLeft() },
+            popExitTransition = { slideOutToRight() }
+        ) {
+            val categories by repository.getAllCategories()
+                .collectAsState(initial = emptyList())
+            val scope = rememberCoroutineScope()
+            AddTransactionScreen(
+                categories = categories,
+                onSave = { amount, categoryId, note, merchant, type, date ->
+                    scope.launch {
+                        repository.saveTransaction(
+                            com.awbuilds.auraspend.domain.model.Transaction(
+                                amount = amount,
+                                categoryId = categoryId,
+                                note = note,
+                                merchant = merchant,
+                                date = date,
+                                type = type
                             )
-                            navController.popBackStack()
-                        }
-                    },
-                    onBack = { navController.popBackStack() }
-                )
-            }
+                        )
+                        navController.popBackStack()
+                    }
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
 
-            composable(Screen.CATEGORIES) {
-                val scope = rememberCoroutineScope()
-                val categories by repository.getAllCategories()
-                    .collectAsState(initial = emptyList())
-                CategoryManagementScreen(
-                    categories = categories,
-                    onSaveCategory = { category ->
-                        scope.launch { repository.saveCategory(category) }
-                    },
-                    onDeleteCategory = { id ->
-                        scope.launch { repository.deleteCategory(id) }
-                    },
-                    onBack = { navController.popBackStack() }
-                )
-            }
+        composable(
+            route = Screen.CATEGORIES,
+            enterTransition = { slideInFromRight() },
+            exitTransition = { slideOutToLeft() },
+            popEnterTransition = { slideInFromLeft() },
+            popExitTransition = { slideOutToRight() }
+        ) {
+            val scope = rememberCoroutineScope()
+            val categories by repository.getAllCategories()
+                .collectAsState(initial = emptyList())
+            CategoryManagementScreen(
+                categories = categories,
+                onSaveCategory = { category ->
+                    scope.launch { repository.saveCategory(category) }
+                },
+                onDeleteCategory = { id ->
+                    scope.launch { repository.deleteCategory(id) }
+                },
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

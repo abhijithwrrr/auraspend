@@ -1,5 +1,9 @@
 package com.awbuilds.auraspend.ui.analytics
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
+import com.awbuilds.auraspend.ui.core.ShimmerCard
 import java.time.ZoneId
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,7 +42,6 @@ fun AnalyticsScreen(
     val totalExpense = expenseTransactions.sumOf { it.amount }
     val totalIncome = transactions.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
 
-    // Category breakdown
     val categorySpending = categories.map { cat ->
         val spent = expenseTransactions
             .filter { it.categoryId == cat.id }
@@ -48,13 +52,14 @@ fun AnalyticsScreen(
 
     val totalSpent = categorySpending.sumOf { it.second }
 
-    // Top merchants
     val merchantSpending = expenseTransactions
         .groupBy { it.merchant ?: it.note }
         .mapValues { (_, list) -> list.sumOf { it.amount } }
         .entries
         .sortedByDescending { it.value }
         .take(10)
+
+    val isLoading = transactions.isEmpty()
 
     Scaffold(
         topBar = {
@@ -68,211 +73,251 @@ fun AnalyticsScreen(
             )
         }
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Summary Cards
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Income", style = MaterialTheme.typography.labelSmall)
-                            Text(
-                                "₹${String.format("%.0f", totalIncome)}",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Expense", style = MaterialTheme.typography.labelSmall)
-                            Text(
-                                "₹${String.format("%.0f", totalExpense)}",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    }
+        if (isLoading) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(3) {
+                    ShimmerCard()
                 }
             }
-
-            // Pie Chart
-            if (categorySpending.isNotEmpty()) {
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                        shape = RoundedCornerShape(16.dp)
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(animationSpec = tween(400)) + slideInVertically(
+                            animationSpec = tween(400),
+                            initialOffsetY = { it / 2 }
+                        )
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                "Spending by Category",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            PieChart(
-                                data = categorySpending.map { (cat, amount) ->
-                                    PieSlice(
-                                        label = cat.name,
-                                        value = amount.toFloat(),
-                                        color = Color(cat.color)
-                                    )
-                                },
-                                modifier = Modifier
-                                    .size(200.dp)
-                                    .align(Alignment.CenterHorizontally)
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            categorySpending.forEach { (cat, amount) ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                            Card(
+                                modifier = Modifier.weight(1f),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                                ),
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(12.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(cat.color))
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Income", style = MaterialTheme.typography.labelSmall)
                                     Text(
-                                        cat.name,
-                                        modifier = Modifier.weight(1f),
-                                        style = MaterialTheme.typography.bodySmall
+                                        "₹${String.format("%.0f", totalIncome)}",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
                                     )
+                                }
+                            }
+                            Card(
+                                modifier = Modifier.weight(1f),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.errorContainer
+                                ),
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text("Expense", style = MaterialTheme.typography.labelSmall)
                                     Text(
-                                        "${if (totalSpent > 0) (amount / totalSpent * 100).toInt() else 0}%",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                    Text(
-                                        "₹${String.format("%.0f", amount)}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontWeight = FontWeight.Medium
+                                        "₹${String.format("%.0f", totalExpense)}",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.error
                                     )
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            // Top Merchants
-            if (merchantSpending.isNotEmpty()) {
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                "Top Merchants",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
+                if (categorySpending.isNotEmpty()) {
+                    item {
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(animationSpec = tween(400, delayMillis = 150)) + slideInVertically(
+                                animationSpec = tween(400, delayMillis = 150),
+                                initialOffsetY = { it / 2 }
                             )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            merchantSpending.forEach { (merchant, amount) ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 6.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Text(
-                                        merchant,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        maxLines = 1
-                                    )
-                                    Text(
-                                        "₹${String.format("%.0f", amount)}",
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        "Spending by Category",
+                                        style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.SemiBold
                                     )
-                                }
-                                if (merchant != merchantSpending.last().key) {
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    PieChart(
+                                        data = categorySpending.map { (cat, amount) ->
+                                            PieSlice(
+                                                label = cat.name,
+                                                value = amount.toFloat(),
+                                                color = Color(cat.color)
+                                            )
+                                        },
+                                        modifier = Modifier
+                                            .size(200.dp)
+                                            .align(Alignment.CenterHorizontally)
+                                    )
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    categorySpending.forEach { (cat, amount) ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 4.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(12.dp)
+                                                    .clip(CircleShape)
+                                                    .background(Color(cat.color))
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                cat.name,
+                                                modifier = Modifier.weight(1f),
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            Text(
+                                                "${if (totalSpent > 0) (amount / totalSpent * 100).toInt() else 0}%",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Spacer(modifier = Modifier.width(16.dp))
+                                            Text(
+                                                "₹${String.format("%.0f", amount)}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            if (categorySpending.isEmpty() && merchantSpending.isEmpty()) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                Icons.Default.BarChart,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                if (merchantSpending.isNotEmpty()) {
+                    item {
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(animationSpec = tween(400, delayMillis = 300)) + slideInVertically(
+                                animationSpec = tween(400, delayMillis = 300),
+                                initialOffsetY = { it / 2 }
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                "No analytics data yet",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                "Add transactions to see insights.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                        ) {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(
+                                        "Top Merchants",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    merchantSpending.forEach { (merchant, amount) ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 6.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                merchant,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                maxLines = 1
+                                            )
+                                            Text(
+                                                "₹${String.format("%.0f", amount)}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
+                                        if (merchant != merchantSpending.last().key) {
+                                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-            }
 
-            item { Spacer(modifier = Modifier.height(16.dp)) }
+                if (categorySpending.isEmpty() && merchantSpending.isEmpty()) {
+                    item {
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(animationSpec = tween(400))
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        Icons.Default.BarChart,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(64.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        "No analytics data yet",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        "Add transactions to see insights.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+            }
         }
     }
 }

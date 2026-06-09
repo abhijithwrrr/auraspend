@@ -1,5 +1,11 @@
 package com.awbuilds.auraspend.ui.core
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -23,6 +29,8 @@ enum class BottomNavItem(
     SETTINGS("settings", "Settings", Icons.Filled.Settings, Icons.Outlined.Settings)
 }
 
+private val tabRoutes = BottomNavItem.entries.filter { it != BottomNavItem.ADD }.map { it.route }
+
 @Composable
 fun AuraSpendScaffold(
     currentRoute: String?,
@@ -30,11 +38,39 @@ fun AuraSpendScaffold(
     onAddClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
+    val currentIndex = tabRoutes.indexOf(currentRoute).coerceAtLeast(0)
+    var previousIndex by remember { mutableIntStateOf(currentIndex) }
+
+    LaunchedEffect(currentIndex) {
+        previousIndex = currentIndex
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(1f)) {
-                content()
+                AnimatedContent(
+                    targetState = currentRoute,
+                    transitionSpec = {
+                        val currentTabIdx = tabRoutes.indexOf(targetState).coerceAtLeast(0)
+                        val prevTabIdx = tabRoutes.indexOf(initialState).coerceAtLeast(0)
+                        val slideDirection = if (currentTabIdx > prevTabIdx) 1 else -1
+                        (slideInHorizontally(
+                            animationSpec = androidx.compose.animation.core.tween(300),
+                            initialOffsetX = { fullWidth -> slideDirection * fullWidth / 4 }
+                        ) + fadeIn(animationSpec = androidx.compose.animation.core.tween(300)))
+                            .togetherWith(
+                                slideOutHorizontally(
+                                    animationSpec = androidx.compose.animation.core.tween(300),
+                                    targetOffsetX = { fullWidth -> -slideDirection * fullWidth / 4 }
+                                ) + fadeOut(animationSpec = androidx.compose.animation.core.tween(300))
+                            )
+                    },
+                    label = "tab_content"
+                ) {
+                    content()
+                }
             }
+
             NavigationBar(
                 modifier = Modifier.navigationBarsPadding()
             ) {

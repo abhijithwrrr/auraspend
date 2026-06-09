@@ -1,5 +1,10 @@
 package com.awbuilds.auraspend.ui.transaction
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -85,73 +90,108 @@ fun AddTransactionScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Type Selector
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                SegmentedButton(
-                    selected = selectedType == TransactionType.EXPENSE,
-                    onClick = { selectedType = TransactionType.EXPENSE },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
-                ) { Text("Expense") }
-                SegmentedButton(
-                    selected = selectedType == TransactionType.INCOME,
-                    onClick = { selectedType = TransactionType.INCOME },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
-                ) { Text("Income") }
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(300)) + slideInVertically(
+                    animationSpec = tween(300),
+                    initialOffsetY = { it / 2 }
+                )
+            ) {
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    SegmentedButton(
+                        selected = selectedType == TransactionType.EXPENSE,
+                        onClick = { selectedType = TransactionType.EXPENSE },
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
+                    ) { Text("Expense") }
+                    SegmentedButton(
+                        selected = selectedType == TransactionType.INCOME,
+                        onClick = { selectedType = TransactionType.INCOME },
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
+                    ) { Text("Income") }
+                }
             }
 
-            // Amount
-            OutlinedTextField(
-                value = amount,
-                onValueChange = { amount = it },
-                label = { Text("Amount") },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                singleLine = true,
-                isError = amountError != null,
-                supportingText = amountError?.let { { Text(it) } },
-                prefix = { Text("₹") }
-            )
-
-            // Merchant
-            OutlinedTextField(
-                value = merchant,
-                onValueChange = { merchant = it },
-                label = { Text("Merchant / Payee") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                leadingIcon = { Icon(Icons.Default.Store, contentDescription = null) }
-            )
-
-            // Note
-            OutlinedTextField(
-                value = note,
-                onValueChange = { note = it },
-                label = { Text("Note (optional)") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 2,
-                maxLines = 4
-            )
-
-            // Date
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(300, delayMillis = 80)) + slideInVertically(
+                    animationSpec = tween(300, delayMillis = 80),
+                    initialOffsetY = { it / 2 }
+                )
             ) {
-                Text("Date", style = MaterialTheme.typography.labelLarge)
-                TextButton(onClick = { showDatePicker = true }) {
-                    Icon(
-                        Icons.Default.DateRange,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        if (useCustomDate)
-                            selectedDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
-                        else
-                            "Today"
-                    )
+                OutlinedTextField(
+                    value = amount,
+                    onValueChange = { amount = it },
+                    label = { Text("Amount") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true,
+                    isError = amountError != null,
+                    supportingText = amountError?.let { { Text(it) } },
+                    prefix = { Text("₹") }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(300, delayMillis = 120)) + slideInVertically(
+                    animationSpec = tween(300, delayMillis = 120),
+                    initialOffsetY = { it / 2 }
+                )
+            ) {
+                OutlinedTextField(
+                    value = merchant,
+                    onValueChange = { merchant = it },
+                    label = { Text("Merchant / Payee") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    leadingIcon = { Icon(Icons.Default.Store, contentDescription = null) }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(300, delayMillis = 160)) + slideInVertically(
+                    animationSpec = tween(300, delayMillis = 160),
+                    initialOffsetY = { it / 2 }
+                )
+            ) {
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    label = { Text("Note (optional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    maxLines = 4
+                )
+            }
+
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(300, delayMillis = 200)) + slideInVertically(
+                    animationSpec = tween(300, delayMillis = 200),
+                    initialOffsetY = { it / 2 }
+                )
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Date", style = MaterialTheme.typography.labelLarge)
+                    TextButton(onClick = { showDatePicker = true }) {
+                        Icon(
+                            Icons.Default.DateRange,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            if (useCustomDate)
+                                selectedDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+                            else
+                                "Today"
+                        )
+                    }
                 }
             }
 
@@ -185,7 +225,6 @@ fun AddTransactionScreen(
 
             HorizontalDivider()
 
-            // Category Grid
             Text(
                 "Category",
                 style = MaterialTheme.typography.titleSmall,

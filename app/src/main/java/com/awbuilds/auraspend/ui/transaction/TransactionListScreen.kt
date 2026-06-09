@@ -1,6 +1,10 @@
 package com.awbuilds.auraspend.ui.transaction
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,10 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
+import com.awbuilds.auraspend.ui.core.ShimmerListItem
 import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.util.Date
@@ -36,6 +42,7 @@ fun TransactionListScreen(
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf<TransactionType?>(null) }
     var showSearch by remember { mutableStateOf(false) }
+    var isRefreshing by remember { mutableStateOf(false) }
 
     val filteredTransactions = transactions
         .filter { selectedFilter == null || it.type == selectedFilter }
@@ -44,6 +51,8 @@ fun TransactionListScreen(
                     it.note.contains(searchQuery, ignoreCase = true) ||
                     (it.merchant?.contains(searchQuery, ignoreCase = true) == true)
         }
+
+    val pullRefreshState = rememberPullToRefreshState()
 
     Scaffold(
         topBar = {
@@ -84,88 +93,129 @@ fun TransactionListScreen(
             }
         }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                FilterChip(
-                    selected = selectedFilter == null,
-                    onClick = { selectedFilter = null },
-                    label = { Text("All") },
-                    leadingIcon = if (selectedFilter == null) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) } } else null
-                )
-                FilterChip(
-                    selected = selectedFilter == TransactionType.EXPENSE,
-                    onClick = { selectedFilter = TransactionType.EXPENSE },
-                    label = { Text("Expense") },
-                    leadingIcon = if (selectedFilter == TransactionType.EXPENSE) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) } } else null
-                )
-                FilterChip(
-                    selected = selectedFilter == TransactionType.INCOME,
-                    onClick = { selectedFilter = TransactionType.INCOME },
-                    label = { Text("Income") },
-                    leadingIcon = if (selectedFilter == TransactionType.INCOME) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) } } else null
-                )
-            }
-
-            if (filteredTransactions.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text("No transactions found", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .nestedScroll(pullRefreshState.nestedScrollConnection)
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    val grouped = groupTransactionsByDate(filteredTransactions)
-                    grouped.forEach { (dateLabel, items) ->
-                        item(key = "header_$dateLabel") {
-                            Text(
-                                dateLabel,
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(vertical = 4.dp)
-                            )
+                    FilterChip(
+                        selected = selectedFilter == null,
+                        onClick = { selectedFilter = null },
+                        label = { Text("All") },
+                        leadingIcon = if (selectedFilter == null) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) } } else null
+                    )
+                    FilterChip(
+                        selected = selectedFilter == TransactionType.EXPENSE,
+                        onClick = { selectedFilter = TransactionType.EXPENSE },
+                        label = { Text("Expense") },
+                        leadingIcon = if (selectedFilter == TransactionType.EXPENSE) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) } } else null
+                    )
+                    FilterChip(
+                        selected = selectedFilter == TransactionType.INCOME,
+                        onClick = { selectedFilter = TransactionType.INCOME },
+                        label = { Text("Income") },
+                        leadingIcon = if (selectedFilter == TransactionType.INCOME) { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) } } else null
+                    )
+                }
+
+                if (transactions.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp)
+                        ) {
+                            items(5) {
+                                ShimmerListItem()
+                            }
                         }
-                        items(items, key = { it.id }) { transaction ->
-                            val category = categories.find { it.id == transaction.categoryId }
-                            val dismissState = rememberSwipeToDismissBoxState(
-                                confirmValueChange = {
-                                    if (it == SwipeToDismissBoxValue.EndToStart) {
-                                        onDelete(transaction.id)
-                                        true
-                                    } else false
-                                }
-                            )
-                            SwipeToDismissBox(
-                                state = dismissState,
-                                backgroundContent = {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.errorContainer, RoundedCornerShape(12.dp)).padding(horizontal = 20.dp),
-                                        contentAlignment = Alignment.CenterEnd
-                                    ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.onErrorContainer)
-                                    }
-                                },
-                                enableDismissFromStartToEnd = false
-                            ) {
-                                TransactionListItem(
-                                    transaction = transaction,
-                                    categoryName = category?.name ?: "Other",
-                                    categoryColor = Color(category?.color?.toLong() ?: 0xFF757575)
+                    }
+                } else if (filteredTransactions.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text("No transactions found", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        val grouped = groupTransactionsByDate(filteredTransactions)
+                        var globalIndex = 0
+                        grouped.forEach { (dateLabel, items) ->
+                            item(key = "header_$dateLabel") {
+                                Text(
+                                    dateLabel,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(vertical = 4.dp)
                                 )
+                            }
+                            items(items, key = { it.id }) { transaction ->
+                                val index = globalIndex++
+                                val category = categories.find { it.id == transaction.categoryId }
+                                val dismissState = rememberSwipeToDismissBoxState(
+                                    confirmValueChange = {
+                                        if (it == SwipeToDismissBoxValue.EndToStart) {
+                                            onDelete(transaction.id)
+                                            true
+                                        } else false
+                                    }
+                                )
+                                SwipeToDismissBox(
+                                    state = dismissState,
+                                    backgroundContent = {
+                                        Box(
+                                            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.errorContainer, RoundedCornerShape(12.dp)).padding(horizontal = 20.dp),
+                                            contentAlignment = Alignment.CenterEnd
+                                        ) {
+                                            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.onErrorContainer)
+                                        }
+                                    },
+                                    enableDismissFromStartToEnd = false
+                                ) {
+                                    AnimatedVisibility(
+                                        visible = true,
+                                        enter = fadeIn(animationSpec = tween(300, delayMillis = index * 50)) + slideInVertically(
+                                            animationSpec = tween(300, delayMillis = index * 50),
+                                            initialOffsetY = { it / 2 }
+                                        ),
+                                        exit = fadeOut(animationSpec = tween(200))
+                                    ) {
+                                        TransactionListItem(
+                                            transaction = transaction,
+                                            categoryName = category?.name ?: "Other",
+                                            categoryColor = Color(category?.color?.toLong() ?: 0xFF757575)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
+
+            if (pullRefreshState.isRefreshing) {
+                LaunchedEffect(true) {
+                    isRefreshing = true
+                    pullRefreshState.endRefresh()
+                }
+            }
+
+            PullToRefreshContainer(
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
     }
 }

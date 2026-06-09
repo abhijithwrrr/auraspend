@@ -3,7 +3,13 @@ package com.awbuilds.auraspend.ui.classification
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.KeyboardType.Companion.Decimal
 import androidx.compose.ui.unit.dp
 import com.awbuilds.auraspend.domain.model.TransactionType
 import java.text.SimpleDateFormat
@@ -107,19 +112,24 @@ private fun PasteMessageTab(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            OutlinedTextField(
-                value = state.rawMessage,
-                onValueChange = {
-                    viewModel.handleIntent(ClassificationViewIntent.MessageChanged(it))
-                },
-                label = { Text("Paste bank SMS message") },
-                placeholder = { Text("Paste your bank SMS here...\ne.g. INR 500.00 debited from HDFC Bank for Swiggy order") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 150.dp),
-                minLines = 5,
-                maxLines = 8
-            )
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(300))
+            ) {
+                OutlinedTextField(
+                    value = state.rawMessage,
+                    onValueChange = {
+                        viewModel.handleIntent(ClassificationViewIntent.MessageChanged(it))
+                    },
+                    label = { Text("Paste bank SMS message") },
+                    placeholder = { Text("Paste your bank SMS here...\ne.g. INR 500.00 debited from HDFC Bank for Swiggy order") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 150.dp),
+                    minLines = 5,
+                    maxLines = 8
+                )
+            }
         }
 
         item {
@@ -134,33 +144,51 @@ private fun PasteMessageTab(
 
         if (state.parsedMessage != null) {
             item {
-                ClassificationResultCard(state, viewModel)
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn(animationSpec = tween(400)) + slideInVertically(
+                        animationSpec = tween(400),
+                        initialOffsetY = { it / 3 }
+                    )
+                ) {
+                    ClassificationResultCard(state, viewModel)
+                }
             }
 
             item {
-                Button(
-                    onClick = { viewModel.handleIntent(ClassificationViewIntent.SaveTransaction) },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isSaving
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn(animationSpec = tween(400))
                 ) {
-                    if (state.isSaving) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Text("Save Transaction")
+                    Button(
+                        onClick = { viewModel.handleIntent(ClassificationViewIntent.SaveTransaction) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isSaving
+                    ) {
+                        if (state.isSaving) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Save Transaction")
+                        }
                     }
                 }
             }
 
             if (state.error != null) {
                 item {
-                    Text(
-                        text = state.error,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(animationSpec = tween(300))
+                    ) {
+                        Text(
+                            text = state.error,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
             }
         }
@@ -195,7 +223,7 @@ private fun ClassificationResultCard(
             DetailRow(
                 label = "Amount",
                 value = parsed.amount?.let { "₹${String.format("%.2f", it)}" } ?: "Not detected",
-                onEdit = { /* handled by manual entry */ }
+                onEdit = { }
             )
 
             DetailRow(
@@ -235,7 +263,11 @@ private fun ClassificationResultCard(
                 Text(if (state.useManualEntry) "Use detected values" else "Edit manually")
             }
 
-            if (state.useManualEntry) {
+            AnimatedVisibility(
+                visible = state.useManualEntry,
+                enter = expandVertically(animationSpec = tween(300)) + fadeIn(animationSpec = tween(300)),
+                exit = shrinkVertically(animationSpec = tween(300)) + fadeOut(animationSpec = tween(300))
+            ) {
                 ManualEntryFields(state, viewModel)
             }
         }

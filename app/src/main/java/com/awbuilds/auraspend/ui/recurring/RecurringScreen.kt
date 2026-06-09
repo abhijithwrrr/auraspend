@@ -1,5 +1,10 @@
 package com.awbuilds.auraspend.ui.recurring
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,6 +25,7 @@ import com.awbuilds.auraspend.domain.model.RecurrenceFrequency
 import com.awbuilds.auraspend.domain.model.Subscription
 import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
+import com.awbuilds.auraspend.ui.core.ShimmerListItem
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -73,45 +79,62 @@ fun RecurringScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-                        shape = RoundedCornerShape(16.dp)
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(animationSpec = tween(400)) + slideInVertically(
+                            animationSpec = tween(400),
+                            initialOffsetY = { it / 2 }
+                        )
                     ) {
-                        Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Column {
-                                Text("Monthly Total", style = MaterialTheme.typography.labelMedium)
-                                Text("₹${String.format("%.0f", subscriptions.sumOf { it.amount })}/mo", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                                Column {
+                                    Text("Monthly Total", style = MaterialTheme.typography.labelMedium)
+                                    Text("₹${String.format("%.0f", subscriptions.sumOf { it.amount })}/mo", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                }
+                                Icon(Icons.Default.Subscriptions, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.size(32.dp))
                             }
-                            Icon(Icons.Default.Subscriptions, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.size(32.dp))
                         }
                     }
                 }
 
-                items(subscriptions) { sub ->
+                items(subscriptions, key = { it.id }) { sub ->
                     val category = categories.find { it.id == sub.categoryId }
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                        shape = RoundedCornerShape(12.dp)
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(animationSpec = tween(300)) + slideInVertically(
+                            animationSpec = tween(300),
+                            initialOffsetY = { it / 3 }
+                        ),
+                        exit = fadeOut(animationSpec = tween(200))
                     ) {
-                        Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(category?.color?.toLong() ?: 0xFF757575).copy(alpha = 0.2f)), contentAlignment = Alignment.Center) {
-                                Icon(Icons.Default.Subscriptions, contentDescription = null, tint = Color(category?.color?.toLong() ?: 0xFF757575), modifier = Modifier.size(20.dp))
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(sub.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                                Text("${category?.name ?: "Other"} · ${sub.billingCycle.name.lowercase().replaceFirstChar { it.uppercase() }}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text("₹${String.format("%.0f", sub.amount)}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                                Text("Next: ${sub.nextBillingDate.format(DateTimeFormatter.ofPattern("dd MMM"))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            IconButton(onClick = {
-                                scope.launch { repository.deleteSubscription(sub.id, false) }
-                            }) {
-                                Icon(Icons.Default.Close, contentDescription = "Remove", modifier = Modifier.size(18.dp))
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(category?.color?.toLong() ?: 0xFF757575).copy(alpha = 0.2f)), contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Default.Subscriptions, contentDescription = null, tint = Color(category?.color?.toLong() ?: 0xFF757575), modifier = Modifier.size(20.dp))
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(sub.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                                    Text("${category?.name ?: "Other"} · ${sub.billingCycle.name.lowercase().replaceFirstChar { it.uppercase() }}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Column(horizontalAlignment = Alignment.End) {
+                                    Text("₹${String.format("%.0f", sub.amount)}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                                    Text("Next: ${sub.nextBillingDate.format(DateTimeFormatter.ofPattern("dd MMM"))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                IconButton(onClick = {
+                                    scope.launch { repository.deleteSubscription(sub.id, false) }
+                                }) {
+                                    Icon(Icons.Default.Close, contentDescription = "Remove", modifier = Modifier.size(18.dp))
+                                }
                             }
                         }
                     }

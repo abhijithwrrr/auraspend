@@ -70,7 +70,6 @@ fun OnboardingScreen(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Skip button at top
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -87,7 +86,6 @@ fun OnboardingScreen(
                 OnboardingPageContent(onboardingPages[page], page)
             }
 
-            // Page Indicator + Next/Get Started
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -95,7 +93,6 @@ fun OnboardingScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Spacer for balance
                 Spacer(modifier = Modifier.width(72.dp))
 
                 PageIndicator(
@@ -123,7 +120,6 @@ fun OnboardingScreen(
                 }
             }
 
-            // Restore from Drive - only on last page
             if (pagerState.currentPage == onboardingPages.size - 1) {
                 TextButton(
                     onClick = { showRestoreConfirm = true },
@@ -138,7 +134,6 @@ fun OnboardingScreen(
             }
         }
 
-        // Restore confirm dialog
         if (showRestoreConfirm) {
             AlertDialog(
                 onDismissRequest = { showRestoreConfirm = false },
@@ -164,7 +159,6 @@ fun OnboardingScreen(
             )
         }
 
-        // Loading overlay
         if (isRestoring) {
             Box(
                 modifier = Modifier
@@ -204,14 +198,19 @@ fun OnboardingPageContent(page: OnboardingPage, pageIndex: Int) {
 
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn() + slideInVertically(initialOffsetY = { it / 4 })
+        enter = fadeIn(animationSpec = androidx.compose.animation.core.tween(500)) + scaleIn(
+            animationSpec = androidx.compose.animation.core.tween(500),
+            initialScale = 0.8f
+        ) + slideInVertically(
+            animationSpec = androidx.compose.animation.core.tween(500),
+            initialOffsetY = { it / 4 }
+        )
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Icon Circle
             Box(
                 modifier = Modifier
                     .size(140.dp)
@@ -253,6 +252,7 @@ fun PageIndicator(currentPage: Int, totalPages: Int) {
         repeat(totalPages) { index ->
             Box(
                 modifier = Modifier
+                    .animateContentSize(animationSpec = androidx.compose.animation.core.tween(300))
                     .size(if (index == currentPage) 24.dp else 8.dp, 8.dp)
                     .clip(CircleShape)
                     .background(

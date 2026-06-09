@@ -119,6 +119,10 @@ Detailed technical documentation is available in the [`docs/`](docs/) directory:
 | [DEVELOPMENT.md](docs/DEVELOPMENT.md) | Development setup, conventions, adding features |
 | [CHARTING.md](docs/CHARTING.md) | Canvas-based charting system (bar, pie, budget) |
 | [DRIVE_SYNC.md](docs/DRIVE_SYNC.md) | Google Drive backup/restore implementation |
+| [USER_GUIDE.md](docs/USER_GUIDE.md) | Complete end-user help covering all screens and features |
+| [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) | Design tokens, colors, typography, shapes, theming guide |
+| [ACCESSIBILITY.md](docs/ACCESSIBILITY.md) | Current accessibility features, limitations, and improvements |
+| [ACCESSIBILITY_CHECKLIST.md](docs/ACCESSIBILITY_CHECKLIST.md) | Developer checklist for WCAG 2.1 AA compliance |
 
 ## Preview
 

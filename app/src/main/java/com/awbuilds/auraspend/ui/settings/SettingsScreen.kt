@@ -1,5 +1,9 @@
 package com.awbuilds.auraspend.ui.settings
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -43,83 +47,119 @@ fun SettingsScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Theme Section
-            SectionHeader("Appearance")
-            ThemeSelector(currentTheme = currentTheme, onThemeChanged = onThemeChanged)
-
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-
-            // Data Management
-            SectionHeader("Data Management")
-            SettingsItem(
-                icon = Icons.Default.FileDownload,
-                title = "Export to CSV",
-                subtitle = "Save transactions to a CSV file",
-                onClick = onExportCsv
-            )
-            SettingsItem(
-                icon = Icons.Default.FileUpload,
-                title = "Import from CSV",
-                subtitle = "Import transactions from a CSV file",
-                onClick = onImportCsv
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-
-            // Finance Management
-            SectionHeader("Finance Management")
-            SettingsItem(
-                icon = Icons.Default.Category,
-                title = "Manage Categories",
-                subtitle = "Add, edit, or reorder categories",
-                onClick = onManageCategories
-            )
-            SettingsItem(
-                icon = Icons.Default.Subscriptions,
-                title = "Manage Subscriptions",
-                subtitle = "Track your recurring subscriptions",
-                onClick = onManageSubscriptions
-            )
-            SettingsItem(
-                icon = Icons.Default.AccountBalance,
-                title = "Budget Settings",
-                subtitle = "Set spending limits per category",
-                onClick = onManageBudgets
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-
-            // About
-            SectionHeader("About")
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                shape = MaterialTheme.shapes.medium
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(400)) + slideInVertically(
+                    animationSpec = tween(400),
+                    initialOffsetY = { it / 2 }
+                )
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        "AuraSpend",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                Column {
+                    SectionHeader("Appearance")
+                    ThemeSelector(currentTheme = currentTheme, onThemeChanged = onThemeChanged)
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(400, delayMillis = 100)) + slideInVertically(
+                    animationSpec = tween(400, delayMillis = 100),
+                    initialOffsetY = { it / 2 }
+                )
+            ) {
+                Column {
+                    SectionHeader("Data Management")
+                    SettingsItem(
+                        icon = Icons.Default.FileDownload,
+                        title = "Export to CSV",
+                        subtitle = "Save transactions to a CSV file",
+                        onClick = onExportCsv
                     )
-                    Text(
-                        "Version 0.1.0",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    SettingsItem(
+                        icon = Icons.Default.FileUpload,
+                        title = "Import from CSV",
+                        subtitle = "Import transactions from a CSV file",
+                        onClick = onImportCsv
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Made with ❤️ by AW Builds",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(400, delayMillis = 200)) + slideInVertically(
+                    animationSpec = tween(400, delayMillis = 200),
+                    initialOffsetY = { it / 2 }
+                )
+            ) {
+                Column {
+                    SectionHeader("Finance Management")
+                    SettingsItem(
+                        icon = Icons.Default.Category,
+                        title = "Manage Categories",
+                        subtitle = "Add, edit, or reorder categories",
+                        onClick = onManageCategories
                     )
+                    SettingsItem(
+                        icon = Icons.Default.Subscriptions,
+                        title = "Manage Subscriptions",
+                        subtitle = "Track your recurring subscriptions",
+                        onClick = onManageSubscriptions
+                    )
+                    SettingsItem(
+                        icon = Icons.Default.AccountBalance,
+                        title = "Budget Settings",
+                        subtitle = "Set spending limits per category",
+                        onClick = onManageBudgets
+                    )
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(400, delayMillis = 300)) + slideInVertically(
+                    animationSpec = tween(400, delayMillis = 300),
+                    initialOffsetY = { it / 2 }
+                )
+            ) {
+                Column {
+                    SectionHeader("About")
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "AuraSpend",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "Version 0.1.0",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Made with ❤️ by AW Builds",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             }
 

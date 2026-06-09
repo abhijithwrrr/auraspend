@@ -1,5 +1,10 @@
 package com.awbuilds.auraspend.ui.category
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -73,11 +78,20 @@ fun CategoryManagementScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(categories, key = { it.id }) { category ->
-                    CategoryCard(
-                        category = category,
-                        onEdit = { editCategory = category },
-                        onDelete = { deleteConfirmId = category.id }
-                    )
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(animationSpec = tween(300)) + slideInVertically(
+                            animationSpec = tween(300),
+                            initialOffsetY = { it / 3 }
+                        ),
+                        exit = fadeOut(animationSpec = tween(200))
+                    ) {
+                        CategoryCard(
+                            category = category,
+                            onEdit = { editCategory = category },
+                            onDelete = { deleteConfirmId = category.id }
+                        )
+                    }
                 }
             }
         }

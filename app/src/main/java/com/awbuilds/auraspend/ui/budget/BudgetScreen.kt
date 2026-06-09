@@ -1,5 +1,10 @@
 package com.awbuilds.auraspend.ui.budget
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,7 +55,6 @@ fun BudgetScreen(
         }
     ) { padding ->
         if (state.editingBudget != null || state.selectedCategoryId.isNotEmpty()) {
-            // Show add/edit form
             BudgetForm(state = state, viewModel = viewModel, modifier = Modifier.padding(padding))
         } else {
             LazyColumn(
@@ -60,46 +64,60 @@ fun BudgetScreen(
             ) {
                 if (state.budgets.isEmpty()) {
                     item {
-                        Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Default.AccountBalance, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text("No budgets set", style = MaterialTheme.typography.titleMedium)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Set spending limits for each category.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Button(onClick = { viewModel.handleIntent(BudgetViewIntent.StartAdd) }) {
-                                    Text("Add Budget")
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(animationSpec = tween(400))
+                        ) {
+                            Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.AccountBalance, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text("No budgets set", style = MaterialTheme.typography.titleMedium)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text("Set spending limits for each category.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Button(onClick = { viewModel.handleIntent(BudgetViewIntent.StartAdd) }) {
+                                        Text("Add Budget")
+                                    }
                                 }
                             }
                         }
                     }
                 } else {
-                    items(state.budgets) { budget ->
+                    items(state.budgets, key = { it.id }) { budget ->
                         val category = state.categories.find { it.id == budget.categoryId }
                         val progress = if (budget.limitAmount > 0) (budget.spentAmount / budget.limitAmount).toFloat().coerceIn(0f, 1f) else 0f
                         val progressColor = when { progress >= 1f -> MaterialTheme.colorScheme.error; progress >= 0.8f -> MaterialTheme.colorScheme.tertiary; else -> MaterialTheme.colorScheme.primary }
 
-                        Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant), shape = RoundedCornerShape(12.dp)) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(category?.color?.toLong() ?: 0xFF757575)))
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(category?.name ?: "Unknown", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(animationSpec = tween(300)) + slideInVertically(
+                                animationSpec = tween(300),
+                                initialOffsetY = { it / 3 }
+                            ),
+                            exit = fadeOut(animationSpec = tween(200))
+                        ) {
+                            Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant), shape = RoundedCornerShape(12.dp)) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(category?.color?.toLong() ?: 0xFF757575)))
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(category?.name ?: "Unknown", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                                        }
+                                        IconButton(onClick = { viewModel.handleIntent(BudgetViewIntent.DeleteBudget(budget.id)) }) {
+                                            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+                                        }
                                     }
-                                    IconButton(onClick = { viewModel.handleIntent(BudgetViewIntent.DeleteBudget(budget.id)) }) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)), color = progressColor, trackColor = MaterialTheme.colorScheme.surfaceVariant)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                        Text("₹${String.format("%.0f", budget.spentAmount)} spent", style = MaterialTheme.typography.labelSmall)
+                                        Text("₹${String.format("%.0f", budget.limitAmount)} limit", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold)
                                     }
+                                    Text("${budget.period.name.lowercase().replaceFirstChar { it.uppercase() }}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
-                                Spacer(modifier = Modifier.height(8.dp))
-                                LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)), color = progressColor, trackColor = MaterialTheme.colorScheme.surfaceVariant)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text("₹${String.format("%.0f", budget.spentAmount)} spent", style = MaterialTheme.typography.labelSmall)
-                                    Text("₹${String.format("%.0f", budget.limitAmount)} limit", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold)
-                                }
-                                Text("${budget.period.name.lowercase().replaceFirstChar { it.uppercase() }}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }

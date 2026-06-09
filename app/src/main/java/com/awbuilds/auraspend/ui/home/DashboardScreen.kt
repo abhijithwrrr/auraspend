@@ -1,5 +1,9 @@
 package com.awbuilds.auraspend.ui.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,11 +22,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
+import com.awbuilds.auraspend.ui.core.ShimmerCard
 import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.util.Date
@@ -41,6 +47,8 @@ fun DashboardScreen(
     LaunchedEffect(Unit) {
         viewModel.handleIntent(DashboardViewIntent.LoadDashboard)
     }
+
+    val pullRefreshState = rememberPullToRefreshState()
 
     Scaffold(
         topBar = {
@@ -63,117 +71,199 @@ fun DashboardScreen(
             )
         }
     ) { padding ->
-        if (state.isLoading && state.recentTransactions.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                item { BalanceCard(state.totalBalance, state.monthlyIncome, state.monthlyExpense) }
-
-                item {
-                    QuickStatsRow(
-                        transactions = state.recentTransactions.size,
-                        largestExpense = state.recentTransactions
-                            .filter { it.type == TransactionType.EXPENSE }
-                            .maxOfOrNull { it.amount } ?: 0.0,
-                        subscriptions = state.totalSubscriptionCost
-                    )
-                }
-
-                if (state.dailySpending.isNotEmpty()) {
-                    item { WeeklyChartCard(dailySpending = state.dailySpending) }
-                }
-
-                if (state.budgets.isNotEmpty()) {
-                    item {
-                        Text(
-                            "Budget Overview",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .nestedScroll(pullRefreshState.nestedScrollConnection)
+        ) {
+            if (state.isLoading && state.recentTransactions.isEmpty()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(4) {
+                        ShimmerCard()
                     }
-                    state.budgets.forEach { budget ->
-                        val category = state.categories.find { it.id == budget.categoryId }
-                        item {
-                            BudgetProgressCard(
-                                categoryName = category?.name ?: "Unknown",
-                                categoryColor = Color(category?.color?.toLong() ?: 0xFF757575),
-                                spent = budget.spentAmount,
-                                limit = budget.limitAmount
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item {
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(animationSpec = tween(400)) + slideInVertically(
+                                animationSpec = tween(400),
+                                initialOffsetY = { it / 2 }
+                            )
+                        ) {
+                            BalanceCard(state.totalBalance, state.monthlyIncome, state.monthlyExpense)
+                        }
+                    }
+
+                    item {
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(animationSpec = tween(400, delayMillis = 100)) + slideInVertically(
+                                animationSpec = tween(400, delayMillis = 100),
+                                initialOffsetY = { it / 2 }
+                            )
+                        ) {
+                            QuickStatsRow(
+                                transactions = state.recentTransactions.size,
+                                largestExpense = state.recentTransactions
+                                    .filter { it.type == TransactionType.EXPENSE }
+                                    .maxOfOrNull { it.amount } ?: 0.0,
+                                subscriptions = state.totalSubscriptionCost
                             )
                         }
                     }
-                }
 
-                if (state.activeSubscriptions.isNotEmpty()) {
-                    item {
-                        SubscriptionSummaryCard(
-                            totalMonthly = state.totalSubscriptionCost,
-                            count = state.activeSubscriptions.size
-                        )
-                    }
-                }
-
-                if (state.categories.isNotEmpty()) {
-                    item {
-                        Text(
-                            "Spending by Category",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                    item {
-                        CategoryBreakdownRow(
-                            transactions = state.recentTransactions,
-                            categories = state.categories
-                        )
-                    }
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "Recent Transactions",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        TextButton(onClick = onNavigateToTransactions) {
-                            Text("See All")
+                    if (state.dailySpending.isNotEmpty()) {
+                        item {
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = fadeIn(animationSpec = tween(400, delayMillis = 200)) + slideInVertically(
+                                    animationSpec = tween(400, delayMillis = 200),
+                                    initialOffsetY = { it / 2 }
+                                )
+                            ) {
+                                WeeklyChartCard(dailySpending = state.dailySpending)
+                            }
                         }
                     }
-                }
 
-                if (state.recentTransactions.isEmpty()) {
-                    item { EmptyStateCard(onNavigateToAdd = onNavigateToAdd) }
-                } else {
-                    items(state.recentTransactions.take(5)) { transaction ->
-                        val category = state.categories.find { it.id == transaction.categoryId }
-                        TransactionCard(
-                            transaction = transaction,
-                            categoryName = category?.name ?: "Other",
-                            categoryColor = Color(category?.color?.toLong() ?: 0xFF757575)
-                        )
+                    if (state.budgets.isNotEmpty()) {
+                        item {
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = fadeIn(animationSpec = tween(400, delayMillis = 300))
+                            ) {
+                                Text(
+                                    "Budget Overview",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                        state.budgets.forEachIndexed { index, budget ->
+                            val category = state.categories.find { it.id == budget.categoryId }
+                            item(key = "budget_${budget.id}") {
+                                AnimatedVisibility(
+                                    visible = true,
+                                    enter = fadeIn(animationSpec = tween(300, delayMillis = 300 + index * 80)) + slideInVertically(
+                                        animationSpec = tween(300, delayMillis = 300 + index * 80),
+                                        initialOffsetY = { it / 3 }
+                                    )
+                                ) {
+                                    BudgetProgressCard(
+                                        categoryName = category?.name ?: "Unknown",
+                                        categoryColor = Color(category?.color?.toLong() ?: 0xFF757575),
+                                        spent = budget.spentAmount,
+                                        limit = budget.limitAmount
+                                    )
+                                }
+                            }
+                        }
                     }
-                }
 
-                item { Spacer(modifier = Modifier.height(16.dp)) }
+                    if (state.activeSubscriptions.isNotEmpty()) {
+                        item {
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = fadeIn(animationSpec = tween(400, delayMillis = 350))
+                            ) {
+                                SubscriptionSummaryCard(
+                                    totalMonthly = state.totalSubscriptionCost,
+                                    count = state.activeSubscriptions.size
+                                )
+                            }
+                        }
+                    }
+
+                    if (state.categories.isNotEmpty()) {
+                        item {
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = fadeIn(animationSpec = tween(400, delayMillis = 400))
+                            ) {
+                                Text(
+                                    "Spending by Category",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                        item {
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = fadeIn(animationSpec = tween(400, delayMillis = 450))
+                            ) {
+                                CategoryBreakdownRow(
+                                    transactions = state.recentTransactions,
+                                    categories = state.categories
+                                )
+                            }
+                        }
+                    }
+
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Recent Transactions",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            TextButton(onClick = onNavigateToTransactions) {
+                                Text("See All")
+                            }
+                        }
+                    }
+
+                    if (state.recentTransactions.isEmpty()) {
+                        item { EmptyStateCard(onNavigateToAdd = onNavigateToAdd) }
+                    } else {
+                        items(state.recentTransactions.take(5), key = { it.id }) { transaction ->
+                            val category = state.categories.find { it.id == transaction.categoryId }
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = fadeIn(animationSpec = tween(300, delayMillis = 500)) + slideInVertically(
+                                    animationSpec = tween(300, delayMillis = 500),
+                                    initialOffsetY = { it / 3 }
+                                )
+                            ) {
+                                TransactionCard(
+                                    transaction = transaction,
+                                    categoryName = category?.name ?: "Other",
+                                    categoryColor = Color(category?.color?.toLong() ?: 0xFF757575)
+                                )
+                            }
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
+                }
             }
+
+            if (pullRefreshState.isRefreshing) {
+                LaunchedEffect(true) {
+                    viewModel.handleIntent(DashboardViewIntent.RefreshTransactions(false))
+                    pullRefreshState.endRefresh()
+                }
+            }
+
+            PullToRefreshContainer(
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
     }
 }
