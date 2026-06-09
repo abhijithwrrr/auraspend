@@ -107,6 +107,19 @@ Build and run:
 
 **First launch**: The app auto-seeds 12 default categories and shows the onboarding screen.
 
+## Documentation
+
+Detailed technical documentation is available in the [`docs/`](docs/) directory:
+
+| Document | Description |
+|----------|-------------|
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Full architecture overview, layers, MVI pattern, navigation, theme |
+| [DATABASE.md](docs/DATABASE.md) | Room database schema, entities, DAOs, mappers |
+| [CLASSIFICATION.md](docs/CLASSIFICATION.md) | Bank SMS parsing and category classification system |
+| [DEVELOPMENT.md](docs/DEVELOPMENT.md) | Development setup, conventions, adding features |
+| [CHARTING.md](docs/CHARTING.md) | Canvas-based charting system (bar, pie, budget) |
+| [DRIVE_SYNC.md](docs/DRIVE_SYNC.md) | Google Drive backup/restore implementation |
+
 ## Preview
 
 | Screen | Description |
