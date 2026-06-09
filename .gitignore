@@ -12,6 +12,7 @@ captures
 *.aab
 *.keystore
 *.jks
+*.p12
 *.hprof
 *.log
 /app/release/

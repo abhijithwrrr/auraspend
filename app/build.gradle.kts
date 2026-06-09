@@ -31,6 +31,15 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("release/auraspend-keystore.p12")
+            storePassword = System.getenv("AURASPEND_KEYSTORE_PASSWORD") ?: ""
+            keyAlias = System.getenv("AURASPEND_KEY_ALIAS") ?: "auraspend"
+            keyPassword = System.getenv("AURASPEND_KEY_PASSWORD") ?: ""
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -38,6 +47,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
