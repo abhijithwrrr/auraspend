@@ -24,9 +24,9 @@ class BudgetViewModel(
             is BudgetViewIntent.SaveBudget -> saveBudget()
             is BudgetViewIntent.DeleteBudget -> deleteBudget(intent.budgetId)
             is BudgetViewIntent.StartAdd -> {
-                _state.update { it.copy(editingBudget = null, selectedCategoryId = "", limitAmount = "", selectedPeriod = BudgetPeriod.MONTHLY) }
+                _state.update { it.copy(editingBudget = null, selectedCategoryId = "", limitAmount = "", selectedPeriod = BudgetPeriod.MONTHLY, isAdding = true) }
             }
-            is BudgetViewIntent.CancelEdit -> _state.update { it.copy(editingBudget = null) }
+            is BudgetViewIntent.CancelEdit -> _state.update { it.copy(editingBudget = null, isAdding = false) }
         }
     }
 
@@ -52,7 +52,8 @@ class BudgetViewModel(
                         period = s.selectedPeriod
                     )
                 )
-                _state.update { it.copy(editingBudget = null, selectedCategoryId = "", limitAmount = "", isSaving = false) }
+                _state.update { it.copy(editingBudget = null, selectedCategoryId = "", limitAmount = "", isAdding = false, isSaving = false) }
+                loadBudgets()
             } catch (e: Exception) {
                 _state.update { it.copy(error = e.message, isSaving = false) }
             }
