@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://abhijithwrrr.github.io/auraspend/sitemap.xml
