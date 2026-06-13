@@ -5,15 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy — AuraSpend</title>
     <meta name="description" content="AuraSpend Privacy Policy. Your financial data stays on your device. We do not collect, sell, or share your personal information.">
+    <meta property="og:title" content="Privacy Policy — AuraSpend">
+    <meta property="og:description" content="AuraSpend Privacy Policy. Your financial data stays on your device.">
+    <meta property="og:url" content="https://abhijithwrrr.github.io/auraspend/privacy.html">
+    <meta property="og:type" content="website">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23D97706'/%3E%3Ctext x='50' y='72' text-anchor='middle' font-size='60' font-weight='800' font-family='system-ui' fill='white'%3EA%3C/text%3E%3C/svg%3E">
 </head>
 <body>
     <nav>
         <div class="container">
             <a href="index.html" class="logo">Aura<span>Spend</span></a>
-            <div class="nav-links">
+            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links" id="navLinks">
                 <a href="index.html#features">Features</a>
                 <a href="index.html#why">Why AuraSpend</a>
                 <a href="privacy.html">Privacy</a>
@@ -50,7 +59,7 @@
                 <h3>1.2 Information Collected Automatically</h3>
                 <p>The free version of AuraSpend does <strong>not</strong> include any analytics SDK, crash reporting framework, or telemetry. No usage data, device identifiers, or diagnostic information is transmitted to us or any third party.</p>
                 <p>If you build the application from source using the <strong>free</strong> flavor, no automatic data collection occurs at all.</p>
-                <p>The <strong>Play Store</strong> flavor includes Google Play Billing for processing premium feature purchases. Google Play Billing may collect transaction identifiers and purchase history in accordance with Google's Privacy Policy.</p>
+                <p>The <strong>Play Store</strong> flavor includes Google Play Billing for processing in-app purchases intended to support development. Google Play Billing may collect transaction identifiers and purchase history in accordance with Google's Privacy Policy.</p>
 
                 <h3>1.3 SMS Data</h3>
                 <p>If you choose to use the bank SMS auto-classification feature, AuraSpend will request permission to read SMS messages from your device. This data is processed entirely on-device. SMS content is used solely to extract transaction details and is never transmitted off your device or stored outside the local database.</p>
@@ -62,18 +71,18 @@
                 <ul>
                     <li>To display your financial transactions, budgets, and analytics within the app.</li>
                     <li>To process and categorize SMS-based banking notifications into transactions.</li>
-                    <li>To create encrypted backups to your Google Drive when you explicitly enable this feature.</li>
-                    <li>To process premium feature purchases through Google Play Billing (Play Store flavor only).</li>
+                    <li>To create backups to your Google Drive when you explicitly enable this feature.</li>
+                    <li>To process in-app purchases through Google Play Billing (Play Store flavor only).</li>
                 </ul>
                 <p>We do <strong>not</strong> use your data for advertising, profiling, training machine learning models, or any purpose other than operating the application you have chosen to use.</p>
             </section>
 
             <section>
                 <h2>3. Google Drive Backup</h2>
-                <p>If you enable Google Drive backup, AuraSpend uses the Google Drive API to store an encrypted copy of your application data in a hidden application-specific folder. This folder is not accessible by other applications or users.</p>
+                <p>If you enable Google Drive backup, AuraSpend uses the Google Drive API to store a copy of your application data in an application-specific folder. This folder is not accessible by other applications or users.</p>
                 <ul>
                     <li><strong>Authentication:</strong> AuraSpend uses OAuth 2.0 to authenticate with your Google account. We never receive or store your Google account password.</li>
-                    <li><strong>Scope:</strong> The application requests access only to the <code>drive.appdata</code> scope, which permits reading and writing data exclusively within the hidden application folder.</li>
+                    <li><strong>Scope:</strong> The application requests access to the <code>DriveScopes.DRIVE_FILE</code> scope, which permits reading and writing files that the application creates in your Google Drive. You can view and manage these files from your Drive interface at any time.</li>
                     <li><strong>Control:</strong> You may disable Google Drive backup at any time through the application settings. You can also manually delete backup data from your Google Drive via the app or the Google Drive web interface.</li>
                 </ul>
             </section>
@@ -82,8 +91,8 @@
                 <h2>4. Third-Party Services</h2>
                 <p>AuraSpend integrates with the following third-party services:</p>
                 <ul>
-                    <li><strong>Google Drive API:</strong> Used for encrypted cloud backups when you opt-in. Subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
-                    <li><strong>Google Play Billing:</strong> Used exclusively in the Play Store flavor for processing in-app purchases of premium features. Subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
+                    <li><strong>Google Drive API:</strong> Used for cloud backups when you opt-in. Subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
+                    <li><strong>Google Play Billing:</strong> Used exclusively in the Play Store flavor for processing in-app purchases to support development. Subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
                 </ul>
                 <p>The application does <strong>not</strong> integrate advertising SDKs, analytics frameworks, crash reporting tools, or any other third-party services that collect personal data.</p>
             </section>
@@ -102,8 +111,8 @@
                 <h2>6. Data Security</h2>
                 <p>We implement appropriate technical and organizational measures to protect your data:</p>
                 <ul>
-                    <li>All data is stored locally using Room database encryption.</li>
-                    <li>Google Drive backups are stored in an application-private folder and encrypted using the platform's standard encryption mechanisms.</li>
+                    <li>All data is stored locally on your device using Room, an Android local database framework.</li>
+                    <li>Google Drive backups are stored in an application-specific folder that is not accessible by other apps.</li>
                     <li>All network communication with Google APIs occurs over TLS 1.3 encrypted connections.</li>
                 </ul>
                 <p>However, no method of electronic storage or transmission is 100% secure. While we strive to protect your data, we cannot guarantee its absolute security.</p>
@@ -191,5 +200,20 @@
             </div>
         </div>
     </footer>
+    <script>
+        document.querySelector('.hamburger')?.addEventListener('click', () => {
+            const nav = document.getElementById('navLinks');
+            const btn = document.querySelector('.hamburger');
+            const expanded = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', !expanded);
+            nav.classList.toggle('open');
+        });
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinks')?.classList.remove('open');
+                document.querySelector('.hamburger')?.setAttribute('aria-expanded', 'false');
+            });
+        });
+    </script>
 </body>
 </html>

@@ -5,15 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terms of Service — AuraSpend</title>
     <meta name="description" content="AuraSpend Terms of Service govern your use of the AuraSpend expense management application.">
+    <meta property="og:title" content="Terms of Service — AuraSpend">
+    <meta property="og:description" content="AuraSpend Terms of Service govern your use of the AuraSpend expense management application.">
+    <meta property="og:url" content="https://abhijithwrrr.github.io/auraspend/terms.html">
+    <meta property="og:type" content="website">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23D97706'/%3E%3Ctext x='50' y='72' text-anchor='middle' font-size='60' font-weight='800' font-family='system-ui' fill='white'%3EA%3C/text%3E%3C/svg%3E">
 </head>
 <body>
     <nav>
         <div class="container">
             <a href="index.html" class="logo">Aura<span>Spend</span></a>
-            <div class="nav-links">
+            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links" id="navLinks">
                 <a href="index.html#features">Features</a>
                 <a href="index.html#why">Why AuraSpend</a>
                 <a href="privacy.html">Privacy</a>
@@ -96,16 +105,16 @@
                 <h3>5.1 Build Flavors</h3>
                 <p>AuraSpend is distributed in two build flavors:</p>
                 <ul>
-                    <li><strong>Free Flavor:</strong> Available by building from source or downloading from alternative distribution channels. All features, including premium features, are unlocked at no cost.</li>
-                    <li><strong>Play Store Flavor:</strong> Available on the Google Play Store. Certain premium features require an in-app purchase through Google Play Billing.</li>
+                    <li><strong>Free Flavor:</strong> Available by building from source or downloading from alternative distribution channels. All features are unlocked at no cost.</li>
+                    <li><strong>Play Store Flavor:</strong> Available on the Google Play Store. In-app purchases are available as a way to support ongoing development.</li>
                 </ul>
 
                 <h3>5.2 Purchases</h3>
-                <p>Premium features in the Play Store flavor are provided as a one-time purchase or subscription, as clearly indicated at the point of sale. All transactions are processed by Google Play and are subject to Google's terms and conditions.</p>
-                <p>We reserve the right to change premium feature pricing or switch between one-time and subscription models, with reasonable notice provided through the application or app store listing.</p>
+                <p>In-app purchases in the Play Store flavor are provided as a way to support development. All transactions are processed by Google Play and are subject to Google's terms and conditions.</p>
+                <p>We reserve the right to introduce or change premium feature pricing, with reasonable notice provided through the application or app store listing.</p>
 
                 <h3>5.3 Refunds</h3>
-                <p>All purchases are subject to the refund policy of the Google Play Store. For purchases made through Google Play, refund requests must be directed to Google in accordance with their refund policy. We do not process refunds directly.</p>
+                <p>All purchases are subject to the refund policy of the Google Play Store. Refund requests must be directed to Google in accordance with their refund policy. We do not process refunds directly.</p>
             </section>
 
             <section>
@@ -168,13 +177,13 @@
                 <h2>11. Governing Law and Dispute Resolution</h2>
 
                 <h3>11.1 Governing Law</h3>
-                <p>These Terms shall be governed by and construed in accordance with the laws of the State of [State], United States, without regard to its conflict of law provisions. For residents of the European Economic Area, the laws of your country of residence shall apply to the extent they provide greater consumer protection.</p>
+                <p>These Terms shall be governed by and construed in accordance with the laws of the State of Kerala, India, without regard to its conflict of law provisions. For residents of the European Economic Area, the laws of your country of residence shall apply to the extent they provide greater consumer protection.</p>
 
                 <h3>11.2 Informal Resolution</h3>
                 <p>Before filing any claim, you agree to attempt to resolve any dispute informally by contacting us at <a href="mailto:awbuilds.support@gmail.com">awbuilds.support@gmail.com</a>. We will attempt to resolve the dispute within 60 days of receiving your notice.</p>
 
                 <h3>11.3 Binding Arbitration</h3>
-                <p>If the dispute cannot be resolved informally, you agree that any claim arising out of or relating to these Terms or the Application shall be resolved by binding individual arbitration, rather than in court, except that you may assert claims in small claims court if your claims qualify. The arbitration shall be conducted by a single arbitrator under the rules of the American Arbitration Association.</p>
+                <p>If the dispute cannot be resolved informally, you agree that any claim arising out of or relating to these Terms or the Application shall be resolved by binding individual arbitration in accordance with the Arbitration and Conciliation Act, 1996 of India. The arbitration shall be conducted by a single arbitrator appointed by mutual agreement, and the venue shall be Kochi, Kerala.</p>
 
                 <h3>11.4 Class Action Waiver</h3>
                 <p>You agree to resolve disputes with us on an individual basis and waive any right to participate in a class action, class arbitration, or representative action.</p>
@@ -187,7 +196,7 @@
                 <ul>
                     <li>Your right to use the Application immediately ceases.</li>
                     <li>All locally stored data on your device will remain until you uninstall the Application or delete the data manually.</li>
-                    <li>Premium feature purchases (if any) will be governed by the applicable app store's refund policy.</li>
+                    <li>In-app purchases (if any) will be governed by the applicable app store's refund policy.</li>
                 </ul>
                 <p>Sections 6 (User Content), 8 (Disclaimer of Warranties), 9 (Limitation of Liability), 10 (Indemnification), 11 (Governing Law), and 13 (Miscellaneous) shall survive any termination.</p>
             </section>
@@ -255,5 +264,20 @@
             </div>
         </div>
     </footer>
+    <script>
+        document.querySelector('.hamburger')?.addEventListener('click', () => {
+            const nav = document.getElementById('navLinks');
+            const btn = document.querySelector('.hamburger');
+            const expanded = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', !expanded);
+            nav.classList.toggle('open');
+        });
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinks')?.classList.remove('open');
+                document.querySelector('.hamburger')?.setAttribute('aria-expanded', 'false');
+            });
+        });
+    </script>
 </body>
 </html>

@@ -4,6 +4,7 @@ import com.awbuilds.auraspend.data.local.toDomain
 import com.awbuilds.auraspend.data.local.toEntity
 import com.awbuilds.auraspend.data.local.dao.BudgetDao
 import com.awbuilds.auraspend.data.local.dao.CategoryDao
+import com.awbuilds.auraspend.data.local.dao.SavingsGoalDao
 import com.awbuilds.auraspend.data.local.dao.SubscriptionDao
 import com.awbuilds.auraspend.data.local.dao.TransactionDao
 import com.awbuilds.auraspend.domain.model.*
@@ -15,23 +16,24 @@ class TransactionRepositoryImpl(
     private val transactionDao: TransactionDao,
     private val categoryDao: CategoryDao,
     private val budgetDao: BudgetDao,
-    private val subscriptionDao: SubscriptionDao
+    private val subscriptionDao: SubscriptionDao,
+    private val savingsGoalDao: SavingsGoalDao
 ) : TransactionRepository {
 
     override fun getAllTransactions(): Flow<List<Transaction>> =
-        transactionDao.getAllTransactions().map { entities -> entities.map { it.toDomain() } }
+        transactionDao.getAllTransactions().map { it.map { e -> e.toDomain() } }
 
     override fun getTransactionsInRange(start: Long, end: Long): Flow<List<Transaction>> =
-        transactionDao.getTransactionsInRange(start, end).map { entities -> entities.map { it.toDomain() } }
+        transactionDao.getTransactionsInRange(start, end).map { it.map { e -> e.toDomain() } }
 
     override fun searchTransactions(query: String): Flow<List<Transaction>> =
-        transactionDao.searchTransactions(query).map { entities -> entities.map { it.toDomain() } }
+        transactionDao.searchTransactions(query).map { it.map { e -> e.toDomain() } }
 
     override fun getTransactionsByCategory(categoryId: String): Flow<List<Transaction>> =
-        transactionDao.getTransactionsByCategory(categoryId).map { entities -> entities.map { it.toDomain() } }
+        transactionDao.getTransactionsByCategory(categoryId).map { it.map { e -> e.toDomain() } }
 
     override fun getRecurringTransactions(): Flow<List<Transaction>> =
-        transactionDao.getRecurringTransactions().map { entities -> entities.map { it.toDomain() } }
+        transactionDao.getRecurringTransactions().map { it.map { e -> e.toDomain() } }
 
     override suspend fun saveTransaction(transaction: Transaction) {
         transactionDao.insertTransaction(transaction.toEntity())
@@ -46,7 +48,7 @@ class TransactionRepositoryImpl(
     }
 
     override fun getAllCategories(): Flow<List<Category>> =
-        categoryDao.getAllCategories().map { entities -> entities.map { it.toDomain() } }
+        categoryDao.getAllCategories().map { it.map { e -> e.toDomain() } }
 
     override suspend fun getCategoryById(id: String): Category? =
         categoryDao.getCategoryById(id)?.toDomain()
@@ -64,7 +66,7 @@ class TransactionRepositoryImpl(
     }
 
     override fun getAllBudgets(): Flow<List<Budget>> =
-        budgetDao.getAllBudgets().map { entities -> entities.map { it.toDomain() } }
+        budgetDao.getAllBudgets().map { it.map { e -> e.toDomain() } }
 
     override suspend fun getBudgetByCategory(categoryId: String): Budget? =
         budgetDao.getBudgetByCategory(categoryId)?.toDomain()
@@ -77,8 +79,27 @@ class TransactionRepositoryImpl(
         budgetDao.updateSpentAmount(categoryId, spent)
     }
 
+    override suspend fun deleteBudget(budgetId: String) {
+        budgetDao.deleteBudgetById(budgetId)
+    }
+
+    override fun getAllSavingsGoals(): Flow<List<SavingsGoal>> =
+        savingsGoalDao.getAllSavingsGoals().map { it.map { e -> e.toDomain() } }
+
+    override suspend fun saveSavingsGoal(goal: SavingsGoal) {
+        savingsGoalDao.insertSavingsGoal(goal.toEntity())
+    }
+
+    override suspend fun deleteSavingsGoal(goalId: String) {
+        savingsGoalDao.deleteSavingsGoalById(goalId)
+    }
+
+    override suspend fun updateSavingsGoal(goal: SavingsGoal) {
+        savingsGoalDao.updateSavingsGoal(goal.toEntity())
+    }
+
     override fun getActiveSubscriptions(): Flow<List<Subscription>> =
-        subscriptionDao.getActiveSubscriptions().map { entities -> entities.map { it.toDomain() } }
+        subscriptionDao.getActiveSubscriptions().map { it.map { e -> e.toDomain() } }
 
     override suspend fun saveSubscription(subscription: Subscription) {
         subscriptionDao.insertSubscription(subscription.toEntity())

@@ -532,13 +532,11 @@ private fun EmptyStateCard(onNavigateToAdd: () -> Unit) {
     }
 }
 
-private fun formatLargeNumber(value: Double): String {
-    return when {
-        value >= 1_000_000 -> String.format("%.1fL", value / 100_000)
-        value >= 100_000 -> String.format("%.1fL", value / 100_000)
-        value >= 1_000 -> String.format("%.1fK", value / 1_000)
-        else -> String.format("%.0f", value)
-    }
+private fun formatLargeNumber(value: Double): String = when {
+    value >= 100_000_00 -> String.format("%.1fCr", value / 10_000_000)
+    value >= 100_000 -> String.format("%.1fL", value / 100_000)
+    value >= 1_000 -> String.format("%.1fK", value / 1_000)
+    else -> String.format("%.0f", value)
 }
 
 private fun formatRelativeDate(timestamp: Long): String {

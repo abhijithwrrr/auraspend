@@ -5,15 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AuraSpend — Beautiful Expense Management for Android</title>
     <meta name="description" content="AuraSpend is a modern, open-source expense tracker for Android with bank message classification, budget tracking, Google Drive sync, and a stunning Material 3 AMOLED interface.">
+    <meta property="og:title" content="AuraSpend — Beautiful Expense Management for Android">
+    <meta property="og:description" content="A privacy-first, open-source expense manager for Android. Smart bank message classification, budget tracking, Google Drive backup — all wrapped in a stunning Material 3 AMOLED interface.">
+    <meta property="og:url" content="https://abhijithwrrr.github.io/auraspend/">
+    <meta property="og:type" content="software">
+    <meta property="og:site_name" content="AuraSpend">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AuraSpend — Beautiful Expense Management for Android">
+    <meta name="twitter:description" content="A privacy-first, open-source expense manager for Android. Smart bank message classification, budget tracking, Google Drive backup.">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23D97706'/%3E%3Ctext x='50' y='72' text-anchor='middle' font-size='60' font-weight='800' font-family='system-ui' fill='white'%3EA%3C/text%3E%3C/svg%3E">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "MobileApplication",
+        "name": "AuraSpend",
+        "operatingSystem": "Android",
+        "applicationCategory": "FinanceApplication",
+        "description": "A privacy-first, open-source expense manager for Android with smart bank message classification, budget tracking, Google Drive backup, and Material 3 design.",
+        "url": "https://abhijithwrrr.github.io/auraspend/",
+        "license": "https://www.apache.org/licenses/LICENSE-2.0",
+        "author": {
+            "@type": "Person",
+            "name": "AW Builds"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
 </head>
 <body>
     <nav>
         <div class="container">
             <a href="index.html" class="logo">Aura<span>Spend</span></a>
-            <div class="nav-links">
+            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links" id="navLinks">
                 <a href="#features">Features</a>
                 <a href="#why">Why AuraSpend</a>
                 <a href="privacy.html">Privacy</a>
@@ -24,6 +58,8 @@
     </nav>
 
     <section class="hero">
+        <div class="hero-blob hero-blob-1"></div>
+        <div class="hero-blob hero-blob-2"></div>
         <div class="container">
             <div class="hero-badge">v0.1.0 &middot; Open Source &middot; Apache 2.0</div>
             <h1>Master Your Finances with <span class="gradient-text">AuraSpend</span></h1>
@@ -56,7 +92,7 @@
         </div>
     </section>
 
-    <section id="features" class="section">
+    <section id="features" class="section reveal">
         <div class="container">
             <div class="section-header">
                 <h2>Everything You Need to Manage Your Money</h2>
@@ -64,47 +100,65 @@
             </div>
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">💬</div>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><text x="12" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#D97706" stroke="none">$</text></svg>
+                    </div>
                     <h3>Auto-Classification</h3>
                     <p>Forward bank SMS messages and AuraSpend automatically extracts &amp; categorizes transactions. No manual entry required.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">📊</div>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    </div>
                     <h3>Budget Tracking</h3>
                     <p>Set monthly budgets per category and track progress in real-time. Get notified when you're approaching limits.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🔄</div>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M16 15l-3 3-2-2"/></svg>
+                    </div>
                     <h3>Recurring Subscriptions</h3>
                     <p>Track all your subscriptions in one place. Never miss a renewal or forget to cancel an unused service.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">☁️</div>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><path d="M12 13l-2 2 2 2"/><path d="M14 15h-4"/></svg>
+                    </div>
                     <h3>Google Drive Backup</h3>
-                    <p>Secure, encrypted backups to Google Drive in a hidden app folder. Your data stays yours, accessible only by you.</p>
+                    <p>Secure backups to your Google Drive in an app-specific folder. Your data stays yours, accessible only by you.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">📁</div>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                    </div>
                     <h3>CSV Import / Export</h3>
                     <p>Import transactions from your bank or export your data for analysis in spreadsheets. Full data portability.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">📈</div>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
                     <h3>Insights &amp; Analytics</h3>
                     <p>Beautiful charts and spending breakdowns help you understand your habits and make smarter financial decisions.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🌙</div>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><line x1="17" y1="8" x2="17.01" y2="8"/></svg>
+                    </div>
                     <h3>Pure AMOLED Theme</h3>
                     <p>True black pixels save battery on OLED screens. A stunning dark interface that's easy on the eyes, day or night.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🎨</div>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17" cy="15" r="2"/><circle cx="7" cy="14" r="3"/><path d="M4 21l4-4"/></svg>
+                    </div>
                     <h3>Material 3 Design</h3>
                     <p>Built from the ground up with Material Design 3, dynamic colors, spring animations, and edge-to-edge immersive UI.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🔓</div>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                    </div>
                     <h3>100% Open Source</h3>
                     <p>Freely available under Apache 2.0. Build it yourself, audit the code, or contribute. No vendor lock-in, no hidden tracking.</p>
                 </div>
@@ -112,7 +166,7 @@
         </div>
     </section>
 
-    <section id="why" class="section section-alt">
+    <section id="why" class="section section-alt reveal">
         <div class="container">
             <div class="section-header">
                 <h2>Why AuraSpend?</h2>
@@ -123,7 +177,7 @@
                     <div class="why-marker">1</div>
                     <div>
                         <h4>Privacy First, Always</h4>
-                        <p>Your financial data never touches our servers. Everything stays on your device and your Google Drive &mdash; encrypted and under your control. No accounts to create, no data to mine.</p>
+                        <p>Your financial data never touches our servers. Everything stays on your device and your Google Drive — under your control. No accounts to create, no data to mine.</p>
                     </div>
                 </div>
                 <div class="why-item">
@@ -151,7 +205,7 @@
         </div>
     </section>
 
-    <section class="section">
+    <section class="section reveal">
         <div class="container">
             <div class="section-header">
                 <h2>Open Source. Open Future.</h2>
@@ -177,7 +231,7 @@
         </div>
     </section>
 
-    <section class="cta-section">
+    <section class="cta-section reveal">
         <div class="container">
             <h2>Ready to Take Control of Your Finances?</h2>
             <p>Download AuraSpend free today and experience expense management the way it should be.</p>
@@ -223,5 +277,28 @@
             </div>
         </div>
     </footer>
+    <script>
+        document.querySelector('.hamburger')?.addEventListener('click', () => {
+            const nav = document.getElementById('navLinks');
+            const btn = document.querySelector('.hamburger');
+            const expanded = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', !expanded);
+            nav.classList.toggle('open');
+        });
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinks')?.classList.remove('open');
+                document.querySelector('.hamburger')?.setAttribute('aria-expanded', 'false');
+            });
+        });
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
 </body>
 </html>

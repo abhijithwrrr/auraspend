@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,7 +38,7 @@ fun CategoryManagementScreen(
                 title = { Text("Manage Categories") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -238,7 +240,7 @@ private fun categoryIcon(iconName: String): ImageVector {
         "restaurant" -> Icons.Default.Restaurant
         "directions_car" -> Icons.Default.DirectionsCar
         "shopping_bag" -> Icons.Default.ShoppingBag
-        "receipt_long" -> Icons.Default.ReceiptLong
+        "receipt_long" -> Icons.AutoMirrored.Filled.ReceiptLong
         "movie" -> Icons.Default.Movie
         "local_hospital" -> Icons.Default.LocalHospital
         "school" -> Icons.Default.School
