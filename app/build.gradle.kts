@@ -80,6 +80,9 @@ dependencies {
     implementation("com.google.http-client:google-http-client-gson:1.44.2")
     implementation("com.google.guava:guava:33.0.0-android")
 
+    // WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
+
     // Room
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("androidx.room:room-ktx:2.8.4")

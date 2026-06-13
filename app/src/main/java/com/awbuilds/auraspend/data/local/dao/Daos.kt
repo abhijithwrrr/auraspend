@@ -4,6 +4,10 @@ import androidx.room.*
 import com.awbuilds.auraspend.data.local.entities.*
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * DAO interfaces for Room database access.
+ */
+
 @Dao
 interface TransactionDao {
     @Query("SELECT * FROM transactions ORDER BY dateTimestamp DESC")
@@ -75,8 +79,29 @@ interface BudgetDao {
     @Delete
     suspend fun deleteBudget(budget: BudgetEntity)
 
+    @Query("DELETE FROM budgets WHERE id = :budgetId")
+    suspend fun deleteBudgetById(budgetId: String)
+
     @Query("UPDATE budgets SET spentAmount = :spent WHERE categoryId = :categoryId")
     suspend fun updateSpentAmount(categoryId: String, spent: Double)
+}
+
+@Dao
+interface SavingsGoalDao {
+    @Query("SELECT * FROM savings_goals")
+    fun getAllSavingsGoals(): Flow<List<SavingsGoalEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSavingsGoal(goal: SavingsGoalEntity)
+
+    @Delete
+    suspend fun deleteSavingsGoal(goal: SavingsGoalEntity)
+
+    @Query("DELETE FROM savings_goals WHERE id = :goalId")
+    suspend fun deleteSavingsGoalById(goalId: String)
+
+    @Update
+    suspend fun updateSavingsGoal(goal: SavingsGoalEntity)
 }
 
 @Dao

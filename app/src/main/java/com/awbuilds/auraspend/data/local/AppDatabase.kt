@@ -12,9 +12,10 @@ import com.awbuilds.auraspend.data.local.entities.*
         TransactionEntity::class,
         CategoryEntity::class,
         BudgetEntity::class,
-        SubscriptionEntity::class
+        SubscriptionEntity::class,
+        SavingsGoalEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -22,6 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun budgetDao(): BudgetDao
     abstract fun subscriptionDao(): SubscriptionDao
+    abstract fun savingsGoalDao(): SavingsGoalDao
 
     companion object {
         @Volatile
@@ -34,7 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "auraspend_db"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(false)
                     .build()
                 INSTANCE = instance
                 instance

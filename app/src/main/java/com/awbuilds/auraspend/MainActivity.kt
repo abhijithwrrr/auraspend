@@ -23,14 +23,22 @@ class MainActivity : ComponentActivity() {
             var themeMode by remember { mutableStateOf(
                 AppThemeMode.valueOf(prefs.getString("theme_mode", AppThemeMode.LIGHT.name) ?: AppThemeMode.LIGHT.name)
             ) }
+            var dynamicColor by remember { mutableStateOf(
+                prefs.getBoolean("dynamic_color", true)
+            ) }
 
-            AuraSpendTheme(themeMode = themeMode) {
+            AuraSpendTheme(themeMode = themeMode, dynamicColor = dynamicColor) {
                 AuraSpendNavHost(
                     repository = app.transactionRepository,
                     themeMode = themeMode,
                     onThemeChanged = { mode ->
                         themeMode = mode
                         prefs.edit().putString("theme_mode", mode.name).apply()
+                    },
+                    dynamicColor = dynamicColor,
+                    onDynamicColorChanged = { enabled ->
+                        dynamicColor = enabled
+                        prefs.edit().putBoolean("dynamic_color", enabled).apply()
                     }
                 )
             }

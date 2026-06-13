@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -210,9 +209,11 @@ fun AddTransactionScreen(
                                 containerColor = if (isSelected)
                                     Color(category.color).copy(alpha = 0.2f)
                                 else
-                                    MaterialTheme.colorScheme.surfaceVariant
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = MaterialTheme.shapes.small,
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                             border = if (isSelected)
                                 androidx.compose.foundation.BorderStroke(2.dp, Color(category.color))
                             else null

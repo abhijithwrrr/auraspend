@@ -1,15 +1,16 @@
 package com.awbuilds.auraspend.ui.classification
 
 import android.Manifest
-import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
-import android.database.Cursor
-import android.net.Uri
 import android.provider.Telephony
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.awbuilds.auraspend.data.classification.ClassifiedSms
+import com.awbuilds.auraspend.data.classification.SmsAutoClassifier
+import com.awbuilds.auraspend.data.classification.TransactionClassifier
+import com.awbuilds.auraspend.domain.model.ParsedBankMessage
 import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.domain.usecase.ClassifyMessageUseCase
 import com.awbuilds.auraspend.domain.usecase.SaveTransactionUseCase
@@ -55,9 +56,9 @@ class ClassificationViewModel(
             }
             is ClassificationViewIntent.SmsPermissionResult -> {
                 _state.update { it.copy(smsPermissionGranted = intent.granted) }
-                if (intent.granted) loadSmsMessages()
+                if (intent.granted) loadAndClassifyAll()
             }
-            is ClassificationViewIntent.LoadSmsMessages -> loadSmsMessages()
+            is ClassificationViewIntent.LoadSmsMessages -> loadAndClassifyAll()
             is ClassificationViewIntent.SmsSelected -> {
                 _state.update {
                     it.copy(
@@ -71,6 +72,13 @@ class ClassificationViewModel(
             is ClassificationViewIntent.ResetSuccess -> {
                 _state.update { it.copy(saveSuccess = false) }
             }
+            is ClassificationViewIntent.SetCategories -> {
+                _state.update { it.copy(availableCategories = intent.categories) }
+            }
+            is ClassificationViewIntent.LoadAndClassifyAll -> loadAndClassifyAll()
+            is ClassificationViewIntent.SaveClassifiedSms -> saveClassifiedSms(intent.smsId)
+            is ClassificationViewIntent.SaveAllClassified -> saveAllClassified()
+            is ClassificationViewIntent.DismissClassifiedSms -> dismissClassifiedSms(intent.smsId)
         }
     }
 
@@ -106,8 +114,8 @@ class ClassificationViewModel(
                 val note = if (s.useManualEntry) s.manualNote else (s.manualNote.ifBlank { parsed?.note } ?: "Transaction")
                 val merchant = if (s.useManualEntry) s.manualMerchant else parsed?.merchant
 
-                val transaction = com.awbuilds.auraspend.data.classification.TransactionClassifier.toTransaction(
-                    parsed = parsed ?: com.awbuilds.auraspend.domain.model.ParsedBankMessage(rawMessage = s.rawMessage),
+                val transaction = TransactionClassifier.toTransaction(
+                    parsed = parsed ?: ParsedBankMessage(rawMessage = s.rawMessage),
                     categoryId = s.selectedCategoryId,
                     note = note,
                     manualAmount = amount,
@@ -124,70 +132,88 @@ class ClassificationViewModel(
         }
     }
 
-    private fun loadSmsMessages() {
+    private fun loadAndClassifyAll() {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS)
+            != PackageManager.PERMISSION_GRANTED
+        ) return
+
         viewModelScope.launch {
-            try {
-                val messages = queryBankSms()
-                _state.update { it.copy(smsMessages = messages) }
-            } catch (e: Exception) {
-                _state.update { it.copy(error = "Failed to load SMS: ${e.message}") }
+            _state.update { it.copy(isBatchClassifying = true) }
+
+            val classified = SmsAutoClassifier.readAndClassify(
+                context = context,
+                maxMessages = 50
+            )
+
+            val now = System.currentTimeMillis()
+            context.getSharedPreferences("auraspend_prefs", Context.MODE_PRIVATE)
+                .edit().putLong("last_sms_scan", now).apply()
+
+            _state.update {
+                it.copy(
+                    classifiedSmsList = classified,
+                    smsMessages = classified.map { c -> c.sms },
+                    isBatchClassifying = false
+                )
             }
         }
     }
 
-    private fun queryBankSms(): List<SmsInfo> {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS)
-            != PackageManager.PERMISSION_GRANTED
-        ) return emptyList()
+    private fun saveClassifiedSms(smsId: String) {
+        viewModelScope.launch {
+            try {
+                val classified = _state.value.classifiedSmsList.find { it.sms.id == smsId } ?: return@launch
+                val categories = _state.value.availableCategories
+                val categoryId = classified.parsed.categoryId
+                val effectiveCategory = if (categories.any { it.id == categoryId }) categoryId else "cat_other"
 
-        val bankKeywords = listOf(
-            "HDFC", "ICICI", "SBI", "Axis", "Kotak", "Yes Bank",
-            "PNB", "Canara", "BOB", "UPI", "credited", "debited",
-            "A/c", "account", "transaction", "spent", "paid"
-        )
+                val transaction = SmsAutoClassifier.toTransaction(classified, effectiveCategory)
+                saveTransactionUseCase(transaction)
 
-        val uri = Telephony.Sms.Inbox.CONTENT_URI
-        val projection = arrayOf(
-            Telephony.Sms.Inbox._ID,
-            Telephony.Sms.Inbox.ADDRESS,
-            Telephony.Sms.Inbox.BODY,
-            Telephony.Sms.Inbox.DATE
-        )
-        val selection = bankKeywords.joinToString(" OR ") {
-            "${Telephony.Sms.Inbox.BODY} LIKE '%$it%'"
-        }
-        val sortOrder = "${Telephony.Sms.Inbox.DATE} DESC LIMIT 50"
-
-        val cursor: Cursor? = context.contentResolver.query(
-            uri, projection, selection, null, sortOrder
-        )
-
-        val messages = mutableListOf<SmsInfo>()
-        cursor?.use { c ->
-            val idIdx = c.getColumnIndex(Telephony.Sms.Inbox._ID)
-            val addrIdx = c.getColumnIndex(Telephony.Sms.Inbox.ADDRESS)
-            val bodyIdx = c.getColumnIndex(Telephony.Sms.Inbox.BODY)
-            val dateIdx = c.getColumnIndex(Telephony.Sms.Inbox.DATE)
-
-            while (c.moveToNext()) {
-                val id = if (idIdx >= 0) c.getString(idIdx) else ""
-                val addr = if (addrIdx >= 0) c.getString(addrIdx) else ""
-                val body = if (bodyIdx >= 0) c.getString(bodyIdx) else ""
-                val date = if (dateIdx >= 0) c.getLong(dateIdx) else 0L
-
-                // Filter to likely bank messages
-                val isBankSms = bankKeywords.any { keyword ->
-                    body.contains(keyword, ignoreCase = true) ||
-                            addr.contains(keyword, ignoreCase = true)
+                _state.update {
+                    it.copy(
+                        classifiedSmsList = it.classifiedSmsList.map { c ->
+                            if (c.sms.id == smsId) c.copy(isSaved = true) else c
+                        }
+                    )
                 }
-
-                if (isBankSms) {
-                    messages.add(SmsInfo(id = id, address = addr, body = body, timestamp = date))
-                }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message ?: "Failed to save") }
             }
         }
+    }
 
-        return messages.sortedByDescending { it.timestamp }
+    private fun saveAllClassified() {
+        viewModelScope.launch {
+            _state.update { it.copy(isSavingAll = true, error = null) }
+            try {
+                val categories = _state.value.availableCategories
+                val unsaved = _state.value.classifiedSmsList.filter { !it.isSaved }
+
+                for (classified in unsaved) {
+                    val categoryId = classified.parsed.categoryId
+                    val effectiveCategory = if (categories.any { it.id == categoryId }) categoryId else "cat_other"
+                    val transaction = SmsAutoClassifier.toTransaction(classified, effectiveCategory)
+                    saveTransactionUseCase(transaction)
+                }
+
+                _state.update {
+                    it.copy(
+                        isSavingAll = false,
+                        classifiedSmsList = it.classifiedSmsList.map { c -> c.copy(isSaved = true) },
+                        saveSuccess = true
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isSavingAll = false, error = e.message ?: "Failed to save") }
+            }
+        }
+    }
+
+    private fun dismissClassifiedSms(smsId: String) {
+        _state.update {
+            it.copy(classifiedSmsList = it.classifiedSmsList.filter { c -> c.sms.id != smsId })
+        }
     }
 
     private fun formatAmount(amount: Double): String {
