@@ -48,7 +48,28 @@ class BudgetViewModel(
                         id = s.editingBudget?.id ?: java.util.UUID.randomUUID().toString(),
                         categoryId = s.selectedCategoryId,
                         limitAmount = amount,
-                        spentAmount = s.editingBudget?.spentAmount ?: 0.0,
+                        // Calculate spent amount based on transactions in the selected period
+                        spentAmount = run {
+                            // Determine period start and end timestamps
+                            val now = java.time.LocalDateTime.now()
+                            val periodStart = when (s.selectedPeriod) {
+                                BudgetPeriod.WEEKLY -> now.with(java.time.DayOfWeek.MONDAY).with(java.time.LocalTime.MIN)
+                                BudgetPeriod.MONTHLY -> now.withDayOfMonth(1).with(java.time.LocalTime.MIN)
+                                BudgetPeriod.YEARLY -> now.withDayOfYear(1).with(java.time.LocalTime.MIN)
+                            }
+                            val periodEnd = when (s.selectedPeriod) {
+                                BudgetPeriod.WEEKLY -> now.with(java.time.DayOfWeek.SUNDAY).with(java.time.LocalTime.MAX)
+                                BudgetPeriod.MONTHLY -> now.with(java.time.temporal.TemporalAdjusters.lastDayOfMonth()).with(java.time.LocalTime.MAX)
+                                BudgetPeriod.YEARLY -> now.with(java.time.temporal.TemporalAdjusters.lastDayOfYear()).with(java.time.LocalTime.MAX)
+                            }
+                            val startEpoch = periodStart.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                            val endEpoch = periodEnd.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                            // Sum expenses for the selected category within period
+                            repository.getTransactionsInRange(startEpoch, endEpoch)
+                                .first()
+                                .filter { it.categoryId == s.selectedCategoryId && it.type == com.awbuilds.auraspend.domain.model.TransactionType.EXPENSE }
+                                .sumOf { it.amount }
+                        },
                         period = s.selectedPeriod
                     )
                 )
@@ -63,7 +84,7 @@ class BudgetViewModel(
     private fun deleteBudget(budgetId: String) {
         viewModelScope.launch {
             val budget = _state.value.budgets.find { it.id == budgetId } ?: return@launch
-            repository.saveBudget(budget.copy(limitAmount = 0.0))
+            repository.deleteBudget(budgetId)
             loadBudgets()
         }
     }
