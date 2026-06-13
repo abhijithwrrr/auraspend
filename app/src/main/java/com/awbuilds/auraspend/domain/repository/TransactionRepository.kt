@@ -23,6 +23,12 @@ interface TransactionRepository {
     suspend fun getBudgetByCategory(categoryId: String): Budget?
     suspend fun saveBudget(budget: Budget)
     suspend fun updateBudgetSpent(categoryId: String, spent: Double)
+    suspend fun deleteBudget(budgetId: String)
+
+    fun getAllSavingsGoals(): Flow<List<SavingsGoal>>
+    suspend fun saveSavingsGoal(goal: SavingsGoal)
+    suspend fun deleteSavingsGoal(goalId: String)
+    suspend fun updateSavingsGoal(goal: SavingsGoal)
 
     fun getActiveSubscriptions(): Flow<List<Subscription>>
     suspend fun saveSubscription(subscription: Subscription)

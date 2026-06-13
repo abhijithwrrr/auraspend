@@ -11,6 +11,7 @@ data class BudgetViewState(
     val selectedCategoryId: String = "",
     val limitAmount: String = "",
     val selectedPeriod: BudgetPeriod = BudgetPeriod.MONTHLY,
+    val isAdding: Boolean = false,
     val isSaving: Boolean = false,
     val error: String? = null
 )

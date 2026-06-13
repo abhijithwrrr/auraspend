@@ -1,9 +1,11 @@
 package com.awbuilds.auraspend
 
 import android.app.Application
+import com.awbuilds.auraspend.data.classification.AutoClassificationWorker
 import com.awbuilds.auraspend.data.classification.defaultCategories
 import com.awbuilds.auraspend.data.local.AppDatabase
 import com.awbuilds.auraspend.data.local.entities.CategoryEntity
+import com.awbuilds.auraspend.data.remote.DriveSyncManager
 import com.awbuilds.auraspend.data.repository.TransactionRepositoryImpl
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
 import com.awbuilds.auraspend.domain.usecase.ClassifyMessageUseCase
@@ -27,7 +29,7 @@ class AuraSpendApp : Application() {
     lateinit var saveTransactionUseCase: SaveTransactionUseCase
         private set
 
-    lateinit var driveSyncManager: com.awbuilds.auraspend.data.remote.DriveSyncManager
+    lateinit var driveSyncManager: DriveSyncManager
         private set
 
     private val applicationScope = CoroutineScope(Dispatchers.IO)
@@ -41,13 +43,16 @@ class AuraSpendApp : Application() {
             transactionDao = database.transactionDao(),
             categoryDao = database.categoryDao(),
             budgetDao = database.budgetDao(),
-            subscriptionDao = database.subscriptionDao()
+            subscriptionDao = database.subscriptionDao(),
+            savingsGoalDao = database.savingsGoalDao()
         )
 
         classifyMessageUseCase = ClassifyMessageUseCase()
         saveTransactionUseCase = SaveTransactionUseCase(transactionRepository)
 
-        driveSyncManager = com.awbuilds.auraspend.data.remote.DriveSyncManager(this)
+        driveSyncManager = DriveSyncManager(this)
+
+        AutoClassificationWorker.schedule(this)
 
         applicationScope.launch {
             seedDefaultCategories()

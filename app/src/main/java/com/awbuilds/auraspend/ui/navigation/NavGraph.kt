@@ -1,5 +1,6 @@
 package com.awbuilds.auraspend.ui.navigation
 
+import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -12,28 +13,36 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.launch
+import com.awbuilds.auraspend.AuraSpendApp
+import com.awbuilds.auraspend.data.local.BackupSerializer
+import com.awbuilds.auraspend.data.local.CsvManager
+import com.awbuilds.auraspend.domain.model.Transaction
+import com.awbuilds.auraspend.domain.repository.TransactionRepository
+import com.awbuilds.auraspend.domain.usecase.ClassifyMessageUseCase
+import com.awbuilds.auraspend.domain.usecase.SaveTransactionUseCase
 import com.awbuilds.auraspend.ui.analytics.AnalyticsScreen
+import com.awbuilds.auraspend.ui.budget.BudgetScreen
+import com.awbuilds.auraspend.ui.budget.BudgetViewModel
+import com.awbuilds.auraspend.ui.category.CategoryManagementScreen
 import com.awbuilds.auraspend.ui.classification.ClassificationScreen
+import com.awbuilds.auraspend.ui.classification.ClassificationViewIntent
 import com.awbuilds.auraspend.ui.classification.ClassificationViewModel
 import com.awbuilds.auraspend.ui.core.AuraSpendScaffold
 import com.awbuilds.auraspend.ui.home.DashboardScreen
 import com.awbuilds.auraspend.ui.home.DashboardViewModel
 import com.awbuilds.auraspend.ui.onboarding.OnboardingScreen
-import com.awbuilds.auraspend.ui.category.CategoryManagementScreen
+import com.awbuilds.auraspend.ui.recurring.RecurringScreen
 import com.awbuilds.auraspend.ui.settings.SettingsScreen
 import com.awbuilds.auraspend.ui.splash.SplashScreen
 import com.awbuilds.auraspend.ui.theme.AppThemeMode
 import com.awbuilds.auraspend.ui.transaction.AddTransactionScreen
 import com.awbuilds.auraspend.ui.transaction.TransactionListScreen
-import com.awbuilds.auraspend.domain.repository.TransactionRepository
+import kotlinx.coroutines.launch
 
 object Screen {
     const val SPLASH = "splash"
@@ -45,7 +54,6 @@ object Screen {
     const val SUBSCRIPTIONS = "subscriptions"
     const val CATEGORIES = "categories"
 
-    // Bottom nav tab routes (relative to MainScreen)
     const val HOME = "home"
     const val TRANSACTIONS = "transactions"
     const val ANALYTICS = "analytics"
@@ -57,16 +65,20 @@ object Screen {
 fun AuraSpendNavHost(
     repository: TransactionRepository,
     themeMode: AppThemeMode = AppThemeMode.LIGHT,
-    onThemeChanged: (AppThemeMode) -> Unit = {}
+    onThemeChanged: (AppThemeMode) -> Unit = {},
+    dynamicColor: Boolean = true,
+    onDynamicColorChanged: (Boolean) -> Unit = {}
 ) {
     val navController = rememberNavController()
-    val currentEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = currentEntry?.destination?.route
+    val context = LocalContext.current
+    val prefs = context.getSharedPreferences("auraspend_prefs", Context.MODE_PRIVATE)
+    val onboardingCompleted = prefs.getBoolean("onboarding_completed", false)
+    val startDestination = if (onboardingCompleted) Screen.MAIN else Screen.SPLASH
 
     SharedTransitionLayout {
         NavHost(
             navController = navController,
-            startDestination = Screen.SPLASH
+            startDestination = startDestination
         ) {
             composable(Screen.SPLASH) {
                 SplashScreen(
@@ -79,8 +91,7 @@ fun AuraSpendNavHost(
             }
 
             composable(Screen.ONBOARDING) {
-                val context = LocalContext.current
-                val app = context.applicationContext as com.awbuilds.auraspend.AuraSpendApp
+                val app = context.applicationContext as AuraSpendApp
                 val driveSyncManager = app.driveSyncManager
                 val scope = rememberCoroutineScope()
 
@@ -96,12 +107,13 @@ fun AuraSpendNavHost(
                             isRestoring = true
                             val json = driveSyncManager.restoreLocalData()
                             if (json != null) {
-                                val backupData = com.awbuilds.auraspend.data.local.BackupSerializer.deserialize(json)
+                                val backupData = BackupSerializer.deserialize(json)
                                 repository.saveTransactions(backupData.transactions)
                                 repository.saveCategories(backupData.categories)
                                 backupData.budgets.forEach { repository.saveBudget(it) }
                                 backupData.subscriptions.forEach { repository.saveSubscription(it) }
                                 isRestoring = false
+                                prefs.edit().putBoolean("onboarding_completed", true).apply()
                                 navController.navigate(Screen.MAIN) {
                                     popUpTo(Screen.ONBOARDING) { inclusive = true }
                                 }
@@ -117,6 +129,7 @@ fun AuraSpendNavHost(
 
                 OnboardingScreen(
                     onFinished = {
+                        prefs.edit().putBoolean("onboarding_completed", true).apply()
                         navController.navigate(Screen.MAIN) {
                             popUpTo(Screen.ONBOARDING) { inclusive = true }
                         }
@@ -135,18 +148,29 @@ fun AuraSpendNavHost(
                     repository = repository,
                     navController = navController,
                     themeMode = themeMode,
-                    onThemeChanged = onThemeChanged
+                    onThemeChanged = onThemeChanged,
+                    dynamicColor = dynamicColor,
+                    onDynamicColorChanged = onDynamicColorChanged
                 )
             }
 
             composable(Screen.CLASSIFICATION) {
                 val context = LocalContext.current
+                val categories by repository.getAllCategories()
+                    .collectAsState(initial = emptyList())
                 val viewModel = remember {
                     ClassificationViewModel(
-                        classifyMessageUseCase = com.awbuilds.auraspend.domain.usecase.ClassifyMessageUseCase(),
-                        saveTransactionUseCase = com.awbuilds.auraspend.domain.usecase.SaveTransactionUseCase(repository),
+                        classifyMessageUseCase = ClassifyMessageUseCase(),
+                        saveTransactionUseCase = SaveTransactionUseCase(repository),
                         context = context
                     )
+                }
+                LaunchedEffect(categories) {
+                    if (categories.isNotEmpty()) {
+                        viewModel.handleIntent(
+                            ClassificationViewIntent.SetCategories(categories)
+                        )
+                    }
                 }
                 ClassificationScreen(
                     viewModel = viewModel,
@@ -155,15 +179,15 @@ fun AuraSpendNavHost(
             }
 
             composable(Screen.BUDGETS) {
-                val viewModel = remember { com.awbuilds.auraspend.ui.budget.BudgetViewModel(repository) }
-                com.awbuilds.auraspend.ui.budget.BudgetScreen(
+                val viewModel = remember { BudgetViewModel(repository) }
+                BudgetScreen(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
 
             composable(Screen.SUBSCRIPTIONS) {
-                com.awbuilds.auraspend.ui.recurring.RecurringScreen(
+                RecurringScreen(
                     repository = repository,
                     onBack = { navController.popBackStack() }
                 )
@@ -178,7 +202,7 @@ fun AuraSpendNavHost(
                     onSave = { amount, categoryId, note, merchant, type, date ->
                         scope.launch {
                             repository.saveTransaction(
-                                com.awbuilds.auraspend.domain.model.Transaction(
+                                Transaction(
                                     amount = amount,
                                     categoryId = categoryId,
                                     note = note,
@@ -219,16 +243,14 @@ private fun MainScreen(
     repository: TransactionRepository,
     navController: NavHostController,
     themeMode: AppThemeMode = AppThemeMode.LIGHT,
-    onThemeChanged: (AppThemeMode) -> Unit = {}
+    onThemeChanged: (AppThemeMode) -> Unit = {},
+    dynamicColor: Boolean = true,
+    onDynamicColorChanged: (Boolean) -> Unit = {}
 ) {
-    val dashboardViewModel = remember {
-        DashboardViewModel(repository)
-    }
+    val dashboardViewModel = remember { DashboardViewModel(repository) }
 
-    val transactions by repository.getAllTransactions()
-        .collectAsState(initial = emptyList())
-    val categories by repository.getAllCategories()
-        .collectAsState(initial = emptyList())
+    val transactions by repository.getAllTransactions().collectAsState(initial = emptyList())
+    val categories by repository.getAllCategories().collectAsState(initial = emptyList())
 
     val scope = rememberCoroutineScope()
     var currentTab by remember { mutableStateOf(Screen.HOME) }
@@ -239,7 +261,7 @@ private fun MainScreen(
     ) { uri ->
         if (uri != null) {
             scope.launch {
-                val file = com.awbuilds.auraspend.data.local.CsvManager.exportToCsv(context, transactions)
+                val file = CsvManager.exportToCsv(context, transactions)
                 context.contentResolver.openOutputStream(uri)?.use { out ->
                     file.inputStream().use { it.copyTo(out) }
                 }
@@ -252,7 +274,7 @@ private fun MainScreen(
     ) { uri ->
         if (uri != null) {
             scope.launch {
-                val imported = com.awbuilds.auraspend.data.local.CsvManager.importFromCsv(context, uri)
+                val imported = CsvManager.importFromCsv(context, uri)
                 repository.saveTransactions(imported)
             }
         }
@@ -262,111 +284,130 @@ private fun MainScreen(
 
     AuraSpendScaffold(
         currentRoute = currentTab,
-        onNavigate = { route ->
-            currentTab = route
-        },
-        onAddClick = {
-            showAddSheet = true
-        }
+        onNavigate = { currentTab = it },
+        onAddClick = { showAddSheet = true }
     ) {
         when (currentTab) {
-            Screen.HOME -> {
-                DashboardScreen(
-                    viewModel = dashboardViewModel,
-                    onNavigateToTransactions = { currentTab = Screen.TRANSACTIONS },
-                    onNavigateToAdd = { showAddSheet = true },
-                    onNavigateToAnalytics = { currentTab = Screen.ANALYTICS }
-                )
-            }
-            Screen.TRANSACTIONS -> {
-                TransactionListScreen(
-                    transactions = transactions,
-                    categories = categories,
-                    onSearch = { },
-                    onDelete = { id ->
-                        scope.launch { repository.deleteTransaction(id) }
-                    },
-                    onBack = { currentTab = Screen.HOME }
-                )
-            }
-            Screen.ANALYTICS -> {
-                AnalyticsScreen(
-                    transactions = transactions,
-                    categories = categories,
-                    onBack = { currentTab = Screen.HOME }
-                )
-            }
-            Screen.SETTINGS -> {
-                SettingsScreen(
-                    currentTheme = themeMode,
-                    onThemeChanged = onThemeChanged,
-                    onBack = { currentTab = Screen.HOME },
-                    onExportCsv = { csvLauncher.launch("AuraSpend_export.csv") },
-                    onImportCsv = { importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values")) },
-                    onManageCategories = { navController.navigate(Screen.CATEGORIES) },
-                    onManageSubscriptions = { navController.navigate(Screen.SUBSCRIPTIONS) },
-                    onManageBudgets = { navController.navigate(Screen.BUDGETS) }
-                )
-            }
+            Screen.HOME -> DashboardScreen(
+                viewModel = dashboardViewModel,
+                onNavigateToTransactions = { currentTab = Screen.TRANSACTIONS },
+                onNavigateToAdd = { showAddSheet = true },
+                onNavigateToAnalytics = { currentTab = Screen.ANALYTICS }
+            )
+            Screen.TRANSACTIONS -> TransactionListScreen(
+                transactions = transactions,
+                categories = categories,
+                onSearch = { },
+                onDelete = { id -> scope.launch { repository.deleteTransaction(id) } },
+                onBack = { currentTab = Screen.HOME }
+            )
+            Screen.ANALYTICS -> AnalyticsScreen(
+                transactions = transactions,
+                categories = categories,
+                onBack = { currentTab = Screen.HOME }
+            )
+            Screen.SETTINGS -> SettingsScreen(
+                currentTheme = themeMode,
+                onThemeChanged = onThemeChanged,
+                dynamicColor = dynamicColor,
+                onDynamicColorChanged = onDynamicColorChanged,
+                onBack = { currentTab = Screen.HOME },
+                onExportCsv = { csvLauncher.launch("AuraSpend_export.csv") },
+                onImportCsv = { importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values")) },
+                onManageCategories = { navController.navigate(Screen.CATEGORIES) },
+                onManageSubscriptions = { navController.navigate(Screen.SUBSCRIPTIONS) },
+                onManageBudgets = { navController.navigate(Screen.BUDGETS) }
+            )
         }
     }
 
     if (showAddSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showAddSheet = false }
+        AddTransactionSheet(
+            onSmartAdd = {
+                showAddSheet = false
+                navController.navigate(Screen.CLASSIFICATION)
+            },
+            onManualAdd = {
+                showAddSheet = false
+                navController.navigate(Screen.ADD_TRANSACTION)
+            },
+            onDismiss = { showAddSheet = false }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddTransactionSheet(
+    onSmartAdd: () -> Unit,
+    onManualAdd: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 3.dp
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Text(
+                "Add Transaction",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    "Add Transaction",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                Card(
+                    onClick = onSmartAdd,
+                    modifier = Modifier.weight(1f),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+                    shape = MaterialTheme.shapes.medium,
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
-                    OutlinedCard(
-                        onClick = {
-                            showAddSheet = false
-                            navController.navigate(Screen.CLASSIFICATION)
-                        },
-                        modifier = Modifier.size(140.dp, 120.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(32.dp))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Smart Add", style = MaterialTheme.typography.labelLarge)
-                            Text("SMS / Paste", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                    OutlinedCard(
-                        onClick = {
-                            showAddSheet = false
-                            navController.navigate(Screen.ADD_TRANSACTION)
-                        },
-                        modifier = Modifier.size(140.dp, 120.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(Icons.Default.Create, contentDescription = null, modifier = Modifier.size(32.dp))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Manual", style = MaterialTheme.typography.labelLarge)
-                            Text("Enter details", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
+                    SheetOptionContent(
+                        icon = Icons.Default.AutoAwesome,
+                        title = "Smart Add",
+                        subtitle = "SMS / Paste",
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+                Card(
+                    onClick = onManualAdd,
+                    modifier = Modifier.weight(1f),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    shape = MaterialTheme.shapes.medium,
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                ) {
+                    SheetOptionContent(
+                        icon = Icons.Default.EditNote,
+                        title = "Manual",
+                        subtitle = "Enter details",
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SheetOptionContent(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    subtitle: String,
+    contentColor: androidx.compose.ui.graphics.Color
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(36.dp), tint = contentColor)
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(title, style = MaterialTheme.typography.labelLarge, color = contentColor)
+        Text(subtitle, style = MaterialTheme.typography.labelSmall, color = contentColor.copy(alpha = 0.7f))
     }
 }

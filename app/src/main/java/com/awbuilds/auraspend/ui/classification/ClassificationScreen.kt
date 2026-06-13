@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.KeyboardType.Companion.Decimal
 import androidx.compose.ui.unit.dp
 import com.awbuilds.auraspend.domain.model.TransactionType
+import com.awbuilds.auraspend.data.classification.ClassifiedSms
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -86,11 +89,24 @@ fun ClassificationScreen(
                     },
                     text = { Text("From SMS") }
                 )
+                Tab(
+                    selected = selectedTab == 2,
+                    onClick = {
+                        selectedTab = 2
+                        if (!state.smsPermissionGranted) {
+                            smsPermissionLauncher.launch(Manifest.permission.READ_SMS)
+                        } else {
+                            viewModel.handleIntent(ClassificationViewIntent.LoadAndClassifyAll)
+                        }
+                    },
+                    text = { Text("Auto Detect") }
+                )
             }
 
             when (selectedTab) {
                 0 -> PasteMessageTab(state, viewModel)
                 1 -> SmsListTab(state, viewModel, smsPermissionLauncher)
+                2 -> AutoDetectTab(state, viewModel, smsPermissionLauncher)
             }
         }
     }
@@ -177,8 +193,10 @@ private fun ClassificationResultCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -447,8 +465,10 @@ private fun SmsItem(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -482,4 +502,230 @@ private fun SmsItem(
 private fun formatTimestamp(timestamp: Long): String {
     val sdf = SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault())
     return sdf.format(Date(timestamp))
+}
+
+@Composable
+private fun AutoDetectTab(
+    state: ClassificationViewState,
+    viewModel: ClassificationViewModel,
+    permissionLauncher: androidx.activity.result.ActivityResultLauncher<String>
+) {
+    if (!state.smsPermissionGranted) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                "SMS Permission Required",
+                style = MaterialTheme.typography.titleLarge
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "Allow access to read bank SMS messages for auto-classification.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(onClick = { permissionLauncher.launch(Manifest.permission.READ_SMS) }) {
+                Text("Grant Permission")
+            }
+        }
+    } else if (state.isBatchClassifying) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                CircularProgressIndicator()
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Classifying bank messages...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    } else if (state.classifiedSmsList.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    "No bank SMS messages found.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        viewModel.handleIntent(ClassificationViewIntent.LoadAndClassifyAll)
+                    }
+                ) {
+                    Text("Scan SMS")
+                }
+            }
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "${state.classifiedSmsList.size} message${if (state.classifiedSmsList.size != 1) "s" else ""} found",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    if (state.classifiedSmsList.any { !it.isSaved }) {
+                        Button(
+                            onClick = {
+                                viewModel.handleIntent(ClassificationViewIntent.SaveAllClassified)
+                            },
+                            enabled = !state.isSavingAll
+                        ) {
+                            if (state.isSavingAll) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text("Save All")
+                            }
+                        }
+                    }
+                }
+            }
+            items(state.classifiedSmsList, key = { it.sms.id }) { classified ->
+                ClassifiedSmsItem(
+                    classified = classified,
+                    onSave = {
+                        viewModel.handleIntent(ClassificationViewIntent.SaveClassifiedSms(classified.sms.id))
+                    },
+                    onDismiss = {
+                        viewModel.handleIntent(ClassificationViewIntent.DismissClassifiedSms(classified.sms.id))
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClassifiedSmsItem(
+    classified: ClassifiedSms,
+    onSave: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val parsed = classified.parsed
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (classified.isSaved)
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            else
+                MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = classified.sms.address,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = formatTimestamp(classified.sms.timestamp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "₹${String.format("%.2f", parsed.amount ?: 0.0)}",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (parsed.type != null) {
+                        Text(
+                            text = "• ${parsed.type.name.lowercase().replaceFirstChar { it.uppercase() }}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    if (parsed.merchant != null) {
+                        Text(
+                            text = "• ${parsed.merchant}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Text(
+                    text = classified.sms.body,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
+            if (!classified.isSaved) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    FilledTonalButton(
+                        onClick = onSave,
+                        modifier = Modifier.size(40.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Done,
+                            contentDescription = "Save",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    TextButton(
+                        onClick = onDismiss,
+                        contentPadding = PaddingValues(0.dp),
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Text("x", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            } else {
+                Text(
+                    "Saved",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+    }
 }

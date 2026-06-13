@@ -37,7 +37,7 @@ class DashboardViewModel(
                 val monthStartEpoch = monthStart.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                 val monthEndEpoch = monthEnd.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-                val weekStart = now.with(DayOfWeek.MONDAY).with(LocalTime.MIN)
+                val weekStart = now.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).with(LocalTime.MIN)
 
                 val transactions = repository.getAllTransactions().first()
                 val monthlyTransactions = transactions.filter { t ->
