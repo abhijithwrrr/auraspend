@@ -2,6 +2,7 @@ package com.awbuilds.auraspend
 
 import android.content.Context
 import android.os.Bundle
+import com.awbuilds.auraspend.data.ai.ModelDownloadManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,6 +12,7 @@ import com.awbuilds.auraspend.ui.theme.AppThemeMode
 import com.awbuilds.auraspend.ui.theme.AuraSpendTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -43,5 +45,11 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Keep model download/ready status fresh when returning to the app.
+        ModelDownloadManager.sync(this)
     }
 }

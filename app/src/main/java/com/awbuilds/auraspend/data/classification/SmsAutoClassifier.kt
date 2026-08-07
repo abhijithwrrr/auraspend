@@ -11,10 +11,15 @@ import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.ui.classification.SmsInfo
 import java.time.LocalDateTime
 
+/** Live status of a message while it is being categorized, shown in the UI. */
+enum class SmsStatus { PENDING, CLASSIFYING, CLASSIFIED, SAVED, FAILED }
+
 data class ClassifiedSms(
     val sms: SmsInfo,
     val parsed: ParsedBankMessage,
-    val isSaved: Boolean = false
+    val isSaved: Boolean = false,
+    val isSubscription: Boolean = false,
+    val status: SmsStatus = SmsStatus.PENDING
 )
 
 object SmsAutoClassifier {
@@ -24,6 +29,25 @@ object SmsAutoClassifier {
         "PNB", "Canara", "BOB", "UPI", "credited", "debited",
         "A/c", "account", "transaction", "spent", "paid",
         "INR", "Rs.", "withdrawal", "deposit", "balance"
+    )
+
+    // Patterns to filter out OTP and alert messages
+    private val otpPatterns = listOf(
+        Regex("OTP|one\\s*time\\s*password|password|verify", RegexOption.IGNORE_CASE),
+        Regex("\\d{4,6}\\s+(?:is|was|to)\\s+(?:your|the|a)\\s+(?:OTP|password|code|PIN)", RegexOption.IGNORE_CASE)
+    )
+
+    private val alertPatterns = listOf(
+        Regex("approved|approval|confirmation", RegexOption.IGNORE_CASE),
+        Regex("alert|notification|notify", RegexOption.IGNORE_CASE),
+        Regex("data\\s+usage|data\\s+plan|gb\\s+data|internet\\s+usage", RegexOption.IGNORE_CASE),
+        Regex("maintenance|system|update|upgrade|server", RegexOption.IGNORE_CASE),
+        Regex("available\\s+balance|balance\\s+amount|current\\s+balance", RegexOption.IGNORE_CASE),
+        Regex("due|deadline|maturity|interest|annual|charge", RegexOption.IGNORE_CASE),
+        Regex("congratulations|success|welcome|thank\\s+you", RegexOption.IGNORE_CASE),
+        Regex("limit|exceed|threshold|invalid|failed", RegexOption.IGNORE_CASE),
+        Regex("application|document|status|pending|submitted", RegexOption.IGNORE_CASE),
+        Regex("have\\s+used|utilization|remaining|offer|promo", RegexOption.IGNORE_CASE)
     )
 
     fun readAndClassify(
@@ -36,15 +60,18 @@ object SmsAutoClassifier {
         ) return emptyList()
 
         val messages = queryBankSms(context, sinceTimestamp, maxMessages)
-        return messages.map { sms ->
-            val parsed = TransactionClassifier.classify(sms.body)
-            ClassifiedSms(sms = sms, parsed = parsed)
-        }
+        return messages
+            .filter { !isOtpOrAlertMessage(it.body) }
+            .map { sms ->
+                val parsed = TransactionClassifier.classify(sms.body)
+                ClassifiedSms(sms = sms, parsed = parsed)
+            }
     }
 
     fun toTransaction(classified: ClassifiedSms, categoryId: String? = null): Transaction {
         val parsed = classified.parsed
-        val effectiveCategory = categoryId ?: parsed.categoryId ?: "cat_other"
+        val subscriptionCategory = if (classified.isSubscription) "cat_subscription" else null
+        val effectiveCategory = subscriptionCategory ?: categoryId ?: parsed.categoryId ?: "cat_other"
         return Transaction(
             amount = parsed.amount ?: 0.0,
             categoryId = effectiveCategory,
@@ -52,14 +79,25 @@ object SmsAutoClassifier {
             merchant = parsed.merchant,
             bankName = parsed.bankName,
             date = parsed.date ?: LocalDateTime.now(),
-            type = parsed.type ?: TransactionType.EXPENSE
+            type = parsed.type ?: TransactionType.EXPENSE,
+            isRecurring = classified.isSubscription,
+            sourceSmsId = classified.sms.id.takeIf { it.isNotBlank() }
         )
     }
 
-    private fun queryBankSms(
+    /**
+     * Next scan cursor: the newest timestamp in the batch. The worker only calls this after every
+     * message in the batch is terminal (saved, already saved, or recorded as ignored), so nothing
+     * is silently stranded below the cursor and unparsed messages are never re-read forever.
+     */
+    fun nextScanCursor(messages: List<ClassifiedSms>): Long? =
+        messages.maxOfOrNull { it.sms.timestamp }
+
+    /** Latest bank-like messages from the device inbox, newest first. */
+    fun queryBankSms(
         context: Context,
-        sinceTimestamp: Long,
-        maxMessages: Int
+        sinceTimestamp: Long = 0L,
+        maxMessages: Int = 500
     ): List<SmsInfo> {
         val uri = Telephony.Sms.Inbox.CONTENT_URI
         val projection = arrayOf(
@@ -99,5 +137,32 @@ object SmsAutoClassifier {
         }
 
         return messages.sortedByDescending { it.timestamp }
+    }
+
+    fun isOtpOrAlertMessage(message: String): Boolean {
+        // Check for OTP patterns
+        if (otpPatterns.any { it.containsMatchIn(message) }) {
+            return true
+        }
+
+        // Check for alert patterns
+        if (alertPatterns.any { it.containsMatchIn(message) }) {
+            // But make sure it's not a transaction (has amount + debit/credit pattern)
+            val hasAmount = Regex("""(?:Rs\.?|INR|₹)\s*\d|₹\s*\d|\d+\s*(?:Rs|INR)""").containsMatchIn(message)
+            val hasTransactionKeyword = Regex(
+                "(?:debited|credited|spent|paid|transferred|withdrawn)",
+                RegexOption.IGNORE_CASE
+            ).containsMatchIn(message)
+
+            // If it has both amount and transaction keyword, it's likely a real transaction
+            if (hasAmount && hasTransactionKeyword) {
+                return false
+            }
+
+            // Otherwise it's an alert
+            return true
+        }
+
+        return false
     }
 }

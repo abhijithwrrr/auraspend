@@ -20,7 +20,8 @@ fun TransactionEntity.toDomain(): Transaction = Transaction(
     nextDueDate = nextDueDateTimestamp?.let {
         LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneId.systemDefault())
     },
-    subscriptionName = subscriptionName
+    subscriptionName = subscriptionName,
+    sourceSmsId = sourceSmsId
 )
 
 fun Transaction.toEntity(): TransactionEntity = TransactionEntity(
@@ -35,7 +36,8 @@ fun Transaction.toEntity(): TransactionEntity = TransactionEntity(
     isRecurring = isRecurring,
     recurrenceFrequency = recurrenceFrequency?.name,
     nextDueDateTimestamp = nextDueDate?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli(),
-    subscriptionName = subscriptionName
+    subscriptionName = subscriptionName,
+    sourceSmsId = sourceSmsId
 )
 
 fun CategoryEntity.toDomain(): Category = Category(

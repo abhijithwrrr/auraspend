@@ -11,11 +11,29 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.awbuilds.auraspend.AuraSpendApp
+import com.awbuilds.auraspend.data.ai.SmsAiEnricher
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import java.util.concurrent.TimeUnit
 
+/**
+ * Periodically enqueues new bank SMS into the persistent [SmsMessageEntity] queue and processes
+ * them one-by-one in the background. Each run is idempotent:
+ *
+ *  1. [SmsIngestor] snapshots new device messages (keyed on the provider `_id`, `OR IGNORE`).
+ *  2. [SmsPipelineProcessor] advances every `NEW` row to SAVED / SKIPPED / FAILED, one at a time.
+ *  3. A notification summarises how many transactions were auto-saved.
+ *
+ * Because the queue is the source of truth, a message saved here can never collide with a manual
+ * Smart Add save (unique `sourceSmsId` index), and no inbox cursor / prefs dedup sets are needed.
+ */
 class AutoClassificationWorker(
     context: Context,
     params: WorkerParameters
@@ -26,26 +44,42 @@ class AutoClassificationWorker(
             != PackageManager.PERMISSION_GRANTED
         ) return Result.success()
 
-        val prefs = applicationContext.getSharedPreferences("auraspend_prefs", Context.MODE_PRIVATE)
-        val lastScan = prefs.getLong("last_sms_scan", 0L)
+        // Only run when the user opted in to automatic classification.
+        if (!AutoDetect.isEnabled(applicationContext)) return Result.success()
 
-        val classified = SmsAutoClassifier.readAndClassify(
-            context = applicationContext,
-            sinceTimestamp = lastScan,
-            maxMessages = 20
-        )
-
-        if (classified.isEmpty()) return Result.success()
-
-        val now = System.currentTimeMillis()
-        prefs.edit().putLong("last_sms_scan", now).apply()
-
-        showNotification(classified.size)
-
-        return Result.success()
+        // SMS query + LLM enrichment are heavy (each AI pass reads a 400 MB model), so run on IO
+        // rather than WorkManager's Default dispatcher to keep the shared CPU pool responsive.
+        return withContext(Dispatchers.IO) {
+            doProcess().let { if (it) Result.success() else Result.retry() }
+        }
     }
 
-    private fun showNotification(count: Int) {
+    private suspend fun doProcess(): Boolean {
+        val app = applicationContext as? AuraSpendApp ?: return true
+        val dao = app.database.smsMessageDao()
+
+        // 1. Snapshot new device messages into the queue (idempotent).
+        SmsIngestor.ingest(context = applicationContext, dao = dao)
+
+        // 2. Process pending rows one at a time.
+        val enricher = SmsAiEnricher(applicationContext)
+        val processor = SmsPipelineProcessor(
+            dao = dao,
+            transactionRepository = app.transactionRepository,
+            enrich = { classified, categories -> enricher.enrich(classified, categories) }
+        )
+        val result = processor.processPending(maxMessages = 10)
+
+        if (result.saved > 0) {
+            showNotification(result.saved)
+        }
+
+        // RETRY rows still exist (transient failures) but a successful pass is not a job failure;
+        // the periodic schedule will pick them up again.
+        return true
+    }
+
+    private fun showNotification(saved: Int) {
         val channelId = "auto_classification"
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -63,8 +97,8 @@ class AutoClassificationWorker(
 
         val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("$count new transaction${if (count > 1) "s" else ""} detected")
-            .setContentText("Open AuraSpend to review and save.")
+            .setContentTitle("$saved new transaction${if (saved > 1) "s" else ""} saved")
+            .setContentText("Detected from your bank messages. Open AuraSpend to review.")
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
@@ -94,5 +128,20 @@ class AutoClassificationWorker(
                 request
             )
         }
+
+        /**
+         * Runs a single classification pass immediately (replaces any pending one-shot run so we
+         * never queue duplicates). Used right after consent / SMS permission / turning the toggle on.
+         */
+        fun runNow(context: Context) {
+            val request = OneTimeWorkRequestBuilder<AutoClassificationWorker>().build()
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                WORK_NAME_ONESHOT,
+                ExistingWorkPolicy.REPLACE,
+                request
+            )
+        }
+
+        private const val WORK_NAME_ONESHOT = "auto_classification_now"
     }
 }

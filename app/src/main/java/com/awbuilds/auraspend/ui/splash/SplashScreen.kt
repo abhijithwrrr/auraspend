@@ -36,13 +36,13 @@ fun SplashScreen(onAnimationFinished: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.systemBars)
             .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.statusBarsPadding()
         ) {
             AnimatedVisibility(
                 visible = iconVisible,
@@ -51,15 +51,16 @@ fun SplashScreen(onAnimationFinished: () -> Unit) {
             ) {
                 Box(
                     modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary),
+                        .size(128.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_launcher_foreground),
+                        // Use the full app icon for the splash screen, clipped to a circle.
+                        painter = painterResource(R.drawable.app_icon),
                         contentDescription = null,
-                        modifier = Modifier.size(80.dp),
+                        modifier = Modifier
+                            .size(128.dp)
+                            .clip(CircleShape),
                         tint = androidx.compose.ui.graphics.Color.Unspecified
                     )
                 }
@@ -82,15 +83,16 @@ fun SplashScreen(onAnimationFinished: () -> Unit) {
 
         AnimatedVisibility(
             visible = footerVisible,
-            enter = fadeIn()
+            enter = fadeIn(),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 32.dp)
         ) {
             Text(
                 "Made with ❤️ by AW Builds",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 32.dp)
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             )
         }
     }

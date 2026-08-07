@@ -15,7 +15,8 @@ data class Transaction(
     val isRecurring: Boolean = false,
     val recurrenceFrequency: RecurrenceFrequency? = null,
     val nextDueDate: LocalDateTime? = null,
-    val subscriptionName: String? = null
+    val subscriptionName: String? = null,
+    val sourceSmsId: String? = null
 )
 
 enum class TransactionType {

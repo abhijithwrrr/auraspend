@@ -166,8 +166,38 @@ val categoryKeywordMap: Map<String, String> = mapOf(
 )
 
 fun getCategoryIdForKeyword(input: String): String? {
+    // First try merchant database lookup (if initialized)
+    val merchantSuggestion = MerchantRepository.suggestCategory(input)
+    if (merchantSuggestion != null && merchantSuggestion.second >= 0.80f) {
+        // Map merchant category to our category IDs
+        return mapMerchantCategoryToLocal(merchantSuggestion.first)
+    }
+
+    // Fall back to keyword matching
     val lower = input.lowercase()
     return categoryKeywordMap.entries.firstOrNull { (key, _) ->
         lower.contains(key)
     }?.value
+}
+
+/**
+ * Map merchant database categories to local category IDs
+ */
+private fun mapMerchantCategoryToLocal(merchantCategory: String): String? {
+    return when (merchantCategory.lowercase()) {
+        "food" -> "cat_food"
+        "groceries" -> "cat_grocery"
+        "transport" -> "cat_transport"
+        "shopping" -> "cat_shopping"
+        "entertainment" -> "cat_entertainment"
+        "health & fitness" -> "cat_healthcare"
+        "software" -> "cat_subscription"
+        "utilities" -> "cat_bills"
+        "travel" -> "cat_transport"
+        "banking" -> "cat_bills"
+        "finance" -> "cat_bills"
+        "real estate" -> "cat_bills"
+        "services" -> "cat_other"
+        else -> null
+    }
 }

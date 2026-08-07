@@ -19,6 +19,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.awbuilds.auraspend.AuraSpendApp
+import com.awbuilds.auraspend.data.ai.ModelDownloadManager
+import com.awbuilds.auraspend.data.classification.AutoClassificationWorker
+import com.awbuilds.auraspend.data.classification.AutoDetect
 import com.awbuilds.auraspend.data.local.BackupSerializer
 import com.awbuilds.auraspend.data.local.CsvManager
 import com.awbuilds.auraspend.domain.model.Transaction
@@ -33,6 +36,8 @@ import com.awbuilds.auraspend.ui.classification.ClassificationScreen
 import com.awbuilds.auraspend.ui.classification.ClassificationViewIntent
 import com.awbuilds.auraspend.ui.classification.ClassificationViewModel
 import com.awbuilds.auraspend.ui.core.AuraSpendScaffold
+import com.awbuilds.auraspend.ui.core.isNotificationPermissionNeeded
+import com.awbuilds.auraspend.ui.core.rememberNotificationPermissionLauncher
 import com.awbuilds.auraspend.ui.home.DashboardScreen
 import com.awbuilds.auraspend.ui.home.DashboardViewModel
 import com.awbuilds.auraspend.ui.onboarding.OnboardingScreen
@@ -73,17 +78,17 @@ fun AuraSpendNavHost(
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("auraspend_prefs", Context.MODE_PRIVATE)
     val onboardingCompleted = prefs.getBoolean("onboarding_completed", false)
-    val startDestination = if (onboardingCompleted) Screen.MAIN else Screen.SPLASH
 
     SharedTransitionLayout {
         NavHost(
             navController = navController,
-            startDestination = startDestination
+            startDestination = Screen.SPLASH
         ) {
             composable(Screen.SPLASH) {
                 SplashScreen(
                     onAnimationFinished = {
-                        navController.navigate(Screen.ONBOARDING) {
+                        val destination = if (onboardingCompleted) Screen.MAIN else Screen.ONBOARDING
+                        navController.navigate(destination) {
                             popUpTo(Screen.SPLASH) { inclusive = true }
                         }
                     }
@@ -112,6 +117,8 @@ fun AuraSpendNavHost(
                                 repository.saveCategories(backupData.categories)
                                 backupData.budgets.forEach { repository.saveBudget(it) }
                                 backupData.subscriptions.forEach { repository.saveSubscription(it) }
+                                val smsDao = app.database.smsMessageDao()
+                                backupData.smsMessages.forEach { smsDao.insertAll(listOf(it)) }
                                 isRestoring = false
                                 prefs.edit().putBoolean("onboarding_completed", true).apply()
                                 navController.navigate(Screen.MAIN) {
@@ -251,11 +258,13 @@ private fun MainScreen(
 
     val transactions by repository.getAllTransactions().collectAsState(initial = emptyList())
     val categories by repository.getAllCategories().collectAsState(initial = emptyList())
+    val aiModelState by ModelDownloadManager.state.collectAsState()
 
     val scope = rememberCoroutineScope()
     var currentTab by remember { mutableStateOf(Screen.HOME) }
 
     val context = LocalContext.current
+    val notificationPermissionLauncher = rememberNotificationPermissionLauncher()
     val csvLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/csv")
     ) { uri ->
@@ -316,7 +325,28 @@ private fun MainScreen(
                 onImportCsv = { importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values")) },
                 onManageCategories = { navController.navigate(Screen.CATEGORIES) },
                 onManageSubscriptions = { navController.navigate(Screen.SUBSCRIPTIONS) },
-                onManageBudgets = { navController.navigate(Screen.BUDGETS) }
+                onManageBudgets = { navController.navigate(Screen.BUDGETS) },
+                aiModelState = aiModelState,
+                onDownloadModel = {
+                    // Downloading from Settings is itself the consent.
+                    ModelDownloadManager.markConsentGiven(context)
+                    if (isNotificationPermissionNeeded(context)) {
+                        notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                    ModelDownloadManager.start(context)
+                },
+                onCancelModelDownload = { ModelDownloadManager.cancel() },
+                onDeleteModel = { ModelDownloadManager.deleteModel(context) },
+                autoDetectEnabled = AutoDetect.isEnabled(context),
+                onAutoDetectChanged = { enabled ->
+                    AutoDetect.setEnabled(context, enabled)
+                    if (enabled) {
+                        if (isNotificationPermissionNeeded(context)) {
+                            notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                        AutoClassificationWorker.runNow(context)
+                    }
+                }
             )
         }
     }

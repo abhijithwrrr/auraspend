@@ -1,27 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Left leg of 'A' -->
+
+    <!-- Subtle Drop Shadow for the Wallet -->
+    <path
+        android:fillColor="#80000000"
+        android:pathData="M34,42 L78,42 C80.2,42 82,43.8 82,46 L82,74 C82,76.2 80.2,78 78,78 L34,78 C31.8,78 30,76.2 30,74 L30,46 C30,43.8 31.8,42 34,42 Z" />
+
+    <!-- Wallet Body (Brushed Teal Metal) -->
+    <path
+        android:pathData="M32,38 L76,38 C78.2,38 80,39.8 80,42 L80,70 C80,72.2 78.2,74 76,74 L32,74 C29.8,74 28,72.2 28,70 L28,42 C28,39.8 29.8,38 32,38 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="28"
+                android:startY="38"
+                android:endX="80"
+                android:endY="74"
+                android:type="linear">
+                <item android:offset="0" android:color="#FF00BFA5" /> <!-- Vibrant Teal -->
+                <item android:offset="1" android:color="#FF004D40" /> <!-- Deep Forest Teal -->
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Metallic Rim Highlight -->
+    <path
+        android:fillColor="#33FFFFFF"
+        android:pathData="M32,38 L76,38 L76,39 L32,39 Z M32,38 L33,38 L33,70 L32,70 Z" />
+
+    <!-- Radiant Aura (Outer Glow for Coin) -->
+    <path
+        android:pathData="M54,44m-18,0a18,18 0,1,1 36,0a18,18 0,1,1 -36,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="54"
+                android:centerY="44"
+                android:gradientRadius="18"
+                android:type="radial">
+                <item android:offset="0" android:color="#4DFFFFFF" />
+                <item android:offset="1" android:color="#00FFFFFF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Radiant Coin -->
+    <path
+        android:pathData="M54,34 A10,10 0,1,1 54,54 A10,10 0,1,1 54,34 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="54"
+                android:centerY="44"
+                android:gradientRadius="10"
+                android:type="radial">
+                <item android:offset="0" android:color="#FFFFE082" /> <!-- Soft Gold -->
+                <item android:offset="1" android:color="#FFFFA000" /> <!-- Rich Gold -->
+            </gradient>
+        </aapt:attr>
+    </path>
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M32,82 L39,82 L54,24 L47,24 Z" />
-    <!-- Right leg of 'A' -->
+        android:pathData="M54,44 m-3,0 a3,3 0,1,1 6,0 a3,3 0,1,1 -6,0" />
+
+    <!-- Wallet Flap (Glassmorphism - Semi-transparent Luminous Purple) -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,24 L61,24 L76,82 L69,82 Z" />
-    <!-- Crossbar of 'A' -->
+        android:pathData="M32,38 L76,38 L54,74 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="54"
+                android:startY="38"
+                android:endX="54"
+                android:endY="74"
+                android:type="linear">
+                <item android:offset="0" android:color="#B3D0BCFF" /> <!-- Glossy Light Purple -->
+                <item android:offset="1" android:color="#666750A4" /> <!-- Translucent Deep Purple -->
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Glass Highlight (Specular Shine) -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M43,59 L65,59 L65,53 L43,53 Z" />
-    <!-- Accent coin/aura circle -->
-    <path
-        android:fillColor="#D0BCFF"
-        android:pathData="M68,40 m-9,0 a9,9 0,1,1 18,0 a9,9 0,1,1 -18,0" />
-    <!-- Inner dot detail -->
-    <path
-        android:fillColor="#6750A4"
-        android:pathData="M68,40 m-3,0 a3,3 0,1,1 6,0 a3,3 0,1,1 -6,0" />
+        android:pathData="M35,40 L54,65 L56,65 L37,40 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="35"
+                android:startY="40"
+                android:endX="56"
+                android:endY="65"
+                android:type="linear">
+                <item android:offset="0" android:color="#66FFFFFF" />
+                <item android:offset="1" android:color="#00FFFFFF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
 </vector>
