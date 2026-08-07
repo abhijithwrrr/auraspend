@@ -1,5 +1,7 @@
 package com.awbuilds.auraspend.data.local
 
+import com.awbuilds.auraspend.data.local.entities.SmsMessageEntity
+import com.awbuilds.auraspend.data.local.entities.SmsMessageStatus
 import com.awbuilds.auraspend.domain.model.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -11,8 +13,9 @@ object BackupSerializer {
     private const val KEY_CATEGORIES = "categories"
     private const val KEY_BUDGETS = "budgets"
     private const val KEY_SUBSCRIPTIONS = "subscriptions"
+    private const val KEY_SMS_MESSAGES = "smsMessages"
     private const val VERSION = "version"
-    private const val CURRENT_VERSION = 1
+    private const val CURRENT_VERSION = 2
 
     fun serialize(data: BackupData): String {
         val root = JSONObject()
@@ -21,6 +24,7 @@ object BackupSerializer {
         root.put(KEY_CATEGORIES, serializeCategories(data.categories))
         root.put(KEY_BUDGETS, serializeBudgets(data.budgets))
         root.put(KEY_SUBSCRIPTIONS, serializeSubscriptions(data.subscriptions))
+        root.put(KEY_SMS_MESSAGES, serializeSmsMessages(data.smsMessages))
         return root.toString(2)
     }
 
@@ -30,7 +34,8 @@ object BackupSerializer {
             transactions = deserializeTransactions(root.optJSONArray(KEY_TRANSACTIONS)),
             categories = deserializeCategories(root.optJSONArray(KEY_CATEGORIES)),
             budgets = deserializeBudgets(root.optJSONArray(KEY_BUDGETS)),
-            subscriptions = deserializeSubscriptions(root.optJSONArray(KEY_SUBSCRIPTIONS))
+            subscriptions = deserializeSubscriptions(root.optJSONArray(KEY_SUBSCRIPTIONS)),
+            smsMessages = deserializeSmsMessages(root.optJSONArray(KEY_SMS_MESSAGES))
         )
     }
 
@@ -50,6 +55,7 @@ object BackupSerializer {
             t.recurrenceFrequency?.let { obj.put("recurrenceFrequency", it.name) }
             t.nextDueDate?.let { obj.put("nextDueDate", it.toString()) }
             t.subscriptionName?.let { obj.put("subscriptionName", it) }
+            t.sourceSmsId?.let { obj.put("sourceSmsId", it) }
             arr.put(obj)
         }
         return arr
@@ -75,7 +81,8 @@ object BackupSerializer {
                         .takeIf { it.isNotBlank() }?.let { RecurrenceFrequency.valueOf(it) },
                     nextDueDate = obj.optString("nextDueDate", "")
                         .takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it) },
-                    subscriptionName = obj.optString("subscriptionName", "").ifBlank { null }
+                    subscriptionName = obj.optString("subscriptionName", "").ifBlank { null },
+                    sourceSmsId = obj.optString("sourceSmsId", "").ifBlank { null }
                 )
             )
         }
@@ -176,6 +183,56 @@ object BackupSerializer {
                     billingCycle = RecurrenceFrequency.valueOf(obj.getString("billingCycle")),
                     nextBillingDate = LocalDateTime.parse(obj.getString("nextBillingDate")),
                     active = obj.optBoolean("active", true)
+                )
+            )
+        }
+        return list
+    }
+
+    private fun serializeSmsMessages(messages: List<SmsMessageEntity>): JSONArray {
+        val arr = JSONArray()
+        messages.forEach { m ->
+            val obj = JSONObject()
+            obj.put("id", m.id)
+            obj.put("address", m.address)
+            obj.put("body", m.body)
+            obj.put("receivedAt", m.receivedAt)
+            obj.put("status", m.status)
+            obj.putOpt("amount", m.amount)
+            obj.putOpt("type", m.type)
+            obj.putOpt("merchant", m.merchant)
+            obj.putOpt("categoryId", m.categoryId)
+            obj.put("isSubscription", m.isSubscription)
+            obj.put("confidence", m.confidence.toDouble())
+            obj.put("attempts", m.attempts)
+            obj.put("updatedAt", m.updatedAt)
+            arr.put(obj)
+        }
+        return arr
+    }
+
+    private fun deserializeSmsMessages(arr: JSONArray?): List<SmsMessageEntity> {
+        if (arr == null) return emptyList()
+        val list = mutableListOf<SmsMessageEntity>()
+        for (i in 0 until arr.length()) {
+            val obj = arr.getJSONObject(i)
+            val rawStatus = obj.optString("status", SmsMessageStatus.NEW.name)
+            list.add(
+                SmsMessageEntity(
+                    id = obj.getString("id"),
+                    address = obj.getString("address"),
+                    body = obj.getString("body"),
+                    receivedAt = obj.getLong("receivedAt"),
+                    status = runCatching { SmsMessageStatus.valueOf(rawStatus) }
+                        .getOrDefault(SmsMessageStatus.NEW).name,
+                    amount = if (obj.has("amount") && !obj.isNull("amount")) obj.getDouble("amount") else null,
+                    type = obj.optString("type", "").ifBlank { null },
+                    merchant = obj.optString("merchant", "").ifBlank { null },
+                    categoryId = obj.optString("categoryId", "").ifBlank { null },
+                    isSubscription = obj.optBoolean("isSubscription", false),
+                    confidence = obj.optDouble("confidence", 0.0).toFloat(),
+                    attempts = obj.optInt("attempts", 0),
+                    updatedAt = obj.optLong("updatedAt", 0L)
                 )
             )
         }

@@ -1,8 +1,11 @@
 package com.awbuilds.auraspend.ui.classification
 
+import com.awbuilds.auraspend.data.ai.AiModelState
 import com.awbuilds.auraspend.data.classification.ClassifiedSms
+import com.awbuilds.auraspend.data.classification.DuplicateTransaction
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.ParsedBankMessage
+import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
 import java.time.LocalDateTime
 
@@ -23,7 +26,20 @@ data class ClassificationViewState(
     val smsPermissionGranted: Boolean = false,
     val classifiedSmsList: List<ClassifiedSms> = emptyList(),
     val isBatchClassifying: Boolean = false,
-    val isSavingAll: Boolean = false
+    val isSavingAll: Boolean = false,
+
+    // On-device AI model
+    val consentRequired: Boolean = false,
+    val aiModelState: AiModelState = AiModelState.NotDownloaded,
+    val isAiEnriching: Boolean = false,
+    val aiProgressCurrent: Int = 0,
+    val aiProgressTotal: Int = 0,
+
+    // Duplicate detection
+    val potentialDuplicate: Pair<Transaction, Float>? = null,
+    val showDuplicateDialog: Boolean = false,
+    val confidenceScore: Float = 0f,
+    val merchantConfidence: Float = 0f
 )
 
 data class SmsInfo(
@@ -53,4 +69,16 @@ sealed class ClassificationViewIntent {
     data class SaveClassifiedSms(val smsId: String) : ClassificationViewIntent()
     object SaveAllClassified : ClassificationViewIntent()
     data class DismissClassifiedSms(val smsId: String) : ClassificationViewIntent()
+
+    // On-device AI model
+    data class ConsentResult(val accepted: Boolean) : ClassificationViewIntent()
+    object StartModelDownload : ClassificationViewIntent()
+    object CancelModelDownload : ClassificationViewIntent()
+    object RefreshAiModelState : ClassificationViewIntent()
+
+    // Duplicate detection
+    object CheckForDuplicates : ClassificationViewIntent()
+    data class DuplicateDetected(val duplicate: Pair<Transaction, Float>) : ClassificationViewIntent()
+    object IgnoreDuplicate : ClassificationViewIntent()
+    object MarkAsDuplicate : ClassificationViewIntent()
 }

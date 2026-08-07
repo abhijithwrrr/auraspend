@@ -1,9 +1,13 @@
 package com.awbuilds.auraspend.data.local.entities
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "transactions")
+@Entity(
+    tableName = "transactions",
+    indices = [Index(value = ["sourceSmsId"], unique = true)]
+)
 data class TransactionEntity(
     @PrimaryKey val id: String,
     val amount: Double,
@@ -16,7 +20,8 @@ data class TransactionEntity(
     val isRecurring: Boolean = false,
     val recurrenceFrequency: String? = null,
     val nextDueDateTimestamp: Long? = null,
-    val subscriptionName: String? = null
+    val subscriptionName: String? = null,
+    val sourceSmsId: String? = null
 )
 
 @Entity(tableName = "categories")
@@ -46,4 +51,28 @@ data class SubscriptionEntity(
     val billingCycle: String,
     val nextBillingDateTimestamp: Long,
     val active: Boolean = true
+)
+
+/**
+ * Lifecycle of a bank SMS in the persistent classification queue. The id is the SMS provider's
+ * `_id`, so ingestion is idempotent (`INSERT OR IGNORE`) and the pipeline can resume per-message
+ * instead of re-scanning the inbox with a timestamp cursor.
+ */
+enum class SmsMessageStatus { NEW, PROCESSED, SAVED, SKIPPED, FAILED }
+
+@Entity(tableName = "sms_messages")
+data class SmsMessageEntity(
+    @PrimaryKey val id: String,
+    val address: String,
+    val body: String,
+    val receivedAt: Long,
+    val status: String = SmsMessageStatus.NEW.name,
+    val amount: Double? = null,
+    val type: String? = null,
+    val merchant: String? = null,
+    val categoryId: String? = null,
+    val isSubscription: Boolean = false,
+    val confidence: Float = 0f,
+    val attempts: Int = 0,
+    val updatedAt: Long = 0L
 )

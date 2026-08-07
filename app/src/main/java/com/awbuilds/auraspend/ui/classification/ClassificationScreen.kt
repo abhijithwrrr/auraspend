@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,9 +21,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.KeyboardType.Companion.Decimal
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.draw.rotate
+import com.awbuilds.auraspend.data.ai.AiModelState
 import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.data.classification.ClassifiedSms
+import com.awbuilds.auraspend.ui.core.isNotificationPermissionNeeded
+import com.awbuilds.auraspend.ui.core.rememberNotificationPermissionLauncher
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -36,11 +44,16 @@ fun ClassificationScreen(
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
+    var showCategoryDialog by remember { mutableStateOf(false) }
+    var showDuplicateDialog by remember { mutableStateOf(state.showDuplicateDialog) }
+
     val smsPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         viewModel.handleIntent(ClassificationViewIntent.SmsPermissionResult(granted))
     }
+
+    val notificationPermissionLauncher = rememberNotificationPermissionLauncher()
 
     LaunchedEffect(Unit) {
         if (state.smsPermissionGranted) {
@@ -52,6 +65,10 @@ fun ClassificationScreen(
         if (state.saveSuccess) {
             onBack()
         }
+    }
+
+    LaunchedEffect(state.showDuplicateDialog) {
+        showDuplicateDialog = state.showDuplicateDialog
     }
 
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -108,7 +125,55 @@ fun ClassificationScreen(
                 1 -> SmsListTab(state, viewModel, smsPermissionLauncher)
                 2 -> AutoDetectTab(state, viewModel, smsPermissionLauncher)
             }
+
+            (state.aiModelState as? AiModelState.Downloading)?.let { d ->
+                AiDownloadStatusBanner(progress = d.progress)
+            }
         }
+    }
+
+    if (state.consentRequired) {
+        ModelConsentDialog(
+            onAccept = {
+                if (isNotificationPermissionNeeded(context)) {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                viewModel.handleIntent(ClassificationViewIntent.ConsentResult(true))
+            },
+            onDecline = { viewModel.handleIntent(ClassificationViewIntent.ConsentResult(false)) }
+        )
+    }
+
+    // Hierarchical category selector dialog
+    if (showCategoryDialog) {
+        HierarchicalCategoryDialog(
+            categories = state.availableCategories,
+            selectedCategoryId = state.selectedCategoryId,
+            onCategorySelected = { id ->
+                viewModel.handleIntent(ClassificationViewIntent.SelectCategory(id))
+            },
+            onDismiss = { showCategoryDialog = false },
+            merchantSuggestion = if (state.merchantConfidence > 0) {
+                Pair(state.parsedMessage?.merchant ?: "Unknown", state.merchantConfidence)
+            } else null
+        )
+    }
+
+    // Duplicate detection warning dialog
+    val potentialDuplicate = state.potentialDuplicate
+    if (showDuplicateDialog && potentialDuplicate != null) {
+        DuplicateDetectionDialog(
+            duplicateTransaction = potentialDuplicate,
+            onIgnore = {
+                viewModel.handleIntent(ClassificationViewIntent.IgnoreDuplicate)
+            },
+            onMarkAsDuplicate = {
+                viewModel.handleIntent(ClassificationViewIntent.MarkAsDuplicate)
+            },
+            onDismiss = {
+                viewModel.handleIntent(ClassificationViewIntent.IgnoreDuplicate)
+            }
+        )
     }
 }
 
@@ -117,6 +182,8 @@ private fun PasteMessageTab(
     state: ClassificationViewState,
     viewModel: ClassificationViewModel
 ) {
+    var showCategoryDialog by remember { mutableStateOf(false) }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -150,7 +217,11 @@ private fun PasteMessageTab(
 
         if (state.parsedMessage != null) {
             item {
-                ClassificationResultCard(state, viewModel)
+                ClassificationResultCard(
+                    state = state,
+                    viewModel = viewModel,
+                    onOpenCategoryDialog = { showCategoryDialog = true }
+                )
             }
 
             item {
@@ -181,12 +252,27 @@ private fun PasteMessageTab(
             }
         }
     }
+
+    if (showCategoryDialog) {
+        HierarchicalCategoryDialog(
+            categories = state.availableCategories,
+            selectedCategoryId = state.selectedCategoryId,
+            onCategorySelected = { id ->
+                viewModel.handleIntent(ClassificationViewIntent.SelectCategory(id))
+            },
+            onDismiss = { showCategoryDialog = false },
+            merchantSuggestion = if (state.merchantConfidence > 0) {
+                Pair(state.parsedMessage?.merchant ?: "Unknown", state.merchantConfidence)
+            } else null
+        )
+    }
 }
 
 @Composable
 private fun ClassificationResultCard(
     state: ClassificationViewState,
-    viewModel: ClassificationViewModel
+    viewModel: ClassificationViewModel,
+    onOpenCategoryDialog: () -> Unit = {}
 ) {
     val parsed = state.parsedMessage ?: return
 
@@ -209,6 +295,14 @@ private fun ClassificationResultCard(
             )
 
             ConfidenceBadge(confidence = parsed.confidence)
+
+            // Show merchant confidence if available
+            if (state.merchantConfidence > 0) {
+                MerchantConfidenceBadge(
+                    merchant = parsed.merchant ?: "Unknown",
+                    confidence = state.merchantConfidence
+                )
+            }
 
             DetailRow(
                 label = "Amount",
@@ -237,13 +331,26 @@ private fun ClassificationResultCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            CategorySelector(
-                categories = state.availableCategories,
-                selectedCategoryId = state.selectedCategoryId,
-                onCategorySelected = { id ->
-                    viewModel.handleIntent(ClassificationViewIntent.SelectCategory(id))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                CategorySelector(
+                    categories = state.availableCategories,
+                    selectedCategoryId = state.selectedCategoryId,
+                    onCategorySelected = { id ->
+                        viewModel.handleIntent(ClassificationViewIntent.SelectCategory(id))
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                Button(
+                    onClick = onOpenCategoryDialog,
+                    modifier = Modifier.size(48.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text("…", fontWeight = FontWeight.Bold)
                 }
-            )
+            }
 
             HorizontalDivider()
 
@@ -256,6 +363,31 @@ private fun ClassificationResultCard(
             if (state.useManualEntry) {
                 ManualEntryFields(state, viewModel)
             }
+        }
+    }
+}
+
+@Composable
+private fun MerchantConfidenceBadge(merchant: String, confidence: Float) {
+    val color = when {
+        confidence >= 0.9f -> MaterialTheme.colorScheme.primary
+        confidence >= 0.7f -> MaterialTheme.colorScheme.tertiary
+        else -> MaterialTheme.colorScheme.error
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.small,
+            color = color.copy(alpha = 0.15f)
+        ) {
+            Text(
+                text = "  Merchant: $merchant (${(confidence * 100).toInt()}%)  ",
+                style = MaterialTheme.typography.labelSmall,
+                color = color
+            )
         }
     }
 }
@@ -318,14 +450,18 @@ private fun DetailRow(
 private fun CategorySelector(
     categories: List<com.awbuilds.auraspend.domain.model.Category>,
     selectedCategoryId: String,
-    onCategorySelected: (String) -> Unit
+    onCategorySelected: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     if (categories.isEmpty()) {
         Text("No categories available", style = MaterialTheme.typography.bodySmall)
         return
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         categories.chunked(3).forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -438,11 +574,27 @@ private fun SmsListTab(
             )
         }
     } else {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            if (state.isAiEnriching && state.aiProgressTotal > 0) {
+                LinearProgressIndicator(
+                    progress = { state.aiProgressCurrent.toFloat() / state.aiProgressTotal.toFloat() },
+                    modifier = Modifier.fillMaxWidth().height(4.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+                Text(
+                    "AI is categorizing: ${state.aiProgressCurrent} of ${state.aiProgressTotal}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                )
+            }
+
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
             items(state.smsMessages) { sms ->
                 SmsItem(
                     sms = sms,
@@ -453,6 +605,7 @@ private fun SmsListTab(
             }
         }
     }
+}
 }
 
 @Composable
@@ -510,6 +663,8 @@ private fun AutoDetectTab(
     viewModel: ClassificationViewModel,
     permissionLauncher: androidx.activity.result.ActivityResultLauncher<String>
 ) {
+    val isModelDownloaded = state.aiModelState is AiModelState.Ready
+
     if (!state.smsPermissionGranted) {
         Column(
             modifier = Modifier
@@ -533,16 +688,59 @@ private fun AutoDetectTab(
                 Text("Grant Permission")
             }
         }
-    } else if (state.isBatchClassifying) {
+    } else if (!isModelDownloaded) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                Icons.Default.AutoAwesome,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                "Local AI Required",
+                style = MaterialTheme.typography.titleLarge
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "Download the on-device AI model to automatically detect and categorize your bank messages offline.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = { viewModel.handleIntent(ClassificationViewIntent.StartModelDownload) },
+                enabled = state.aiModelState !is AiModelState.Downloading
+            ) {
+                if (state.aiModelState is AiModelState.Downloading) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Downloading…")
+                } else {
+                    Text("Download AI Model (~380 MB)")
+                }
+            }
+        }
+    } else if (state.isBatchClassifying || (state.isAiEnriching && state.classifiedSmsList.isEmpty())) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(32.dp)
+            ) {
                 CircularProgressIndicator()
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "Classifying bank messages...",
+                    if (state.isAiEnriching) "AI is categorizing messages..." else "Reading bank messages...",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -570,11 +768,27 @@ private fun AutoDetectTab(
             }
         }
     } else {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            if (state.isAiEnriching && state.aiProgressTotal > 0) {
+                LinearProgressIndicator(
+                    progress = { state.aiProgressCurrent.toFloat() / state.aiProgressTotal.toFloat() },
+                    modifier = Modifier.fillMaxWidth().height(4.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+                Text(
+                    "AI is categorizing: ${state.aiProgressCurrent} of ${state.aiProgressTotal}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                )
+            }
+
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
             item {
                 Row(
                     modifier = Modifier
@@ -619,6 +833,7 @@ private fun AutoDetectTab(
             }
         }
     }
+}
 }
 
 @Composable
@@ -729,3 +944,33 @@ private fun ClassifiedSmsItem(
         }
     }
 }
+
+
+@Composable
+private fun AiDownloadStatusBanner(progress: Float) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                "Downloading on-device AI… ${(progress * 100).toInt()}%",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                "Messages will be auto-categorised into subscriptions, categories, income, expense and other once ready.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+    }
+}
+

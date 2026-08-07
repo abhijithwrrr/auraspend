@@ -1,5 +1,9 @@
 package com.awbuilds.auraspend.ui.onboarding
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -77,6 +81,12 @@ fun OnboardingScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        onFinished()
+    }
+
     LaunchedEffect(restoreError) {
         restoreError?.let {
             snackbarHostState.showSnackbar(it)
@@ -135,7 +145,11 @@ fun OnboardingScreen(
                             if (pagerState.currentPage < onboardingPages.size - 1) {
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
                             } else {
-                                onFinished()
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                } else {
+                                    onFinished()
+                                }
                             }
                         }
                     },

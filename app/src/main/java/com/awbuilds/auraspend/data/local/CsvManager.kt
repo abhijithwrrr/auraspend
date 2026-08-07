@@ -18,7 +18,7 @@ import java.util.UUID
 object CsvManager {
 
     private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-    private val CSV_HEADER = "Date,Amount,Type,CategoryId,Note,Merchant,Bank,IsRecurring,RecurrenceFrequency\n"
+    private val CSV_HEADER = "Date,Amount,Type,CategoryId,Note,Merchant,Bank,IsRecurring,RecurrenceFrequency,SourceSmsId\n"
 
     fun exportToCsv(context: Context, transactions: List<Transaction>): File {
         val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
@@ -46,6 +46,8 @@ object CsvManager {
                     append(t.isRecurring)
                     append(",")
                     append(t.recurrenceFrequency?.name ?: "")
+                    append(",")
+                    append(escapeCsv(t.sourceSmsId ?: ""))
                     append("\n")
                 }
                 writer.write(line)
@@ -81,7 +83,8 @@ object CsvManager {
                                     bankName = parts.getOrElse(6) { "" }.ifBlank { null },
                                     date = date,
                                     type = type,
-                                    isRecurring = parts.getOrElse(7) { "false" }.toBoolean()
+                                    isRecurring = parts.getOrElse(7) { "false" }.toBoolean(),
+                                    sourceSmsId = parts.getOrElse(9) { "" }.ifBlank { null }
                                 )
                             )
                         } catch (_: Exception) { }

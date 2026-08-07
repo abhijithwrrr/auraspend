@@ -121,3 +121,26 @@ interface SubscriptionDao {
     @Query("UPDATE subscriptions SET active = :active WHERE id = :id")
     suspend fun setSubscriptionActive(id: String, active: Boolean)
 }
+
+@Dao
+interface SmsMessageDao {
+
+    /** Idempotent ingest: a message already in the queue is ignored, never duplicated. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(messages: List<SmsMessageEntity>)
+
+    @Query("SELECT * FROM sms_messages WHERE status = :status ORDER BY receivedAt DESC LIMIT :limit")
+    suspend fun getPending(status: String, limit: Int): List<SmsMessageEntity>
+
+    @Query("SELECT * FROM sms_messages WHERE id = :id")
+    suspend fun getById(id: String): SmsMessageEntity?
+
+    @Query("SELECT * FROM sms_messages ORDER BY receivedAt DESC")
+    fun observeAll(): Flow<List<SmsMessageEntity>>
+
+    @Update
+    suspend fun update(message: SmsMessageEntity)
+
+    @Query("SELECT COALESCE(MAX(receivedAt), 0) FROM sms_messages")
+    suspend fun getMaxReceivedAt(): Long
+}

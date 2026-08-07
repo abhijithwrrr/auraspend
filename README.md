@@ -15,7 +15,7 @@ Made with ❤️ by AW Builds
 
 | Category | Details | Premium |
 |----------|---------|---------|
-| **Smart Classification** | Paste bank SMS or read from inbox — auto-categorizes via regex (HDFC, ICICI, SBI, Axis, Kotak & more) | Free |
+| **Smart Classification** | Paste bank SMS or read from inbox — auto-categorizes via regex + optional on-device AI (Qwen2.5) into subscriptions / categories / income / expense / other | Free |
 | **Dashboard** | Balance card, weekly bar chart, budget progress, subscription summary, category breakdown | Free |
 | **Transaction List** | Search, date groups, swipe-to-delete, expense/income filters | Free |
 | **Budgets** | Per-category monthly/weekly/yearly spending limits with progress bars | Free |
@@ -24,6 +24,45 @@ Made with ❤️ by AW Builds
 | **Dark & AMOLED Theme** | Light, Dark, and true-black AMOLED modes | 🔒 Premium |
 | **Advanced Analytics** | Canvas pie charts, category breakdowns, merchant insights | 🔒 Premium |
 | **Google Drive Backup** | Cloud sync and restore from onboarding | 🔒 Premium |
+
+## On-Device AI (Local Categorization)
+
+AuraSpend can run a small, fully-on-device LLM (**Qwen2.5-0.5B-Instruct**, GGUF Q4_K_M, ~400 MB) to
+improve message auto-categorization into **subscriptions, categories, income, expense and other**.
+
+- **Consent first**: the first time you open **Smart Add** a dialog asks whether you want to download the model.
+  Accepting starts a **background download** (resumable, cancellable) to internal storage — nothing leaves the device,
+  and it immediately runs a classification pass (reading + saving device SMS as income / expense) and opts you into
+  **Auto-categorize messages** (toggle in Settings).
+- **Progress everywhere**: the download progress is shown **in-app** (Smart Add banner + Settings card) **and in a
+  system notification** that updates live and clears when the download finishes.
+- **Hybrid classifier**: amount / merchant / date still come from the battle-tested regex parser
+  (`BankMessageParser`), while the LLM handles the parts regex is bad at — *subscription detection,
+  category selection, income-vs-expense*. If the model isn't downloaded (or the native runtime isn't
+  linked), the app transparently falls back to the pure regex classifier, so nothing breaks.
+- **Manage it**: an **Intelligent Features** card in Settings shows status, lets you download, cancel and delete the model.
+
+### Build prerequisites (native runtime)
+
+To ship the APK with the llama.cpp runtime that *actually runs* the model, your build machine needs:
+
+1. **Android NDK 29** (e.g. `29.0.14206865`) — the app's `:llama` module sets `ndkVersion`.
+2. **CMake >= 3.31.6** (AGP will auto-download it during build if the SDK license is accepted).
+
+The runtime lives in the vendored `llama-lib/` module (a cleaned copy of llama.cpp's official
+`examples/llama.android`), and the upstream source is pinned as a git submodule at
+`third_party/llama.cpp`. Without the native toolchain installed, the app still **compiles and runs**
+with regex-only classification (the UI shows the download option but the model won't load).
+
+```bash
+# first time, fetch the llama.cpp submodule
+git submodule update --init --recursive
+# build (requires NDK + CMake)
+./gradlew assembleFreeDebug
+```
+
+The model is Apache-2.0 licensed (Qwen2.5-0.5B-Instruct). It is downloaded at runtime from
+HuggingFace after user consent.
 
 ## Build Flavors
 

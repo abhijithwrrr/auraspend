@@ -2,7 +2,10 @@ package com.awbuilds.auraspend
 
 import android.app.Application
 import com.awbuilds.auraspend.data.classification.AutoClassificationWorker
+import com.awbuilds.auraspend.data.ai.LocalLlmProvider
+import com.awbuilds.auraspend.data.ai.ModelDownloadManager
 import com.awbuilds.auraspend.data.classification.defaultCategories
+import com.awbuilds.auraspend.data.classification.MerchantRepository
 import com.awbuilds.auraspend.data.local.AppDatabase
 import com.awbuilds.auraspend.data.local.entities.CategoryEntity
 import com.awbuilds.auraspend.data.remote.DriveSyncManager
@@ -37,6 +40,9 @@ class AuraSpendApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        // Initialize merchant database
+        MerchantRepository.initialize(this)
+
         database = AppDatabase.getInstance(this)
 
         transactionRepository = TransactionRepositoryImpl(
@@ -51,6 +57,9 @@ class AuraSpendApp : Application() {
         saveTransactionUseCase = SaveTransactionUseCase(transactionRepository)
 
         driveSyncManager = DriveSyncManager(this)
+
+        LocalLlmProvider.init(this)
+        ModelDownloadManager.sync(this)
 
         AutoClassificationWorker.schedule(this)
 
