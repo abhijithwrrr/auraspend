@@ -77,7 +77,7 @@ dependencies {
     implementation("com.google.apis:google-api-services-drive:v3-rev20230822-2.0.0")
     implementation("com.google.api-client:google-api-client:2.9.0")
     implementation("com.google.api-client:google-api-client-android:2.9.0")
-    implementation("com.google.http-client:google-http-client-gson:1.44.2")
+    implementation("com.google.http-client:google-http-client-gson:2.1.0")
     implementation("com.google.guava:guava:33.0.0-android")
 
     // WorkManager
