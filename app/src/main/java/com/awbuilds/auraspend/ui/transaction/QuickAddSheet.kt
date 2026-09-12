@@ -31,11 +31,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
@@ -88,7 +90,10 @@ fun QuickAddSheet(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AuraSegmentedControl(
-                options = listOf("Expense", "Income"),
+                options = listOf(
+                    stringResource(R.string.quick_add_type_expense),
+                    stringResource(R.string.quick_add_type_income)
+                ),
                 selectedIndex = if (type == TransactionType.EXPENSE) 0 else 1,
                 onSelect = {
                     type = if (it == 0) TransactionType.EXPENSE else TransactionType.INCOME
@@ -106,7 +111,8 @@ fun QuickAddSheet(
                 maxLines = 1
             )
             Text(
-                text = if (type == TransactionType.EXPENSE) "Expense" else "Income",
+                text = if (type == TransactionType.EXPENSE) stringResource(R.string.quick_add_type_expense)
+                else stringResource(R.string.quick_add_type_income),
                 style = AuraType.metricLabel,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -149,7 +155,7 @@ fun QuickAddSheet(
             OutlinedTextField(
                 value = merchant,
                 onValueChange = { merchant = it },
-                placeholder = { Text("Merchant (optional)") },
+                placeholder = { Text(stringResource(R.string.quick_add_merchant_hint)) },
                 singleLine = true,
                 shape = RoundedCornerShape(14.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -189,7 +195,7 @@ fun QuickAddSheet(
                     .height(52.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Save", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.action_save), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(AuraSpacing.xs))
@@ -198,12 +204,12 @@ fun QuickAddSheet(
                 TextButton(onClick = onSmartAdd) {
                     Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(AuraSpacing.xs))
-                    Text("Smart Add")
+                    Text(stringResource(R.string.quick_add_smart_add))
                 }
                 TextButton(onClick = onManualAdd) {
                     Icon(Icons.Default.EditNote, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(AuraSpacing.xs))
-                    Text("Manual")
+                    Text(stringResource(R.string.quick_add_manual))
                 }
             }
         }
@@ -249,7 +255,7 @@ private fun KeypadKey(
         if (label == "⌫") {
             Icon(
                 Icons.AutoMirrored.Filled.Backspace,
-                contentDescription = "Backspace",
+                contentDescription = stringResource(R.string.quick_add_backspace),
                 tint = MaterialTheme.colorScheme.onSurface
             )
         } else {

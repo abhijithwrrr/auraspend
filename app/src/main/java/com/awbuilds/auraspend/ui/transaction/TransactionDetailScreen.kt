@@ -14,10 +14,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
@@ -52,6 +54,8 @@ fun TransactionDetailScreen(
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val transactionUpdatedMessage = stringResource(R.string.txn_detail_updated)
+    val duplicatedMessage = stringResource(R.string.txn_detail_duplicated)
 
     var transaction by remember { mutableStateOf<Transaction?>(null) }
     var loaded by remember { mutableStateOf(false) }
@@ -75,22 +79,22 @@ fun TransactionDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (editing) "Edit Transaction" else "Transaction") },
+                title = { Text(if (editing) stringResource(R.string.txn_detail_edit_title) else stringResource(R.string.txn_detail_title)) },
                 navigationIcon = {
                     IconButton(onClick = { if (editing) editing = false else onBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
                     if (!editing) {
                         IconButton(onClick = { editing = true }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Edit")
+                            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_edit))
                         }
                     }
                     IconButton(onClick = { confirmDelete = true }) {
                         Icon(
                             Icons.Default.Delete,
-                            contentDescription = "Delete",
+                            contentDescription = stringResource(R.string.action_delete),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
@@ -108,9 +112,9 @@ fun TransactionDetailScreen(
             ) {
                 AuraEmptyState(
                     icon = Icons.Default.Edit,
-                    title = "Transaction not found",
-                    message = "It may have been deleted on another screen.",
-                    actionLabel = "Go back",
+                    title = stringResource(R.string.txn_detail_not_found_title),
+                    message = stringResource(R.string.txn_detail_not_found_message),
+                    actionLabel = stringResource(R.string.txn_detail_go_back),
                     onAction = onBack
                 )
             }
@@ -124,7 +128,7 @@ fun TransactionDetailScreen(
                         repository.saveTransaction(updated)
                         transaction = updated
                         editing = false
-                        snackbarMessage("Transaction updated")
+                        snackbarMessage(transactionUpdatedMessage)
                     }
                 },
                 modifier = Modifier.padding(padding)
@@ -141,7 +145,7 @@ fun TransactionDetailScreen(
                     )
                     scope.launch {
                         repository.saveTransaction(copy)
-                        snackbarMessage("Duplicated")
+                        snackbarMessage(duplicatedMessage)
                         onOpenTransaction(copy.id)
                     }
                 }
@@ -153,11 +157,16 @@ fun TransactionDetailScreen(
         val current = transaction
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
-            title = { Text("Delete transaction?") },
+            title = { Text(stringResource(R.string.txn_detail_delete_title)) },
             text = {
                 Text(
-                    current?.let { "${it.merchant ?: it.note.ifBlank { "This transaction" }} · ${formatMoney(it.amount)}" }
-                        ?: "This cannot be undone."
+                    current?.let {
+                        stringResource(
+                            R.string.txn_detail_delete_message,
+                            it.merchant ?: it.note.ifBlank { stringResource(R.string.txn_detail_this_transaction) },
+                            formatMoney(it.amount)
+                        )
+                    } ?: stringResource(R.string.txn_detail_delete_fallback)
                 )
             },
             confirmButton = {
@@ -170,10 +179,10 @@ fun TransactionDetailScreen(
                         }
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete") }
+                ) { Text(stringResource(R.string.action_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { confirmDelete = false }) { Text("Cancel") }
+                TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -210,13 +219,13 @@ private fun TransactionDetails(
                 Spacer(modifier = Modifier.width(AuraSpacing.md))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        category?.name ?: "Uncategorized",
+                        category?.name ?: stringResource(R.string.txn_detail_uncategorized),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        if (isExpense) "Expense" else "Income",
+                        if (isExpense) stringResource(R.string.txn_detail_type_expense) else stringResource(R.string.txn_detail_type_income),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -240,14 +249,14 @@ private fun TransactionDetails(
         Spacer(modifier = Modifier.height(AuraSpacing.lg))
 
         AuraCard(style = AuraCardStyle.Outlined, modifier = Modifier.fillMaxWidth()) {
-            DetailRow("Merchant", transaction.merchant ?: "—")
-            DetailRow("Note", transaction.note.ifBlank { "—" })
-            DetailRow("Bank", transaction.bankName ?: "—")
+            DetailRow(stringResource(R.string.txn_detail_merchant), transaction.merchant ?: stringResource(R.string.txn_detail_dash))
+            DetailRow(stringResource(R.string.txn_detail_note), transaction.note.ifBlank { stringResource(R.string.txn_detail_dash) })
+            DetailRow(stringResource(R.string.txn_detail_bank), transaction.bankName ?: stringResource(R.string.txn_detail_dash))
             if (transaction.isRecurring) {
-                DetailRow("Recurring", transaction.subscriptionName ?: "Yes")
+                DetailRow(stringResource(R.string.txn_detail_recurring), transaction.subscriptionName ?: stringResource(R.string.txn_detail_yes))
             }
             if (transaction.sourceSmsId != null) {
-                DetailRow("Source", "Auto-detected from SMS")
+                DetailRow(stringResource(R.string.txn_detail_source), stringResource(R.string.txn_detail_source_sms))
             }
         }
 
@@ -262,7 +271,7 @@ private fun TransactionDetails(
         ) {
             Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(AuraSpacing.sm))
-            Text("Duplicate")
+            Text(stringResource(R.string.action_duplicate))
         }
 
         Spacer(modifier = Modifier.height(AuraSpacing.xxl))

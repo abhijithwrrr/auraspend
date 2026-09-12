@@ -26,9 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.ui.core.HideAmountIconButton
 import com.awbuilds.auraspend.ui.core.SectionHeaderRow
@@ -89,7 +92,7 @@ fun DashboardScreen(
                     color = extended.textLight
                 )
                 Text(
-                    "AuraSpend",
+                    stringResource(R.string.app_name),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -128,14 +131,14 @@ fun DashboardScreen(
                             .padding(AuraSpacing.xl)
                     ) {
                         Text(
-                            "Total balance",
+                            stringResource(R.string.home_total_balance),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
                             color = AuraGradients.onAurora.copy(alpha = 0.82f)
                         )
                         Spacer(modifier = Modifier.height(AuraSpacing.xs))
                         if (hideAmounts) {
-                            Text("•••", style = AuraType.moneyHero, color = AuraGradients.onAurora)
+                            Text(stringResource(R.string.state_hidden_amount), style = AuraType.moneyHero, color = AuraGradients.onAurora)
                         } else {
                             AnimatedMoney(
                                 amount = state.totalBalance,
@@ -146,13 +149,15 @@ fun DashboardScreen(
                         Spacer(modifier = Modifier.height(AuraSpacing.lg))
                         Row(horizontalArrangement = Arrangement.spacedBy(AuraSpacing.xxl)) {
                             HeroStat(
-                                label = "In this month",
-                                value = if (hideAmounts) "•••" else "+${formatMoney(state.monthlyIncome)}",
+                                label = stringResource(R.string.home_in_this_month),
+                                value = if (hideAmounts) stringResource(R.string.state_hidden_amount)
+                                else stringResource(R.string.common_amount_plus, formatMoney(state.monthlyIncome)),
                                 onClick = onNavigateToAnalytics
                             )
                             HeroStat(
-                                label = "Out this month",
-                                value = if (hideAmounts) "•••" else "-${formatMoney(state.monthlyExpense)}",
+                                label = stringResource(R.string.home_out_this_month),
+                                value = if (hideAmounts) stringResource(R.string.state_hidden_amount)
+                                else stringResource(R.string.common_amount_minus, formatMoney(state.monthlyExpense)),
                                 onClick = onNavigateToAnalytics
                             )
                         }
@@ -170,25 +175,25 @@ fun DashboardScreen(
                 ) {
                     QuickAction(
                         icon = Icons.Default.Add,
-                        label = "Expense",
+                        label = stringResource(R.string.home_quick_expense),
                         modifier = Modifier.weight(1f),
                         onClick = { onQuickAdd(TransactionType.EXPENSE) }
                     )
                     QuickAction(
                         icon = Icons.Default.ArrowDownward,
-                        label = "Income",
+                        label = stringResource(R.string.home_quick_income),
                         modifier = Modifier.weight(1f),
                         onClick = { onQuickAdd(TransactionType.INCOME) }
                     )
                     QuickAction(
                         icon = Icons.Default.AutoAwesome,
-                        label = "Smart Add",
+                        label = stringResource(R.string.home_quick_smart_add),
                         modifier = Modifier.weight(1f),
                         onClick = onOpenSmartAdd
                     )
                     QuickAction(
                         icon = Icons.Default.BarChart,
-                        label = "Stats",
+                        label = stringResource(R.string.home_quick_stats),
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToAnalytics
                     )
@@ -199,7 +204,7 @@ fun DashboardScreen(
             if (state.dailySpending.isNotEmpty()) {
                 item {
                     SectionHeaderRow(
-                        title = "Cash flow",
+                        title = stringResource(R.string.home_cash_flow),
                         modifier = Modifier.padding(top = AuraSpacing.lg)
                     )
                 }
@@ -212,7 +217,7 @@ fun DashboardScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(120.dp),
-                                contentDescription = "Spending this week"
+                                contentDescription = stringResource(R.string.home_spending_this_week)
                             )
                             Spacer(modifier = Modifier.height(AuraSpacing.sm))
                             WeekdayLabels(epochDays = state.dailySpending.map { it.first })
@@ -225,11 +230,11 @@ fun DashboardScreen(
             if (state.budgets.isNotEmpty()) {
                 item {
                     SectionHeaderRow(
-                        title = "Budgets",
+                        title = stringResource(R.string.home_budgets),
                         modifier = Modifier.padding(top = AuraSpacing.lg),
                         trailing = {
                             Text(
-                                "Manage",
+                                stringResource(R.string.home_manage),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.primary,
@@ -249,7 +254,7 @@ fun DashboardScreen(
                         items(state.budgets, key = { it.id }) { budget ->
                             val category = state.categories.find { it.id == budget.categoryId }
                             BudgetCarouselCard(
-                                name = category?.name ?: "Unknown",
+                                name = category?.name ?: stringResource(R.string.home_unknown_category),
                                 emoji = categoryIconEmoji(category?.icon),
                                 color = categoryColor(category?.color),
                                 spent = budget.spentAmount,
@@ -290,19 +295,24 @@ fun DashboardScreen(
                                 Spacer(modifier = Modifier.width(AuraSpacing.md))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        "Subscriptions",
+                                        stringResource(R.string.home_subscriptions),
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
-                                        "${state.activeSubscriptions.size} active",
+                                        pluralStringResource(
+                                            R.plurals.home_subscriptions_active,
+                                            state.activeSubscriptions.size,
+                                            state.activeSubscriptions.size
+                                        ),
                                         fontSize = 13.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                                 Text(
-                                    if (hideAmounts) "•••" else "${formatMoney(state.totalSubscriptionCost)}/mo",
+                                    if (hideAmounts) stringResource(R.string.state_hidden_amount)
+                                    else stringResource(R.string.home_subscription_monthly, formatMoney(state.totalSubscriptionCost)),
                                     style = AuraType.moneyMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
@@ -315,11 +325,11 @@ fun DashboardScreen(
             // ── Recent activity
             item {
                 SectionHeaderRow(
-                    title = "Recent",
+                    title = stringResource(R.string.home_recent),
                     modifier = Modifier.padding(top = AuraSpacing.sm),
                     trailing = {
                         Text(
-                            "View all",
+                            stringResource(R.string.home_view_all),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary,
@@ -336,9 +346,9 @@ fun DashboardScreen(
                 item {
                     AuraEmptyState(
                         icon = Icons.Default.ReceiptLong,
-                        title = "No transactions yet",
-                        message = "Add your first transaction and AuraSpend will start building your picture.",
-                        actionLabel = "Add transaction",
+                        title = stringResource(R.string.home_empty_title),
+                        message = stringResource(R.string.home_empty_message),
+                        actionLabel = stringResource(R.string.home_add_transaction),
                         onAction = { onQuickAdd(TransactionType.EXPENSE) }
                     )
                 }
@@ -347,7 +357,7 @@ fun DashboardScreen(
                     val category = state.categories.find { it.id == transaction.categoryId }
                     TransactionEntryRow(
                         transaction = transaction,
-                        categoryName = category?.name ?: "Other",
+                        categoryName = category?.name ?: stringResource(R.string.home_other_category),
                         categoryColor = categoryColor(category?.color),
                         categoryEmoji = categoryIconEmoji(category?.icon),
                         modifier = Modifier.animateItem(),
@@ -455,7 +465,11 @@ private fun BudgetCarouselCard(
                 color = if (overBudget) MaterialTheme.extendedColors.expenseAmount else color,
                 modifier = Modifier.size(40.dp),
                 stroke = 3.5.dp,
-                contentDescription = "$name budget ${(progress.coerceIn(0f, 1f) * 100).toInt()} percent used"
+                contentDescription = stringResource(
+                    R.string.home_budget_percent_used,
+                    name,
+                    (progress.coerceIn(0f, 1f) * 100).toInt()
+                )
             ) {
                 CategoryAvatar(icon = emoji, color = color, size = 26.dp)
             }
@@ -470,24 +484,26 @@ private fun BudgetCarouselCard(
         }
         Spacer(modifier = Modifier.height(AuraSpacing.md))
         Text(
-            if (hideAmounts) "•••" else formatMoney(spent),
+            if (hideAmounts) stringResource(R.string.state_hidden_amount) else formatMoney(spent),
             style = AuraType.moneyMedium,
             color = if (overBudget) MaterialTheme.extendedColors.expenseAmount
             else MaterialTheme.colorScheme.onSurface
         )
         Text(
-            if (hideAmounts) "of •••" else "of ${formatMoney(limit)}",
+            if (hideAmounts) stringResource(R.string.home_budget_of, stringResource(R.string.state_hidden_amount))
+            else stringResource(R.string.home_budget_of, formatMoney(limit)),
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
+@Composable
 fun greetingText(): String {
     val hour = java.time.LocalTime.now().hour
     return when {
-        hour < 12 -> "Good morning"
-        hour < 17 -> "Good afternoon"
-        else -> "Good evening"
+        hour < 12 -> stringResource(R.string.home_greeting_morning)
+        hour < 17 -> stringResource(R.string.home_greeting_afternoon)
+        else -> stringResource(R.string.home_greeting_evening)
     }
 }

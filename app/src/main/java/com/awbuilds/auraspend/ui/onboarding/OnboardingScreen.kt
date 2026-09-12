@@ -23,10 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
 import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
 import com.awbuilds.auraspend.ui.designsystem.AuraGradients
@@ -35,25 +37,25 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 private data class OnboardingPage(
-    val title: String,
-    val description: String,
+    val titleRes: Int,
+    val descriptionRes: Int,
     val icon: ImageVector
 )
 
 private val onboardingPages = listOf(
     OnboardingPage(
-        "Track every rupee",
-        "Income, expenses and balance — always up to date, always on your device.",
+        R.string.onboarding_page1_title,
+        R.string.onboarding_page1_description,
         Icons.Default.Wallet
     ),
     OnboardingPage(
-        "Smart by default",
-        "Bank SMS is categorised automatically, on-device, by a local AI that never uploads your data.",
+        R.string.onboarding_page2_title,
+        R.string.onboarding_page2_description,
         Icons.Default.AutoAwesome
     ),
     OnboardingPage(
-        "Plan ahead",
-        "Budgets, subscriptions and goals in one place, with insights that actually help.",
+        R.string.onboarding_page3_title,
+        R.string.onboarding_page3_description,
         Icons.Default.Savings
     )
 )
@@ -97,7 +99,7 @@ fun OnboardingScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = onFinished, enabled = !isRestoring) { Text("Skip") }
+                TextButton(onClick = onFinished, enabled = !isRestoring) { Text(stringResource(R.string.action_skip)) }
             }
 
             HorizontalPager(
@@ -137,7 +139,8 @@ fun OnboardingScreen(
                     .height(52.dp)
             ) {
                 Text(
-                    if (pagerState.currentPage == onboardingPages.size - 1) "Get started" else "Continue",
+                    if (pagerState.currentPage == onboardingPages.size - 1) stringResource(R.string.action_get_started)
+                    else stringResource(R.string.action_continue),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -164,13 +167,13 @@ fun OnboardingScreen(
                         Spacer(modifier = Modifier.width(AuraSpacing.md))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Restore from Google Drive",
+                                stringResource(R.string.onboarding_restore_title),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                "Bring back a previous backup",
+                                stringResource(R.string.onboarding_restore_subtitle),
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -192,7 +195,7 @@ fun OnboardingScreen(
                 AuraCard(style = AuraCardStyle.Filled, contentPadding = PaddingValues(AuraSpacing.xxl)) {
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(AuraSpacing.lg))
-                    Text("Restoring your backup…")
+                    Text(stringResource(R.string.onboarding_restoring))
                 }
             }
         }
@@ -245,7 +248,7 @@ private fun OnboardingPageContent(page: OnboardingPage, pageOffset: Float) {
         Spacer(modifier = Modifier.height(AuraSpacing.xxxl))
 
         Text(
-            page.title,
+            stringResource(page.titleRes),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -255,7 +258,7 @@ private fun OnboardingPageContent(page: OnboardingPage, pageOffset: Float) {
         Spacer(modifier = Modifier.height(AuraSpacing.md))
 
         Text(
-            page.description,
+            stringResource(page.descriptionRes),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,

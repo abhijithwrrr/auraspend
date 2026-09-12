@@ -12,10 +12,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
@@ -37,8 +40,10 @@ import androidx.compose.material.icons.filled.Insights
 import java.time.LocalDate
 import java.time.ZoneId
 
-private enum class StatsPeriod(val label: String) {
-    THIS_MONTH("This Month"), LAST_30("30 Days"), ALL_TIME("All Time")
+private enum class StatsPeriod(val labelRes: Int) {
+    THIS_MONTH(R.string.analytics_period_this_month),
+    LAST_30(R.string.analytics_period_last_30),
+    ALL_TIME(R.string.analytics_period_all_time)
 }
 
 /**
@@ -82,9 +87,10 @@ fun AnalyticsScreen(
     }
     val totalSpent = remember(categorySpending) { categorySpending.sumOf { it.second } }
 
-    val merchantSpending = remember(expenseTxns) {
+    val unlabelledMerchant = stringResource(R.string.analytics_unlabelled)
+    val merchantSpending = remember(expenseTxns, unlabelledMerchant) {
         expenseTxns
-            .groupBy { it.merchant?.takeIf { m -> m.isNotBlank() } ?: "Unlabelled" }
+            .groupBy { it.merchant?.takeIf { m -> m.isNotBlank() } ?: unlabelledMerchant }
             .map { (name, list) -> Triple(name.trim(), list.sumOf { it.amount }, list.size) }
             .sortedByDescending { it.second }
             .take(6)
@@ -122,7 +128,7 @@ fun AnalyticsScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "Insights",
+                stringResource(R.string.analytics_title),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -131,7 +137,7 @@ fun AnalyticsScreen(
             SettingsAvatarButton(onClick = onOpenSettings)
         }
         AuraSegmentedControl(
-            options = StatsPeriod.entries.map { it.label },
+            options = StatsPeriod.entries.map { stringResource(it.labelRes) },
             selectedIndex = period.ordinal,
             onSelect = { period = StatsPeriod.entries[it] },
             modifier = Modifier.padding(horizontal = AuraSpacing.gutter)
@@ -148,7 +154,7 @@ fun AnalyticsScreen(
                         Row(horizontalArrangement = Arrangement.spacedBy(AuraSpacing.xxl)) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    "Expense",
+                                    stringResource(R.string.analytics_expense),
                                     style = AuraType.metricLabel,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -161,7 +167,7 @@ fun AnalyticsScreen(
                             }
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    "Income",
+                                    stringResource(R.string.analytics_income),
                                     style = AuraType.metricLabel,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -179,19 +185,25 @@ fun AnalyticsScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    "Net ${period.label.lowercase()}",
+                                    stringResource(
+                                        R.string.analytics_net_period,
+                                        stringResource(period.labelRes).lowercase()
+                                    ),
                                     fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
-                                    "${if (net >= 0) "+" else "-"}${formatMoney(kotlin.math.abs(net))}",
+                                    stringResource(
+                                        if (net >= 0) R.string.common_amount_plus else R.string.common_amount_minus,
+                                        formatMoney(kotlin.math.abs(net))
+                                    ),
                                     style = AuraType.moneyMedium,
                                     color = if (net >= 0) extended.incomeAmount else extended.expenseAmount
                                 )
                             }
                             savingsRate?.let { rate ->
                                 Badge(
-                                    text = "Saving ${rate.toInt()}%",
+                                    text = stringResource(R.string.analytics_saving_percent, rate.toInt()),
                                     color = if (rate >= 0) extended.incomeAmount else extended.expenseAmount
                                 )
                             }
@@ -199,7 +211,8 @@ fun AnalyticsScreen(
                         monthDelta?.let { delta ->
                             Spacer(modifier = Modifier.height(AuraSpacing.sm))
                             Badge(
-                                text = if (delta >= 0) "↑ $delta% vs last month" else "↓ ${-delta}% vs last month",
+                                text = if (delta >= 0) stringResource(R.string.analytics_delta_up, delta)
+                                else stringResource(R.string.analytics_delta_down, -delta),
                                 color = if (delta >= 0) extended.expenseAmount else extended.incomeAmount
                             )
                         }
@@ -213,7 +226,7 @@ fun AnalyticsScreen(
                     Box(modifier = Modifier.padding(horizontal = AuraSpacing.gutter)) {
                         AuraCard(style = AuraCardStyle.Outlined, modifier = Modifier.fillMaxWidth()) {
                             Text(
-                                "Spending by category",
+                                stringResource(R.string.analytics_spending_by_category),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -227,10 +240,13 @@ fun AnalyticsScreen(
                                     .size(190.dp)
                                     .align(Alignment.CenterHorizontally),
                                 strokeWidth = 32.dp,
-                                contentDescription = "Spending by category, total ${formatMoney(totalSpent)}"
+                                contentDescription = stringResource(
+                                    R.string.analytics_spending_by_category_desc,
+                                    formatMoney(totalSpent)
+                                )
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text("Total", fontSize = 12.sp, color = extended.textLight)
+                                    Text(stringResource(R.string.analytics_total), fontSize = 12.sp, color = extended.textLight)
                                     Text(
                                         formatMoney(totalSpent),
                                         style = AuraType.moneyMedium,
@@ -262,7 +278,10 @@ fun AnalyticsScreen(
                                         overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
-                                        "${if (totalSpent > 0) (amount / totalSpent * 100).toInt() else 0}%",
+                                        stringResource(
+                                            R.string.common_percent,
+                                            if (totalSpent > 0) (amount / totalSpent * 100).toInt() else 0
+                                        ),
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = extended.textLight
@@ -291,7 +310,7 @@ fun AnalyticsScreen(
                     Box(modifier = Modifier.padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.lg)) {
                         AuraCard(style = AuraCardStyle.Outlined, modifier = Modifier.fillMaxWidth()) {
                             Text(
-                                "Top merchants",
+                                stringResource(R.string.analytics_top_merchants),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -313,7 +332,7 @@ fun AnalyticsScreen(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
-                                            "$count txn${if (count > 1) "s" else ""}",
+                                            pluralStringResource(R.plurals.analytics_txn_count, count, count),
                                             fontSize = 12.sp,
                                             color = extended.textLight
                                         )
@@ -339,8 +358,9 @@ fun AnalyticsScreen(
                 item {
                     AuraEmptyState(
                         icon = Icons.Default.Insights,
-                        title = if (period == StatsPeriod.ALL_TIME) "No insights yet" else "Nothing in this period",
-                        message = "Add transactions and insights will appear here."
+                        title = if (period == StatsPeriod.ALL_TIME) stringResource(R.string.analytics_empty_title_all_time)
+                        else stringResource(R.string.analytics_empty_title_period),
+                        message = stringResource(R.string.analytics_empty_message)
                     )
                 }
             }

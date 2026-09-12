@@ -15,8 +15,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.data.ai.ModelConstants
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
 import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
@@ -40,12 +42,11 @@ fun ModelConsentDialog(
         onDismissRequest = onDecline,
         shape = RoundedCornerShape(28.dp),
         icon = { Icon(Icons.Filled.Download, contentDescription = null) },
-        title = { Text("Download local AI model?") },
+        title = { Text(stringResource(R.string.consent_title)) },
         text = {
             Column(Modifier.fillMaxWidth()) {
                 Text(
-                    "To auto-categorise your messages into subscriptions, categories, income, " +
-                        "expense and other use this on-device AI. It works fully offline once downloaded.",
+                    stringResource(R.string.consent_message),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(AuraSpacing.lg))
@@ -61,24 +62,24 @@ fun ModelConsentDialog(
                     )
                     Spacer(modifier = Modifier.height(AuraSpacing.xxs))
                     Text(
-                        text = "~$modelSizeMb MB",
+                        text = stringResource(R.string.consent_model_size, modelSizeMb),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Spacer(modifier = Modifier.height(AuraSpacing.md))
                 Text(
-                    "The download happens in the background on your device. No data leaves your phone.",
+                    stringResource(R.string.consent_footnote),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },
         confirmButton = {
-            TextButton(onClick = onAccept) { Text("Download") }
+            TextButton(onClick = onAccept) { Text(stringResource(R.string.action_download)) }
         },
         dismissButton = {
-            TextButton(onClick = onDecline) { Text("Not now") }
+            TextButton(onClick = onDecline) { Text(stringResource(R.string.action_not_now)) }
         }
     )
 }

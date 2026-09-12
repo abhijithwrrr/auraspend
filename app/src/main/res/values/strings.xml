@@ -10,7 +10,397 @@
     <string name="action_undo">Undo</string>
     <string name="action_retry">Retry</string>
     <string name="action_close">Close</string>
+    <string name="action_back">Back</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_search">Search</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_done">Done</string>
+    <string name="action_ok">OK</string>
+    <string name="action_skip">Skip</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_get_started">Get started</string>
+    <string name="action_download">Download</string>
+    <string name="action_not_now">Not now</string>
+    <string name="action_remove">Remove</string>
+    <string name="action_dismiss">Dismiss</string>
+    <string name="action_duplicate">Duplicate</string>
+
+    <!-- Shared formats -->
+    <string name="common_percent">%1$d%%</string>
+    <string name="common_amount_plus">+%1$s</string>
+    <string name="common_amount_minus">-%1$s</string>
 
     <!-- States -->
     <string name="state_offline">You\'re offline — changes are saved on device</string>
+    <string name="state_hidden_amount">•••</string>
+
+    <!-- Home dashboard -->
+    <string name="home_greeting_morning">Good morning</string>
+    <string name="home_greeting_afternoon">Good afternoon</string>
+    <string name="home_greeting_evening">Good evening</string>
+    <string name="home_total_balance">Total balance</string>
+    <string name="home_in_this_month">In this month</string>
+    <string name="home_out_this_month">Out this month</string>
+    <string name="home_quick_expense">Expense</string>
+    <string name="home_quick_income">Income</string>
+    <string name="home_quick_smart_add">Smart Add</string>
+    <string name="home_quick_stats">Stats</string>
+    <string name="home_cash_flow">Cash flow</string>
+    <string name="home_spending_this_week">Spending this week</string>
+    <string name="home_budgets">Budgets</string>
+    <string name="home_manage">Manage</string>
+    <string name="home_unknown_category">Unknown</string>
+    <string name="home_budget_percent_used">%1$s budget %2$d percent used</string>
+    <string name="home_budget_of">of %1$s</string>
+    <string name="home_subscriptions">Subscriptions</string>
+    <plurals name="home_subscriptions_active">
+        <item quantity="one">%1$d active</item>
+        <item quantity="other">%1$d active</item>
+    </plurals>
+    <string name="home_subscription_monthly">%1$s/mo</string>
+    <string name="home_recent">Recent</string>
+    <string name="home_view_all">View all</string>
+    <string name="home_empty_title">No transactions yet</string>
+    <string name="home_empty_message">Add your first transaction and AuraSpend will start building your picture.</string>
+    <string name="home_add_transaction">Add transaction</string>
+    <string name="home_other_category">Other</string>
+
+    <!-- Activity (transaction list) -->
+    <string name="activity_title">Activity</string>
+    <string name="activity_filter_all">All</string>
+    <string name="activity_filter_outgoing">Outgoing</string>
+    <string name="activity_filter_incoming">Incoming</string>
+    <string name="activity_search_hint">Search merchant or note</string>
+    <string name="activity_transaction_deleted">Transaction deleted</string>
+    <plurals name="activity_records">
+        <item quantity="one">%1$d record</item>
+        <item quantity="other">%1$d records</item>
+    </plurals>
+    <plurals name="activity_records_more">
+        <item quantity="one">%1$d+ record</item>
+        <item quantity="other">%1$d+ records</item>
+    </plurals>
+    <string name="activity_summary_in">In</string>
+    <string name="activity_summary_out">Out</string>
+    <string name="activity_summary_net">Net</string>
+    <string name="activity_empty_title">No transactions yet</string>
+    <string name="activity_empty_title_filtered">No matching transactions</string>
+    <string name="activity_empty_message_filtered">Try adjusting your search or filters.</string>
+    <string name="activity_empty_message">Your auto-categorised activity will appear here.</string>
+    <string name="activity_other_category">Other</string>
+    <string name="activity_load_earlier">Load earlier transactions</string>
+    <string name="activity_group_today">Today</string>
+    <string name="activity_group_yesterday">Yesterday</string>
+    <string name="activity_group_this_week">This Week</string>
+    <string name="activity_group_this_month">This Month</string>
+    <string name="activity_group_older">Older</string>
+
+    <!-- Transaction detail -->
+    <string name="txn_detail_title">Transaction</string>
+    <string name="txn_detail_edit_title">Edit Transaction</string>
+    <string name="txn_detail_not_found_title">Transaction not found</string>
+    <string name="txn_detail_not_found_message">It may have been deleted on another screen.</string>
+    <string name="txn_detail_go_back">Go back</string>
+    <string name="txn_detail_updated">Transaction updated</string>
+    <string name="txn_detail_duplicated">Duplicated</string>
+    <string name="txn_detail_delete_title">Delete transaction?</string>
+    <string name="txn_detail_delete_message">%1$s · %2$s</string>
+    <string name="txn_detail_this_transaction">This transaction</string>
+    <string name="txn_detail_delete_fallback">This cannot be undone.</string>
+    <string name="txn_detail_uncategorized">Uncategorized</string>
+    <string name="txn_detail_type_expense">Expense</string>
+    <string name="txn_detail_type_income">Income</string>
+    <string name="txn_detail_merchant">Merchant</string>
+    <string name="txn_detail_note">Note</string>
+    <string name="txn_detail_bank">Bank</string>
+    <string name="txn_detail_recurring">Recurring</string>
+    <string name="txn_detail_yes">Yes</string>
+    <string name="txn_detail_source">Source</string>
+    <string name="txn_detail_source_sms">Auto-detected from SMS</string>
+    <string name="txn_detail_dash">—</string>
+
+    <!-- Quick add sheet -->
+    <string name="quick_add_type_expense">Expense</string>
+    <string name="quick_add_type_income">Income</string>
+    <string name="quick_add_merchant_hint">Merchant (optional)</string>
+    <string name="quick_add_smart_add">Smart Add</string>
+    <string name="quick_add_manual">Manual</string>
+    <string name="quick_add_backspace">Backspace</string>
+
+    <!-- Transaction editor -->
+    <string name="txn_editor_type_expense">Expense</string>
+    <string name="txn_editor_type_income">Income</string>
+    <string name="txn_editor_amount">Amount</string>
+    <string name="txn_editor_amount_invalid">Enter a valid amount</string>
+    <string name="txn_editor_merchant">Merchant / Payee</string>
+    <string name="txn_editor_note">Note (optional)</string>
+    <string name="txn_editor_category">Category</string>
+    <string name="txn_editor_save_new">Save transaction</string>
+    <string name="txn_editor_save_changes">Save changes</string>
+
+    <!-- New transaction screen -->
+    <string name="new_txn_title">Add Transaction</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_amoled">AMOLED</string>
+    <string name="settings_dynamic_color">Dynamic color</string>
+    <string name="settings_dynamic_color_subtitle">Match your wallpaper (Android 12+)</string>
+    <string name="settings_intelligent_features">Intelligent features</string>
+    <string name="settings_data">Data</string>
+    <string name="settings_export_csv">Export to CSV</string>
+    <string name="settings_export_csv_subtitle">Save transactions to a CSV file</string>
+    <string name="settings_import_csv">Import from CSV</string>
+    <string name="settings_import_csv_subtitle">Restore transactions from a CSV file</string>
+    <string name="settings_finance">Finance</string>
+    <string name="settings_categories">Categories</string>
+    <string name="settings_categories_subtitle">Add, edit, or organize categories</string>
+    <string name="settings_subscriptions">Subscriptions</string>
+    <string name="settings_subscriptions_subtitle">Track recurring payments</string>
+    <string name="settings_budgets">Budgets</string>
+    <string name="settings_budgets_subtitle">Set spending limits per category</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_version">Version 0.1.0 · Apache-2.0</string>
+    <string name="settings_about_made_by">Made with ❤️ by AW Builds</string>
+    <string name="settings_view_github">View on GitHub</string>
+    <string name="settings_ai_delete_title">Delete AI model?</string>
+    <string name="settings_ai_delete_message">This removes the local model (~380 MB). You can re-download it anytime; your transactions are never affected.</string>
+    <string name="settings_ai_ready">Local AI ready</string>
+    <string name="settings_ai_ready_subtitle">Messages are auto-categorised on-device.</string>
+    <string name="settings_ai_downloading">Downloading local AI</string>
+    <string name="settings_ai_downloading_progress">%1$d%% complete…</string>
+    <string name="settings_ai_failed">Download failed</string>
+    <string name="settings_ai_failed_subtitle">Check your connection and try again.</string>
+    <string name="settings_ai_missing">Local AI not downloaded</string>
+    <string name="settings_ai_missing_subtitle">Download ~380 MB to auto-categorise messages into categories, income or expense.</string>
+    <string name="settings_ai_delete_action">Delete model</string>
+    <string name="settings_ai_download_action">Download model</string>
+    <string name="settings_auto_detect">Auto-categorize messages</string>
+    <string name="settings_auto_detect_subtitle">Read new device SMS and save them automatically.</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">Insights</string>
+    <string name="analytics_period_this_month">This Month</string>
+    <string name="analytics_period_last_30">30 Days</string>
+    <string name="analytics_period_all_time">All Time</string>
+    <string name="analytics_expense">Expense</string>
+    <string name="analytics_income">Income</string>
+    <string name="analytics_net_period">Net %1$s</string>
+    <string name="analytics_saving_percent">Saving %1$d%%</string>
+    <string name="analytics_delta_up">↑ %1$d%% vs last month</string>
+    <string name="analytics_delta_down">↓ %1$d%% vs last month</string>
+    <string name="analytics_spending_by_category">Spending by category</string>
+    <string name="analytics_spending_by_category_desc">Spending by category, total %1$s</string>
+    <string name="analytics_total">Total</string>
+    <string name="analytics_top_merchants">Top merchants</string>
+    <string name="analytics_unlabelled">Unlabelled</string>
+    <plurals name="analytics_txn_count">
+        <item quantity="one">%1$d txn</item>
+        <item quantity="other">%1$d txns</item>
+    </plurals>
+    <string name="analytics_empty_title_all_time">No insights yet</string>
+    <string name="analytics_empty_title_period">Nothing in this period</string>
+    <string name="analytics_empty_message">Add transactions and insights will appear here.</string>
+
+    <!-- Plan hub -->
+    <string name="plan_title">Plan</string>
+    <string name="plan_budgets_month">This month\'s budgets</string>
+    <string name="plan_budget_of">%1$s of %2$s</string>
+    <string name="plan_budget_percent_used">%1$d%% used</string>
+    <string name="plan_no_budgets">No budgets yet</string>
+    <string name="plan_recurring_monthly">Recurring monthly</string>
+    <string name="plan_monthly_recurring">%1$s/mo</string>
+    <plurals name="plan_active_subscriptions">
+        <item quantity="one">%1$d active subscription</item>
+        <item quantity="other">%1$d active subscriptions</item>
+    </plurals>
+    <string name="plan_budgets">Budgets</string>
+    <string name="plan_budgets_subtitle">Spending limits per category</string>
+    <string name="plan_subscriptions">Subscriptions</string>
+    <string name="plan_subscriptions_subtitle">Recurring charges and renewals</string>
+    <string name="plan_savings_goals">Savings goals</string>
+    <string name="plan_savings_goals_empty_subtitle">Set targets and watch them fill up</string>
+    <plurals name="plan_goals_saved">
+        <item quantity="one">%1$d goal · %2$s saved</item>
+        <item quantity="other">%1$d goals · %2$s saved</item>
+    </plurals>
+    <string name="plan_categories">Categories</string>
+    <string name="plan_categories_subtitle">Organize how money is grouped</string>
+
+    <!-- Savings goals -->
+    <string name="savings_title">Savings goals</string>
+    <string name="savings_add_goal">Add goal</string>
+    <string name="savings_empty_title">No savings goals yet</string>
+    <string name="savings_empty_message">Set a target — a trip, a gadget, an emergency fund — and watch it fill up.</string>
+    <string name="savings_create_goal">Create a goal</string>
+    <string name="savings_total_saved">Total saved</string>
+    <string name="savings_of">of %1$s</string>
+    <string name="savings_total_desc">Total savings %1$d percent</string>
+    <string name="savings_reached">Reached</string>
+    <string name="savings_progress_of">%1$s of %2$s</string>
+    <string name="savings_goal_desc">%1$s %2$d percent</string>
+    <string name="savings_target_date">Target %1$s</string>
+    <string name="savings_add_funds">Add funds</string>
+    <string name="savings_edit_goal">Edit goal</string>
+    <string name="savings_delete_goal">Delete goal</string>
+    <string name="savings_delete_title">Delete “%1$s”?</string>
+    <string name="savings_delete_message">The goal and its progress will be removed. This cannot be undone.</string>
+    <string name="savings_new_goal_title">New goal</string>
+    <string name="savings_goal_name">Goal name</string>
+    <string name="savings_target_amount">Target amount</string>
+    <string name="savings_target_date_hint">Add a target date (optional)</string>
+    <string name="savings_remove_date">Remove date</string>
+    <string name="savings_save_changes">Save changes</string>
+    <string name="savings_add_funds_title">Add to “%1$s”</string>
+    <string name="savings_amount">Amount</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_page1_title">Track every rupee</string>
+    <string name="onboarding_page1_description">Income, expenses and balance — always up to date, always on your device.</string>
+    <string name="onboarding_page2_title">Smart by default</string>
+    <string name="onboarding_page2_description">Bank SMS is categorised automatically, on-device, by a local AI that never uploads your data.</string>
+    <string name="onboarding_page3_title">Plan ahead</string>
+    <string name="onboarding_page3_description">Budgets, subscriptions and goals in one place, with insights that actually help.</string>
+    <string name="onboarding_restore_title">Restore from Google Drive</string>
+    <string name="onboarding_restore_subtitle">Bring back a previous backup</string>
+    <string name="onboarding_restoring">Restoring your backup…</string>
+
+    <!-- Budget -->
+    <string name="budget_title">Budgets</string>
+    <string name="budget_add">Add Budget</string>
+    <string name="budget_empty_title">No budgets set</string>
+    <string name="budget_empty_message">Set spending limits for each category.</string>
+    <string name="budget_all">All budgets</string>
+    <string name="budget_spent_of">%1$s of %2$s</string>
+    <plurals name="budget_days_left">
+        <item quantity="one">%1$d day left this month</item>
+        <item quantity="other">%1$d days left this month</item>
+    </plurals>
+    <string name="budget_unknown_category">Unknown</string>
+    <string name="budget_spent">%1$s spent</string>
+    <string name="budget_over_by">Over by %1$s</string>
+    <string name="budget_limit">%1$s limit</string>
+    <string name="budget_limit_reached">Limit reached</string>
+    <string name="budget_percent_used">%1$d%% used</string>
+    <string name="budget_edit_title">Edit Budget</string>
+    <string name="budget_new_title">New Budget</string>
+    <string name="budget_editor_subtitle">Set a spending limit for a category</string>
+    <string name="budget_category">Category</string>
+    <string name="budget_no_categories">No categories available</string>
+    <string name="budget_monthly_limit">Monthly Limit</string>
+    <string name="budget_period">Period</string>
+    <string name="budget_save">Save Budget</string>
+
+    <!-- Recurring subscriptions -->
+    <string name="recurring_title">Subscriptions</string>
+    <string name="recurring_add">Add Subscription</string>
+    <string name="recurring_empty_title">No subscriptions</string>
+    <string name="recurring_empty_message">Track your recurring payments.</string>
+    <string name="recurring_monthly">Recurring monthly</string>
+    <string name="recurring_monthly_amount">%1$s/mo</string>
+    <string name="recurring_normalised">normalised across cycles</string>
+    <string name="recurring_category_cycle">%1$s · %2$s</string>
+    <string name="recurring_other_category">Other</string>
+    <string name="recurring_overdue">Overdue</string>
+    <string name="recurring_due_today">Due today</string>
+    <string name="recurring_tomorrow">Tomorrow</string>
+    <string name="recurring_next">Next: %1$s</string>
+    <string name="recurring_add_subtitle">Track a recurring payment</string>
+    <string name="recurring_name">Name</string>
+    <string name="recurring_name_hint">Netflix, Spotify, Rent...</string>
+    <string name="recurring_amount">Amount</string>
+    <string name="recurring_billing_cycle">Billing Cycle</string>
+    <string name="recurring_category">Category</string>
+    <string name="recurring_no_categories">No categories available</string>
+
+    <!-- Category management -->
+    <string name="categories_title">Manage Categories</string>
+    <string name="categories_add">Add Category</string>
+    <string name="categories_empty_title">No categories</string>
+    <string name="categories_empty_message">Add a category to organize your transactions.</string>
+    <string name="categories_edit">Edit Category</string>
+    <string name="categories_delete_title">Delete Category</string>
+    <string name="categories_default_locked">This is a default category and cannot be deleted.</string>
+    <string name="categories_delete_message">Delete "%1$s"? Transactions using this category will be affected.</string>
+    <string name="categories_default_badge">Default</string>
+    <string name="categories_name">Category Name</string>
+
+    <!-- Classification (smart add) -->
+    <string name="classification_title">Smart Add</string>
+    <string name="classification_tab_paste">Paste</string>
+    <string name="classification_tab_sms">From SMS</string>
+    <string name="classification_tab_auto">Auto Detect</string>
+    <string name="classification_unknown_merchant">Unknown</string>
+    <string name="classification_paste_label">Paste bank SMS message</string>
+    <string name="classification_paste_hint">Paste your bank SMS here...\ne.g. INR 500.00 debited from HDFC Bank for Swiggy order</string>
+    <string name="classification_classify">Classify Message</string>
+    <string name="classification_save_transaction">Save Transaction</string>
+    <string name="classification_detected_details">Detected Details</string>
+    <string name="classification_ai_refining">AI refining…</string>
+    <string name="classification_ai_refined">AI refined</string>
+    <string name="classification_merchant_confidence">Merchant: %1$s (%2$d%%)</string>
+    <string name="classification_confidence_high">High confidence</string>
+    <string name="classification_confidence_medium">Medium confidence</string>
+    <string name="classification_confidence_low">Low confidence - please verify</string>
+    <string name="classification_amount">Amount</string>
+    <string name="classification_not_detected">Not detected</string>
+    <string name="classification_type">Type</string>
+    <string name="classification_merchant">Merchant</string>
+    <string name="classification_bank">Bank</string>
+    <string name="classification_category">Category</string>
+    <string name="classification_use_detected">Use detected values</string>
+    <string name="classification_edit_manually">Edit manually</string>
+    <string name="classification_manual_expense">Expense</string>
+    <string name="classification_manual_income">Income</string>
+    <string name="classification_manual_merchant">Merchant / Payee</string>
+    <string name="classification_manual_note">Note</string>
+    <string name="classification_no_categories">No categories available</string>
+    <string name="classification_permission_title">SMS Permission Required</string>
+    <string name="classification_permission_message">Allow access to read bank SMS messages for auto-classification.</string>
+    <string name="classification_grant_permission">Grant Permission</string>
+    <string name="classification_no_sms_title">No bank SMS messages found</string>
+    <string name="classification_no_sms_message">New bank messages will appear here once detected.</string>
+    <string name="classification_ai_progress">AI is categorizing: %1$d of %2$d</string>
+    <string name="classification_local_ai_title">Local AI Required</string>
+    <string name="classification_local_ai_message">Download the on-device AI model to automatically detect and categorize your bank messages offline.</string>
+    <string name="classification_downloading">Downloading…</string>
+    <string name="classification_download_model">Download AI Model (~380 MB)</string>
+    <string name="classification_ai_categorizing">AI is categorizing messages...</string>
+    <string name="classification_reading_sms">Reading bank messages...</string>
+    <string name="classification_scan_message">Scan your inbox to detect and categorize bank messages.</string>
+    <string name="classification_scan_sms">Scan SMS</string>
+    <plurals name="classification_messages_found">
+        <item quantity="one">%1$d message found</item>
+        <item quantity="other">%1$d messages found</item>
+    </plurals>
+    <string name="classification_save_all">Save All</string>
+    <string name="classification_swipe_hint">Swipe right to save · left to dismiss</string>
+    <string name="classification_save_desc">Save transaction</string>
+    <string name="classification_dismiss_desc">Dismiss message</string>
+    <string name="classification_saved">Saved</string>
+    <string name="classification_download_progress">Downloading on-device AI… %1$d%%</string>
+    <string name="classification_download_message">Messages will be auto-categorised into subscriptions, categories, income, expense and other once ready.</string>
+
+    <!-- Model consent dialog -->
+    <string name="consent_title">Download local AI model?</string>
+    <string name="consent_message">To auto-categorise your messages into subscriptions, categories, income, expense and other use this on-device AI. It works fully offline once downloaded.</string>
+    <string name="consent_model_size">~%1$d MB</string>
+    <string name="consent_footnote">The download happens in the background on your device. No data leaves your phone.</string>
+
+    <!-- Category selector + duplicate detection -->
+    <string name="category_selector_title">Select Category</string>
+    <string name="category_selector_ai_suggestion">AI suggests: %1$s (%2$d%% confident)</string>
+    <string name="duplicate_title">Possible Duplicate Found</string>
+    <string name="duplicate_message">We found a similar transaction from %1$s</string>
+    <string name="duplicate_merchant">Merchant</string>
+    <string name="duplicate_amount">Amount</string>
+    <string name="duplicate_similarity">Similarity</string>
+    <string name="duplicate_unknown_merchant">Unknown</string>
+    <string name="duplicate_question">Is this a duplicate transaction?</string>
+    <string name="duplicate_mark">Mark as Duplicate</string>
+    <string name="duplicate_save_anyway">Save Anyway</string>
 </resources>

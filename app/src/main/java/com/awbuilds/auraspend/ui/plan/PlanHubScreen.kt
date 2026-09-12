@@ -18,9 +18,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.RecurrenceFrequency
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
@@ -75,7 +78,7 @@ fun PlanHubScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "Plan",
+                stringResource(R.string.plan_title),
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -93,20 +96,20 @@ fun PlanHubScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "This month's budgets",
+                        stringResource(R.string.plan_budgets_month),
                         style = AuraType.metricLabel,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(AuraSpacing.xs))
                     Text(
-                        "${formatMoney(totalSpent)} of ${formatMoney(totalLimit)}",
+                        stringResource(R.string.plan_budget_of, formatMoney(totalSpent), formatMoney(totalLimit)),
                         style = AuraType.moneyMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(AuraSpacing.xs))
                     Text(
-                        if (totalLimit > 0) "${(budgetProgress * 100).toInt()}% used"
-                        else "No budgets yet",
+                        if (totalLimit > 0) stringResource(R.string.plan_budget_percent_used, (budgetProgress * 100).toInt())
+                        else stringResource(R.string.plan_no_budgets),
                         fontSize = 13.sp,
                         color = MaterialTheme.extendedColors.textLight
                     )
@@ -118,7 +121,7 @@ fun PlanHubScreen(
                     stroke = 6.dp
                 ) {
                     Text(
-                        "${(budgetProgress * 100).toInt()}%",
+                        stringResource(R.string.common_percent, (budgetProgress * 100).toInt()),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -132,19 +135,19 @@ fun PlanHubScreen(
         // ── Forward-looking totals
         AuraCard(style = AuraCardStyle.Outlined, modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Recurring monthly",
+                stringResource(R.string.plan_recurring_monthly),
                 style = AuraType.metricLabel,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(AuraSpacing.xs))
             Text(
-                "${formatMoney(monthlySubscriptions)}/mo",
+                stringResource(R.string.plan_monthly_recurring, formatMoney(monthlySubscriptions)),
                 style = AuraType.moneyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(AuraSpacing.xs))
             Text(
-                "${subscriptions.size} active ${if (subscriptions.size == 1) "subscription" else "subscriptions"}",
+                pluralStringResource(R.plurals.plan_active_subscriptions, subscriptions.size, subscriptions.size),
                 fontSize = 13.sp,
                 color = MaterialTheme.extendedColors.textLight
             )
@@ -155,33 +158,38 @@ fun PlanHubScreen(
         // ── Management entries
         PlanRow(
             icon = Icons.Default.AccountBalance,
-            title = "Budgets",
-            subtitle = "Spending limits per category",
+            title = stringResource(R.string.plan_budgets),
+            subtitle = stringResource(R.string.plan_budgets_subtitle),
             onClick = onOpenBudgets
         )
         Spacer(modifier = Modifier.height(AuraSpacing.sm))
         PlanRow(
             icon = Icons.Default.Subscriptions,
-            title = "Subscriptions",
-            subtitle = "Recurring charges and renewals",
+            title = stringResource(R.string.plan_subscriptions),
+            subtitle = stringResource(R.string.plan_subscriptions_subtitle),
             onClick = onOpenSubscriptions
         )
         Spacer(modifier = Modifier.height(AuraSpacing.sm))
         PlanRow(
             icon = Icons.Default.Savings,
-            title = "Savings goals",
+            title = stringResource(R.string.plan_savings_goals),
             subtitle = if (goals.isEmpty()) {
-                "Set targets and watch them fill up"
+                stringResource(R.string.plan_savings_goals_empty_subtitle)
             } else {
-                "${goals.size} ${if (goals.size == 1) "goal" else "goals"} · ${formatMoney(goals.sumOf { it.currentAmount })} saved"
+                pluralStringResource(
+                    R.plurals.plan_goals_saved,
+                    goals.size,
+                    goals.size,
+                    formatMoney(goals.sumOf { it.currentAmount })
+                )
             },
             onClick = onOpenGoals
         )
         Spacer(modifier = Modifier.height(AuraSpacing.sm))
         PlanRow(
             icon = Icons.Default.Category,
-            title = "Categories",
-            subtitle = "Organize how money is grouped",
+            title = stringResource(R.string.plan_categories),
+            subtitle = stringResource(R.string.plan_categories_subtitle),
             onClick = onOpenCategories
         )
 

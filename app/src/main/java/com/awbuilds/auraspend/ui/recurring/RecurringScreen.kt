@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.RecurrenceFrequency
 import com.awbuilds.auraspend.domain.model.Subscription
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
@@ -50,15 +52,15 @@ fun RecurringScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Subscriptions") },
+                title = { Text(stringResource(R.string.recurring_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showAddSheet = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Subscription")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.recurring_add))
                     }
                 }
             )
@@ -73,8 +75,8 @@ fun RecurringScreen(
             ) {
                 AuraEmptyState(
                     icon = Icons.Default.Subscriptions,
-                    title = "No subscriptions",
-                    message = "Track your recurring payments."
+                    title = stringResource(R.string.recurring_empty_title),
+                    message = stringResource(R.string.recurring_empty_message)
                 )
             }
         } else {
@@ -110,20 +112,20 @@ fun RecurringScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    "Recurring monthly",
+                                    stringResource(R.string.recurring_monthly),
                                     style = AuraType.metricLabel,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Spacer(modifier = Modifier.height(AuraSpacing.xs))
                                 Text(
-                                    "${formatMoney(monthlyEquivalent)}/mo",
+                                    stringResource(R.string.recurring_monthly_amount, formatMoney(monthlyEquivalent)),
                                     style = AuraType.moneyLarge,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 if (subscriptions.any { it.billingCycle != RecurrenceFrequency.MONTHLY }) {
                                     Spacer(modifier = Modifier.height(AuraSpacing.xs))
                                     Text(
-                                        "normalised across cycles",
+                                        stringResource(R.string.recurring_normalised),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -175,7 +177,11 @@ fun RecurringScreen(
                                 )
                                 Spacer(modifier = Modifier.height(AuraSpacing.xxs))
                                 Text(
-                                    "${category?.name ?: "Other"} · ${sub.billingCycle.name.lowercase().replaceFirstChar { it.uppercase() }}",
+                                    stringResource(
+                                        R.string.recurring_category_cycle,
+                                        category?.name ?: stringResource(R.string.recurring_other_category),
+                                        sub.billingCycle.name.lowercase().replaceFirstChar { it.uppercase() }
+                                    ),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -191,10 +197,13 @@ fun RecurringScreen(
                                     sub.nextBillingDate.toLocalDate()
                                 )
                                 val dueLabel = when {
-                                    daysUntil < 0L -> "Overdue"
-                                    daysUntil == 0L -> "Due today"
-                                    daysUntil == 1L -> "Tomorrow"
-                                    else -> "Next: ${sub.nextBillingDate.format(DateTimeFormatter.ofPattern("dd MMM"))}"
+                                    daysUntil < 0L -> stringResource(R.string.recurring_overdue)
+                                    daysUntil == 0L -> stringResource(R.string.recurring_due_today)
+                                    daysUntil == 1L -> stringResource(R.string.recurring_tomorrow)
+                                    else -> stringResource(
+                                        R.string.recurring_next,
+                                        sub.nextBillingDate.format(DateTimeFormatter.ofPattern("dd MMM"))
+                                    )
                                 }
                                 val urgent = daysUntil <= 3L
                                 Spacer(modifier = Modifier.height(AuraSpacing.xxs))
@@ -212,7 +221,7 @@ fun RecurringScreen(
                             }) {
                                 Icon(
                                     Icons.Default.Close,
-                                    contentDescription = "Remove",
+                                    contentDescription = stringResource(R.string.action_remove),
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -257,12 +266,12 @@ fun RecurringScreen(
                     }
                     Column {
                         Text(
-                            "Add Subscription",
+                            stringResource(R.string.recurring_add),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "Track a recurring payment",
+                            stringResource(R.string.recurring_add_subtitle),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -272,8 +281,8 @@ fun RecurringScreen(
                 OutlinedTextField(
                     value = subscriptionName,
                     onValueChange = { subscriptionName = it },
-                    label = { Text("Name") },
-                    placeholder = { Text("Netflix, Spotify, Rent...") },
+                    label = { Text(stringResource(R.string.recurring_name)) },
+                    placeholder = { Text(stringResource(R.string.recurring_name_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     leadingIcon = {
@@ -288,7 +297,7 @@ fun RecurringScreen(
                 OutlinedTextField(
                     value = subscriptionAmount,
                     onValueChange = { subscriptionAmount = it },
-                    label = { Text("Amount") },
+                    label = { Text(stringResource(R.string.recurring_amount)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     prefix = { Text("₹") },
@@ -304,7 +313,7 @@ fun RecurringScreen(
 
                 Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
                     Text(
-                        "Billing Cycle",
+                        stringResource(R.string.recurring_billing_cycle),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -330,13 +339,13 @@ fun RecurringScreen(
 
                 Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
                     Text(
-                        "Category",
+                        stringResource(R.string.recurring_category),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     if (categories.isEmpty()) {
                         Text(
-                            "No categories available",
+                            stringResource(R.string.recurring_no_categories),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -404,7 +413,7 @@ fun RecurringScreen(
                             subscriptionAmount.toDoubleOrNull() != null &&
                             subscriptionCategory.isNotBlank()
                 ) {
-                    Text("Add Subscription")
+                    Text(stringResource(R.string.recurring_add))
                 }
             }
         }
