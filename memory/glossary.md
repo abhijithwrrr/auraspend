@@ -1,0 +1,39 @@
+# Glossary
+
+Full decoder ring for AuraSpend. Promote frequently used terms to `CLAUDE.md`.
+
+## Design
+| Term | Meaning |
+|------|---------|
+| Aurora | AuraSpend's design language: purple brand, lavender/teal accents, Plus Jakarta Sans, hairline borders, tonal depth |
+| Aurora tokens | `ui/designsystem/AuraTokens.kt`: `AuraSpacing`, `AuraMotion`, `AuraGradients`, `AuraType` |
+| Hero moment | Any surface using the full aurora gradient (balance card, FAB) — used sparingly |
+| Glass | Translucent surface style for floating chrome only (`AuraCardStyle.Glass`) |
+| Shim | `ui/core/CashewComponents.kt` compatibility layer; existing screens consume it until rebuilt |
+| Micro-label | Small uppercase `AuraType.metricLabel` caption above a metric |
+
+## Process
+| Term | Meaning |
+|------|---------|
+| Phase / P0–P6 | Rebuild phases defined in `docs/handoffs/0000-master-plan.md` |
+| Gate | Objective exit criteria for a phase (builds, tests, benchmarks, screenshots) |
+| Handoff | `docs/handoffs/NNNN-name.md` written at the end of each work session |
+| Definition of Done (DoD) | Per-screen checklist in `docs/design/aurora.md` |
+| Triage inbox | Swipe accept/reject queue for auto-detected SMS (P2) |
+
+## Architecture
+| Term | Meaning |
+|------|---------|
+| Boundary | try/catch edge for IO/platform calls (`boundary {}` / `boundaryOrNull {}`) |
+| AuraLog | Single logging entry point (`core/AuraLog.kt`) |
+| Pipeline | SMS → `SmsIngestor` → queue → classifier → `ClassificationMemory` → transaction |
+| Fusion | `AiSignalFusion` — combines regex + LLM + keyword signals with confidence |
+| Flavor | `free` (all unlocked) / `play` (Play Store build) |
+
+## Navigation & IA (target, P1)
+| Term | Meaning |
+|------|---------|
+| Activity | Transactions tab (list + detail + edit) |
+| Plan hub | Budgets + Subscriptions + Savings goals tab |
+| Insights | Analytics + insight feed tab |
+| Quick Add | Amount-first bottom sheet opened by the FAB |
