@@ -33,12 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.TransactionType
-import com.awbuilds.auraspend.ui.core.HideAmountIconButton
-import com.awbuilds.auraspend.ui.core.SectionHeaderRow
-import com.awbuilds.auraspend.ui.core.TransactionEntryRow
-import com.awbuilds.auraspend.ui.core.categoryColor
-import com.awbuilds.auraspend.ui.core.categoryIconEmoji
-import com.awbuilds.auraspend.ui.core.formatMoney
+import com.awbuilds.auraspend.ui.designsystem.HideAmountIconButton
+import com.awbuilds.auraspend.ui.designsystem.SettingsAvatarButton
+import com.awbuilds.auraspend.ui.designsystem.*
 import com.awbuilds.auraspend.ui.designsystem.*
 import com.awbuilds.auraspend.ui.theme.extendedColors
 import java.time.Instant
@@ -203,7 +200,7 @@ fun DashboardScreen(
             // ── Cash flow
             if (state.dailySpending.isNotEmpty()) {
                 item {
-                    SectionHeaderRow(
+                    AuraSectionHeader(
                         title = stringResource(R.string.home_cash_flow),
                         modifier = Modifier.padding(top = AuraSpacing.lg)
                     )
@@ -229,7 +226,7 @@ fun DashboardScreen(
             // ── Budgets carousel
             if (state.budgets.isNotEmpty()) {
                 item {
-                    SectionHeaderRow(
+                    AuraSectionHeader(
                         title = stringResource(R.string.home_budgets),
                         modifier = Modifier.padding(top = AuraSpacing.lg),
                         trailing = {
@@ -255,7 +252,7 @@ fun DashboardScreen(
                             val category = state.categories.find { it.id == budget.categoryId }
                             BudgetCarouselCard(
                                 name = category?.name ?: stringResource(R.string.home_unknown_category),
-                                emoji = categoryIconEmoji(category?.icon),
+                                emoji = categoryIconGlyph(category?.icon),
                                 color = categoryColor(category?.color),
                                 spent = budget.spentAmount,
                                 limit = budget.limitAmount,
@@ -324,7 +321,7 @@ fun DashboardScreen(
 
             // ── Recent activity
             item {
-                SectionHeaderRow(
+                AuraSectionHeader(
                     title = stringResource(R.string.home_recent),
                     modifier = Modifier.padding(top = AuraSpacing.sm),
                     trailing = {
@@ -359,7 +356,7 @@ fun DashboardScreen(
                         transaction = transaction,
                         categoryName = category?.name ?: stringResource(R.string.home_other_category),
                         categoryColor = categoryColor(category?.color),
-                        categoryEmoji = categoryIconEmoji(category?.icon),
+                        categoryEmoji = categoryIconGlyph(category?.icon),
                         modifier = Modifier.animateItem(),
                         onClick = { onOpenTransaction(transaction.id) }
                     )

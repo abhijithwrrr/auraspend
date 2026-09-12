@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.ui.designsystem.AuraGradients
 import com.awbuilds.auraspend.ui.designsystem.AuraMotion
 import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
+import com.awbuilds.auraspend.ui.designsystem.softShadow
 
 /** Top-level destinations shown in the app chrome. */
 enum class TopLevelDestination(
