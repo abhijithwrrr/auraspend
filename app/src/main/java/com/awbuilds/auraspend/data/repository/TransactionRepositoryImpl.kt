@@ -2,6 +2,7 @@ package com.awbuilds.auraspend.data.repository
 
 import com.awbuilds.auraspend.data.local.toDomain
 import com.awbuilds.auraspend.data.local.toEntity
+import com.awbuilds.auraspend.core.boundaryOrNull
 import com.awbuilds.auraspend.data.privacy.SensitiveDataMasker
 import com.awbuilds.auraspend.data.local.dao.BudgetDao
 import com.awbuilds.auraspend.data.local.dao.CategoryDao
@@ -35,6 +36,34 @@ class TransactionRepositoryImpl(
 
     override fun getRecurringTransactions(): Flow<List<Transaction>> =
         transactionDao.getRecurringTransactions().map { it.map { e -> e.toDomain() } }
+
+    override fun getRecentTransactions(limit: Int): Flow<List<Transaction>> =
+        transactionDao.observeRecent(limit).map { it.map { e -> e.toDomain() } }
+
+    override fun observeSummary(start: Long, end: Long): Flow<TransactionSummary> =
+        transactionDao.observeSummary(start, end).map {
+            TransactionSummary(
+                income = it.income,
+                expense = it.expense,
+                incomeCount = it.incomeCount,
+                expenseCount = it.expenseCount
+            )
+        }
+
+    override fun observeBalance(): Flow<Double> = transactionDao.observeBalance()
+
+    override fun observeExpenseByCategory(start: Long, end: Long): Flow<List<CategoryTotal>> =
+        transactionDao.observeExpenseByCategory(start, end).map { rows ->
+            rows.map { CategoryTotal(categoryId = it.categoryId, amount = it.total) }
+        }
+
+    override fun observeDailyExpense(start: Long, end: Long): Flow<List<DayTotal>> =
+        transactionDao.observeDailyExpense(start, end).map { rows ->
+            rows.mapNotNull { row ->
+                val date = boundaryOrNull("TransactionRepository") { java.time.LocalDate.parse(row.day) }
+                date?.let { DayTotal(it, row.total) }
+            }
+        }
 
     /**
      * PRIVACY: notes and merchant names are passed through [SensitiveDataMasker] before

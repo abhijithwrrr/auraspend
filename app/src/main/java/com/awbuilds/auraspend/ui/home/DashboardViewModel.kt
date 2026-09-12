@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.awbuilds.auraspend.core.AuraLog
 import com.awbuilds.auraspend.domain.model.Budget
-import com.awbuilds.auraspend.domain.model.BudgetSpending
+import com.awbuilds.auraspend.domain.model.BudgetPeriod
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.Subscription
 import com.awbuilds.auraspend.domain.model.Transaction
-import com.awbuilds.auraspend.domain.model.TransactionType
+import com.awbuilds.auraspend.domain.model.TransactionSummary
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
@@ -36,110 +36,105 @@ class DashboardViewModel(
     }
 
     /**
-     * Reactive dashboard: every write (transaction, budget, category,
-     * subscription) re-aggregates automatically, so saving from Quick Add or
-     * the SMS pipeline is reflected without leaving the screen.
+     * Reactive dashboard driven by **SQL aggregates**.
+     *
+     * Nothing loads the full transaction table: summaries, category totals and
+     * the weekly chart come from indexed `SUM/GROUP BY` queries that Room
+     * re-runs on invalidation, and recent activity is a bounded `LIMIT 20`
+     * query. Budget spend is derived from the same category totals per period.
      */
     private fun loadDashboard() {
         loadJob?.cancel()
         _state.update { it.copy(isLoading = true) }
 
+        val zone = ZoneId.systemDefault()
+        val now = LocalDateTime.now()
+        fun epoch(dateTime: LocalDateTime): Long =
+            dateTime.atZone(zone).toInstant().toEpochMilli()
+
+        val (monthStart, monthEnd) = periodRange(BudgetPeriod.MONTHLY, now)
+        val (weekStart, weekEnd) = periodRange(BudgetPeriod.WEEKLY, now)
+        val (yearStart, yearEnd) = periodRange(BudgetPeriod.YEARLY, now)
+        val weekDates = (0..6).map { weekStart.plusDays(it.toLong()).toLocalDate() }
+
+        val aggregates = combine(
+            repository.observeSummary(epoch(monthStart), epoch(monthEnd)),
+            repository.observeBalance(),
+            repository.observeExpenseByCategory(epoch(monthStart), epoch(monthEnd)),
+            repository.observeDailyExpense(epoch(weekStart), epoch(weekEnd)),
+            repository.observeExpenseByCategory(epoch(weekStart), epoch(weekEnd))
+        ) { summary, balance, monthCats, daily, weekCats ->
+            Aggregates(
+                summary = summary,
+                balance = balance,
+                monthlyByCategory = monthCats.associate { it.categoryId to it.amount },
+                weeklyByCategory = weekCats.associate { it.categoryId to it.amount },
+                dailyByDate = daily.associate { it.date to it.amount }
+            )
+        }
+
+        val supporting = combine(
+            repository.getRecentTransactions(RECENT_LIMIT),
+            repository.getAllCategories(),
+            repository.getAllBudgets(),
+            repository.getActiveSubscriptions(),
+            repository.observeExpenseByCategory(epoch(yearStart), epoch(yearEnd))
+        ) { recent, categories, budgets, subscriptions, yearCats ->
+            Supporting(
+                recent = recent,
+                categories = categories,
+                budgets = budgets,
+                subscriptions = subscriptions,
+                yearlyByCategory = yearCats.associate { it.categoryId to it.amount }
+            )
+        }
+
         loadJob = viewModelScope.launch {
-            combine(
-                repository.getAllTransactions(),
-                repository.getAllCategories(),
-                repository.getAllBudgets(),
-                repository.getActiveSubscriptions()
-            ) { transactions, categories, budgets, subscriptions ->
-                DashboardInputs(transactions, categories, budgets, subscriptions)
-            }
+            combine(aggregates, supporting) { agg, sup -> agg to sup }
                 .catch { e ->
                     AuraLog.e(TAG, "Dashboard aggregation failed", e)
                     _state.update { it.copy(isLoading = false, error = e.message) }
                 }
-                .collect { inputs -> aggregate(inputs) }
+                .collect { (agg, sup) -> publish(agg, sup, weekDates, zone) }
         }
     }
 
-    private fun aggregate(inputs: DashboardInputs) {
-        val now = LocalDateTime.now()
-        val monthStart = now.withDayOfMonth(1).with(LocalTime.MIN)
-        val monthEnd = now.with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX)
-        val monthStartEpoch = monthStart.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        val monthEndEpoch = monthEnd.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
-        val weekStart = now.with(
-            TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
-        ).with(LocalTime.MIN)
-
-        val transactions = inputs.transactions
-        val monthlyTransactions = transactions.filter { t ->
-            val ts = t.date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-            ts in monthStartEpoch..monthEndEpoch
-        }
-
-        // Single pass for month totals + counts.
-        var income = 0.0
-        var expense = 0.0
-        var incomeCount = 0
-        var expenseCount = 0
-        val categoryTotalsMap = HashMap<String, Double>()
-        monthlyTransactions.forEach { t ->
-            if (t.type == TransactionType.INCOME) {
-                income += t.amount
-                incomeCount++
-            } else {
-                expense += t.amount
-                expenseCount++
-                categoryTotalsMap[t.categoryId] = (categoryTotalsMap[t.categoryId] ?: 0.0) + t.amount
+    private fun publish(
+        agg: Aggregates,
+        sup: Supporting,
+        weekDates: List<LocalDate>,
+        zone: ZoneId
+    ) {
+        val budgets = sup.budgets.map { budget ->
+            val totals = when (budget.period) {
+                BudgetPeriod.WEEKLY -> agg.weeklyByCategory
+                BudgetPeriod.MONTHLY -> agg.monthlyByCategory
+                BudgetPeriod.YEARLY -> sup.yearlyByCategory
             }
+            budget.copy(spentAmount = totals[budget.categoryId] ?: 0.0)
         }
-        val categoryTotals = categoryTotalsMap.entries
+
+        val dailySpending = weekDates.map { day ->
+            day.atStartOfDay(zone).toInstant().toEpochMilli() to
+                (agg.dailyByDate[day] ?: 0.0)
+        }
+
+        val categoryTotals = agg.monthlyByCategory.entries
             .map { it.key to it.value }
             .sortedByDescending { it.second }
 
-        var balance = 0.0
-        transactions.forEach { t ->
-            balance += if (t.type == TransactionType.INCOME) t.amount else -t.amount
-        }
-
-        // Weekly chart: one pass, bucketed by local date (DST-safe).
-        val weekDates = (0..6).map { weekStart.plusDays(it.toLong()).toLocalDate() }
-        val weekEndEpoch = weekDates.last()
-            .atTime(LocalTime.MAX)
-            .atZone(ZoneId.systemDefault())
-            .toInstant()
-            .toEpochMilli()
-        val weekStartEpoch = weekStart.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        val dailyTotals = HashMap<LocalDate, Double>()
-        transactions.forEach { t ->
-            if (t.type != TransactionType.EXPENSE) return@forEach
-            val ts = t.date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-            if (ts in weekStartEpoch..weekEndEpoch) {
-                val day = t.date.toLocalDate()
-                dailyTotals[day] = (dailyTotals[day] ?: 0.0) + t.amount
-            }
-        }
-        val dailySpending = weekDates.map { day ->
-            day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() to
-                (dailyTotals[day] ?: 0.0)
-        }
-
-        val budgets = BudgetSpending.withFreshSpent(inputs.budgets, transactions)
-        val totalSubscriptionCost = inputs.subscriptions.sumOf { it.amount }
-
         _state.update {
             it.copy(
-                totalBalance = balance,
-                monthlyIncome = income,
-                monthlyExpense = expense,
-                monthlyIncomeCount = incomeCount,
-                monthlyExpenseCount = expenseCount,
-                recentTransactions = transactions.take(20),
-                categories = inputs.categories,
+                totalBalance = agg.balance,
+                monthlyIncome = agg.summary.income,
+                monthlyExpense = agg.summary.expense,
+                monthlyIncomeCount = agg.summary.incomeCount,
+                monthlyExpenseCount = agg.summary.expenseCount,
+                recentTransactions = sup.recent,
+                categories = sup.categories,
                 budgets = budgets,
-                activeSubscriptions = inputs.subscriptions,
-                totalSubscriptionCost = totalSubscriptionCost,
+                activeSubscriptions = sup.subscriptions,
+                totalSubscriptionCost = sup.subscriptions.sumOf { sub -> sub.amount },
                 dailySpending = dailySpending,
                 categoryMonthTotals = categoryTotals,
                 isLoading = false,
@@ -148,14 +143,39 @@ class DashboardViewModel(
         }
     }
 
-    private data class DashboardInputs(
-        val transactions: List<Transaction>,
+    /** Inclusive [start, end] range of the calendar period containing [now]. */
+    private fun periodRange(period: BudgetPeriod, now: LocalDateTime): Pair<LocalDateTime, LocalDateTime> {
+        val start = when (period) {
+            BudgetPeriod.WEEKLY -> now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).with(LocalTime.MIN)
+            BudgetPeriod.MONTHLY -> now.withDayOfMonth(1).with(LocalTime.MIN)
+            BudgetPeriod.YEARLY -> now.withDayOfYear(1).with(LocalTime.MIN)
+        }
+        val end = when (period) {
+            BudgetPeriod.WEEKLY -> now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).with(LocalTime.MAX)
+            BudgetPeriod.MONTHLY -> now.with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX)
+            BudgetPeriod.YEARLY -> now.with(TemporalAdjusters.lastDayOfYear()).with(LocalTime.MAX)
+        }
+        return start to end
+    }
+
+    private data class Aggregates(
+        val summary: TransactionSummary,
+        val balance: Double,
+        val monthlyByCategory: Map<String, Double>,
+        val weeklyByCategory: Map<String, Double>,
+        val dailyByDate: Map<LocalDate, Double>
+    )
+
+    private data class Supporting(
+        val recent: List<Transaction>,
         val categories: List<Category>,
         val budgets: List<Budget>,
-        val subscriptions: List<Subscription>
+        val subscriptions: List<Subscription>,
+        val yearlyByCategory: Map<String, Double>
     )
 
     private companion object {
         const val TAG = "Dashboard"
+        const val RECENT_LIMIT = 20
     }
 }
