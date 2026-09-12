@@ -13,11 +13,11 @@ layer, classification pipeline or business logic.
 | Phase | Scope | State |
 |-------|-------|-------|
 | P0 | Tokens, theme, fonts, design-system foundation, catalog, agent docs, paywall removal | ✅ Complete |
-| P1 | Real NavHost, 4-tab + FAB IA, adaptive layout, shared elements, splash hand-off | Next |
-| P2 | Home, Activity, Transaction Detail/Edit, Quick Add, Smart Add wizard, triage inbox | Not started |
-| P3 | Plan hub (budgets/subs/goals), Insights, category manager | Not started |
-| P4 | Onboarding/splash, settings redesign, empty/loading/error states | Not started |
-| P5 | SQL aggregates, Paging 3, indices, baseline profiles, Macrobenchmarks | Not started |
+| P1 | Real NavHost, 4-tab + FAB IA, adaptive layout, shared elements, splash hand-off | ✅ Complete |
+| P2 | Home, Activity, Transaction Detail/Edit, Quick Add | ✅ Core landed (Smart Add wizard + triage remaining) |
+| P3 | Plan hub, Insights, Settings | ✅ Complete |
+| P4 | Onboarding/splash, states | ✅ Onboarding/splash landed (state pass partial) |
+| P5 | SQL aggregates, Paging 3, indices, baseline profiles, Macrobenchmarks | 🟡 Indices + aggregation landed; Paging/baseline remaining |
 | P6 | Accessibility, i18n, screenshot tests, README GIFs, OSS polish | Not started |
 
 ## Locked decisions

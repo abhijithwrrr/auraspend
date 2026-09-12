@@ -12,9 +12,12 @@ Apache-2.0, open source.
 
 ## Current phase
 
-**Phase 0 — Aurora Foundation** (branch `phase-0-aurora-foundation`).
-Phases P0–P6 are defined in `docs/handoffs/0000-master-plan.md`.
-Do not start phase N+1 until phase N's gate passes and its handoff is written.
+**P2–P5 rollout landed** (core loop, Insights, Settings, first-run, query
+indices) — see `docs/handoffs/0003-phases-2-5-rollout.md`. Remaining work:
+Classification/Smart Add rebuild, supporting-screen design-system pass, P5
+perf remainder (Paging/aggregates/baseline profiles), P6 accessibility + tests.
+Phases are defined in `docs/handoffs/0000-master-plan.md`.
+Do not start new work without reading the latest handoff.
 
 ## Module map
 
