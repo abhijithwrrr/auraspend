@@ -14,7 +14,7 @@ import com.awbuilds.auraspend.domain.model.Transaction
 object MemoryKeys {
 
     /** Tokens that carry no identity (bank boilerplate, generic words, TLD fragments). */
-    private val stopWords = setOf(
+    internal val stopWords = setOf(
         "limited", "ltd", "pvt", "india", "the", "and", "for",
         "upi", "neft", "imps", "rtgs", "pos", "purchase", "payment", "paid",
         "debit", "credit", "debited", "credited", "card", "acct", "account",

@@ -28,7 +28,16 @@ Repo: `github.com/abhijithwrrr/auraspend`. Branch strategy: one phase per branch
 | Item | State |
 |------|-------|
 | **Aurora rebuild + backlog** | ✅ Complete — `docs/handoffs/0006-backlog-completion.md` |
-| **Nice-to-haves** | physical-device benchmarks · 200% font sweep · more locales |
+| **Classification accuracy pass** | ✅ Complete — `docs/handoffs/0007-classification-accuracy.md` |
+| **Nice-to-haves** | physical-device benchmarks · 200% font sweep · more locales · golden-set eval script |
+
+## Classification hot spots
+- `keywordCategoryFor` (DefaultCategories.kt) — word-boundary, longest-key
+  keyword scan; NEVER add substring-unsafe keys ("fee"/"credit"/"vi" caused
+  real misfiling).
+- `MerchantRepository.resolveMerchant` — normalized + token + phrase tiers;
+  CSV fields are unquoted in `install()`; wallets/card networks removed on
+  purpose (they forced wrong categories).
 
 ## Tooling
 - Screenshot baselines: `app/src/test/screenshots/` (committed; CI drift gate)

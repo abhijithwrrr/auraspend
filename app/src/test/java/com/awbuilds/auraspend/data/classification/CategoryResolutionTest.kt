@@ -1,0 +1,107 @@
+package com.awbuilds.auraspend.data.classification
+
+import com.awbuilds.auraspend.domain.model.TransactionType
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Test
+
+/**
+ * Regression tests for keyword-driven category resolution.
+ *
+ * The old resolver matched keys as raw SUBSTRINGS, so "fee" matched "coffee"
+ * (-> Education), "credit" matched every "Credit Card" payment (-> Salary),
+ * "vi" matched "dividend"/"private" (-> Bills) and "mall" matched "small"
+ * (-> Shopping). Resolution is now word-boundary + longest-key-wins; these
+ * tests pin the failure cases.
+ */
+class CategoryResolutionTest {
+
+    // ─── The substring-matching regressions ─────────────────────────────────
+
+    @Test
+    fun `coffee is food not education via fee substring`() {
+        assertEquals("cat_food", keywordCategoryFor("COFFEE SHOP"))
+        assertEquals("cat_food", keywordCategoryFor("Coffee Day Xpress"))
+    }
+
+    @Test
+    fun `credit card payment is never salary`() {
+        assertNull(keywordCategoryFor("Credit Card XX1234"))
+        val parsed = BankMessageParser.parse("Spent Rs 500 on Credit Card XX1234 at AMAZON")
+        assertEquals("cat_shopping", parsed.categoryId)
+        assertEquals(TransactionType.EXPENSE, parsed.type)
+    }
+
+    @Test
+    fun `dividend credit is not bills via vi substring`() {
+        assertNull(keywordCategoryFor("Dividend credited to your account"))
+    }
+
+    @Test
+    fun `small cafe is food not shopping via mall substring`() {
+        assertEquals("cat_food", keywordCategoryFor("Small Cafe near me"))
+    }
+
+    @Test
+    fun `facebook payment is not education via book substring`() {
+        assertNull(keywordCategoryFor("Facebook ads paid"))
+    }
+
+    // ─── Word-boundary + longest-match behaviour ────────────────────────────
+
+    @Test
+    fun `swiggy instamart prefers grocery over food`() {
+        assertEquals("cat_grocery", keywordCategoryFor("SWIGGY INSTAMART"))
+    }
+
+    @Test
+    fun `jiomart is grocery while jio recharge is bills`() {
+        assertEquals("cat_grocery", keywordCategoryFor("JioMart"))
+        assertEquals("cat_bills", keywordCategoryFor("Jio recharge"))
+    }
+
+    @Test
+    fun `merchant upi payment keeps its own category over transfer`() {
+        assertEquals("cat_food", keywordCategoryFor("UPI/DR/512345/SWIGGY"))
+        assertEquals("cat_transfer", keywordCategoryFor("UPI ref 512345 paid to rahim"))
+    }
+
+    @Test
+    fun `hp petrol pump is transport not electronics`() {
+        assertEquals("cat_transport", getCategoryIdForKeyword("HP PETROL PUMP"))
+    }
+
+    @Test
+    fun `punctuation becomes whitespace so trailing commas still match`() {
+        assertEquals("cat_food", keywordCategoryFor("Swiggy,"))
+    }
+
+    @Test
+    fun `digits survive for keys like office 365 and 1mg`() {
+        assertEquals("cat_subscription", keywordCategoryFor("Office 365 renewal"))
+        assertEquals("cat_healthcare", keywordCategoryFor("Tata 1mg order"))
+    }
+
+    // ─── End-to-end through the parser (merchant-first resolution) ──────────
+
+    @Test
+    fun `swiggy debit classifies as food end to end`() {
+        val parsed = BankMessageParser.parse("INR 250 debited A/c XX1234 at SWIGGY on 01-07")
+        assertEquals("cat_food", parsed.categoryId)
+    }
+
+    @Test
+    fun `netflix autopay classifies as entertainment pre-fusion`() {
+        // AiSignalFusion promotes this to cat_subscription when the recurring
+        // keyword fires; the raw parser keyword scan stays Entertainment.
+        val parsed = BankMessageParser.parse("AutoPay of Rs 499 NETFLIX e-mandate successful")
+        assertEquals("cat_entertainment", parsed.categoryId)
+    }
+
+    @Test
+    fun `salary income maps to salary`() {
+        val parsed = BankMessageParser.parse("Rs 45000 salary credited to A/c XX1234 NEFT ACME CORP")
+        assertEquals("cat_salary", parsed.categoryId)
+        assertEquals(TransactionType.INCOME, parsed.type)
+    }
+}
