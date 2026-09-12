@@ -30,14 +30,14 @@ import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
-import com.awbuilds.auraspend.ui.core.TransactionEntryRow
-import com.awbuilds.auraspend.ui.core.categoryColor
-import com.awbuilds.auraspend.ui.core.categoryIconEmoji
-import com.awbuilds.auraspend.ui.core.formatMoney
 import com.awbuilds.auraspend.ui.designsystem.AuraEmptyState
 import com.awbuilds.auraspend.ui.designsystem.AuraSegmentedControl
 import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
 import com.awbuilds.auraspend.ui.designsystem.SettingsAvatarButton
+import com.awbuilds.auraspend.ui.designsystem.TransactionEntryRow
+import com.awbuilds.auraspend.ui.designsystem.categoryColor
+import com.awbuilds.auraspend.ui.designsystem.categoryIconGlyph
+import com.awbuilds.auraspend.ui.designsystem.formatMoney
 import com.awbuilds.auraspend.ui.theme.extendedColors
 import java.time.LocalDate
 import java.time.ZoneId
@@ -327,7 +327,7 @@ fun TransactionListScreen(
                                     transaction = transaction,
                                     categoryName = category?.name ?: stringResource(R.string.activity_other_category),
                                     categoryColor = categoryColor(category?.color),
-                                    categoryEmoji = categoryIconEmoji(category?.icon),
+                                    categoryEmoji = categoryIconGlyph(category?.icon),
                                     onClick = { onOpenTransaction(transaction.id) }
                                 )
                             }
