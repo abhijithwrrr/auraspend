@@ -27,8 +27,8 @@ Repo: `github.com/abhijithwrrr/auraspend`. Branch strategy: one phase per branch
 ## Active work
 | Item | State |
 |------|-------|
-| **Phase 0 — Foundation** | ✅ Complete — see `docs/handoffs/0001-phase0-foundation.md` |
-| **Phase 1 — App shell** | Next up; branch off `dev` per phase convention |
+| **P0–P5 rollout** | ✅ Landed — `docs/handoffs/0003-phases-2-5-rollout.md` |
+| **Remaining** | Classification rebuild · supporting screens · Paging/aggregates/baselines · a11y + screenshot tests |
 | **Paywall removal** | Done in P0 (PremiumGate, PremiumUpgradeScreen, BillingManager deleted) |
 | **Master plan** | `docs/handoffs/0000-master-plan.md` |
 
