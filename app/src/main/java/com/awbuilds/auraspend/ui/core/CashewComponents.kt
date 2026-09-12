@@ -1,10 +1,7 @@
 package com.awbuilds.auraspend.ui.core
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -17,18 +14,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,6 +31,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
+import com.awbuilds.auraspend.ui.designsystem.AuraProgressRing
+import com.awbuilds.auraspend.ui.designsystem.AuraSegmentedControl
+import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
+import com.awbuilds.auraspend.ui.designsystem.AuraType
+import com.awbuilds.auraspend.ui.designsystem.AnimatedMoney
+import com.awbuilds.auraspend.ui.designsystem.CategoryAvatar
+import com.awbuilds.auraspend.ui.designsystem.AuraDonutChart
+import com.awbuilds.auraspend.ui.designsystem.AuraSlice
+import com.awbuilds.auraspend.ui.designsystem.categoryIconGlyph
+import com.awbuilds.auraspend.ui.designsystem.formatMoney as designMoney
 import com.awbuilds.auraspend.ui.theme.extendedColors
 import java.text.SimpleDateFormat
 import java.time.ZoneId
@@ -44,18 +48,12 @@ import java.util.Date
 import java.util.Locale
 
 // ─── Formatting ───────────────────────────────────────────────────────────────
+//
+// NOTE: this file is the Phase 0 compatibility layer. Screens are migrated to
+// the Aurora design system phase by phase (P1–P3); these helpers then go away.
 
-fun formatMoney(value: Double, currencySymbol: String = "₹"): String {
-    val absValue = kotlin.math.abs(value)
-    val whole = absValue.toLong()
-    val decimal = ((absValue - whole) * 100).toInt()
-    return buildString {
-        if (value < 0) append("-")
-        append(currencySymbol)
-        append(String.format(Locale.US, "%,d", whole))
-        if (decimal != 0) append(".").append(String.format(Locale.US, "%02d", decimal))
-    }
-}
+fun formatMoney(value: Double, currencySymbol: String = "₹"): String =
+    designMoney(value, currencySymbol)
 
 fun formatRelativeDate(timestamp: Long): String {
     val diff = System.currentTimeMillis() - timestamp
@@ -70,48 +68,59 @@ fun formatRelativeDate(timestamp: Long): String {
 fun categoryColor(colorInt: Int?): Color =
     Color(colorInt?.toLong() ?: 0xFF757575L)
 
-fun categoryIconEmoji(icon: String?): String =
-    icon?.take(2)
-        ?.takeIf { it.isNotBlank() && it.any { c -> c.code > 127 } }
-        ?: "🏷️"
+fun categoryIconEmoji(icon: String?): String = categoryIconGlyph(icon)
 
-// ─── Soft-shadow card ─────────────────────────────────────────────────────────
+// ─── Soft shadow (floating chrome only) ───────────────────────────────────────
 
+/**
+ * Subtle elevation for floating chrome (FAB, sheets). Content cards no longer
+ * use shadows — they use hairline borders via [CashewCard].
+ */
 fun Modifier.softShadow(
     shape: Shape,
-    elevation: Dp = 7.dp
+    elevation: Dp = 6.dp
 ): Modifier = composed {
     val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
     this.shadow(
         elevation = elevation,
         shape = shape,
         clip = false,
-        ambientColor = if (dark) Color(0x33000000) else Color(0x245A5A5A),
-        spotColor = if (dark) Color(0x4D000000) else Color(0x525A5A5A)
+        ambientColor = if (dark) Color(0x2E000000) else Color(0x1A1C1B1F),
+        spotColor = if (dark) Color(0x40000000) else Color(0x33201A24)
     )
 }
 
 private fun Color.luminance(): Float =
     0.299f * red + 0.587f * green + 0.114f * blue
 
-/**
- * Cashew-style elevated card: rounded surface with a soft drop shadow.
- */
+// ─── Aurora card (compat wrapper) ─────────────────────────────────────────────
+
 @Composable
 fun CashewCard(
     modifier: Modifier = Modifier,
     cornerRadius: Dp = 20.dp,
     containerColor: Color = MaterialTheme.colorScheme.surface,
-    contentPadding: PaddingValues = PaddingValues(16.dp),
+    contentPadding: PaddingValues = PaddingValues(AuraSpacing.lg),
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val shape = RoundedCornerShape(cornerRadius)
+    val isPlainSurface = containerColor == MaterialTheme.colorScheme.surface
     Column(
         modifier = modifier
-            .softShadow(shape)
             .clip(shape)
             .background(containerColor)
+            .then(
+                if (isPlainSurface) {
+                    Modifier.border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f),
+                        shape = shape
+                    )
+                } else {
+                    Modifier
+                }
+            )
             .clickable(enabled = onClick != null) { onClick?.invoke() }
             .padding(contentPadding),
         content = content
@@ -129,14 +138,14 @@ fun SectionHeaderRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 13.dp, vertical = 4.dp),
+            .padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.sm),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             title,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onBackground
         )
         trailing?.invoke()
@@ -145,23 +154,19 @@ fun SectionHeaderRow(
 
 @Composable
 fun ViewAllButton(onClick: () -> Unit, label: String = "View All Transactions") {
-    Row(
+    Text(
+        text = label,
         modifier = Modifier
             .clip(CircleShape)
             .clickable(onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            label,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.extendedColors.textLight
-        )
-    }
+            .padding(horizontal = AuraSpacing.xl, vertical = AuraSpacing.sm),
+        fontSize = 14.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.primary
+    )
 }
 
-// ─── Sliding selector (All | Outgoing | Incoming) ─────────────────────────────
+// ─── Segmented selector ───────────────────────────────────────────────────────
 
 @Composable
 fun SlidingSelector(
@@ -170,53 +175,12 @@ fun SlidingSelector(
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BoxWithConstraints(
+    AuraSegmentedControl(
+        options = options,
+        selectedIndex = selectedIndex,
+        onSelect = onSelect,
         modifier = modifier
-            .fillMaxWidth()
-            .height(46.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        val segmentWidth = maxWidth / options.size
-        val indicatorX by animateDpAsState(
-            targetValue = segmentWidth * selectedIndex,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMediumLow
-            ),
-            label = "selectorIndicator"
-        )
-        Box(
-            modifier = Modifier
-                .offset(x = indicatorX)
-                .padding(4.dp)
-                .width(segmentWidth - 8.dp)
-                .fillMaxHeight()
-                .softShadow(CircleShape, elevation = 4.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surface)
-        )
-        Row(modifier = Modifier.fillMaxSize()) {
-            options.forEachIndexed { index, label ->
-                val selected = index == selectedIndex
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clickable { onSelect(index) },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        label,
-                        fontSize = 15.sp,
-                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                        color = if (selected) MaterialTheme.colorScheme.onSurface
-                        else MaterialTheme.extendedColors.textLight
-                    )
-                }
-            }
-        }
-    }
+    )
 }
 
 // ─── Income / Expense summary boxes ───────────────────────────────────────────
@@ -233,31 +197,31 @@ fun AmountSummaryBox(
     CashewCard(
         modifier = modifier,
         cornerRadius = 20.dp,
-        contentPadding = PaddingValues(horizontal = 15.dp, vertical = 17.dp),
+        contentPadding = PaddingValues(horizontal = AuraSpacing.lg, vertical = AuraSpacing.lg),
         onClick = onClick
     ) {
         Text(
             label,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
+            style = AuraType.metricLabel,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             maxLines = 1,
-            color = MaterialTheme.colorScheme.onSurface
+            modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            formatMoney(amount),
-            fontSize = 21.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
+        Spacer(modifier = Modifier.height(AuraSpacing.sm))
+        AnimatedMoney(
+            amount = amount,
+            modifier = Modifier.fillMaxWidth(),
+            style = AuraType.moneyLarge,
+            color = amountColor,
             maxLines = 1,
-            color = amountColor
+            textAlign = TextAlign.Center
         )
         if (transactionCount != null) {
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(AuraSpacing.xs))
             Text(
                 "$transactionCount ${if (transactionCount == 1) "transaction" else "transactions"}",
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 color = MaterialTheme.extendedColors.textLight,
                 maxLines = 1
             )
@@ -265,7 +229,7 @@ fun AmountSummaryBox(
     }
 }
 
-// ─── Category icon circle with ring ───────────────────────────────────────────
+// ─── Category icon circle ─────────────────────────────────────────────────────
 
 @Composable
 fun CategoryIconCircle(
@@ -275,25 +239,17 @@ fun CategoryIconCircle(
     size: Dp = 50.dp,
     ringStroke: Dp = 3.dp
 ) {
-    Box(
-        modifier = modifier
-            .size(size)
-            .clip(CircleShape)
-            .background(color.copy(alpha = 0.12f)),
-        contentAlignment = Alignment.Center
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawCircle(
-                color = color,
-                radius = this.size.minDimension / 2 - ringStroke.toPx() / 2,
-                style = Stroke(width = ringStroke.toPx(), cap = StrokeCap.Round)
-            )
-        }
-        Text(emoji, fontSize = (size.value / 2.2f).sp)
-    }
+    CategoryAvatar(
+        icon = emoji,
+        color = color,
+        modifier = modifier,
+        size = size,
+        showRing = true,
+        ringStroke = ringStroke
+    )
 }
 
-// ─── Transaction entry row (Cashew style) ─────────────────────────────────────
+// ─── Transaction row ──────────────────────────────────────────────────────────
 
 @Composable
 fun TransactionEntryRow(
@@ -308,47 +264,50 @@ fun TransactionEntryRow(
     val amountColor =
         if (transaction.type == TransactionType.EXPENSE) extended.expenseAmount
         else extended.incomeAmount
+
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clickable(enabled = onClick != null) { onClick?.invoke() }
-            .padding(horizontal = 13.dp, vertical = 9.dp),
+            .padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.sm + AuraSpacing.xxs),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CategoryIconCircle(
-            emoji = categoryEmoji,
+        CategoryAvatar(
+            icon = categoryEmoji,
             color = categoryColor,
-            size = 50.dp
+            size = 46.dp,
+            showRing = true,
+            ringStroke = 1.5.dp
         )
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(AuraSpacing.md))
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 transaction.merchant ?: transaction.note.ifBlank { categoryName },
-                fontSize = 16.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            Spacer(modifier = Modifier.height(1.dp))
             Text(
                 "$categoryName · ${formatRelativeDate(transaction.date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())}",
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 color = extended.textLight,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(AuraSpacing.sm))
         Text(
             "${if (transaction.type == TransactionType.EXPENSE) "-" else "+"}${formatMoney(transaction.amount)}",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
+            style = AuraType.moneySmall,
             color = amountColor
         )
     }
 }
 
-// ─── Circular progress ring ───────────────────────────────────────────────────
+// ─── Progress ring / donut ────────────────────────────────────────────────────
 
 @Composable
 fun CircularProgressRing(
@@ -359,35 +318,15 @@ fun CircularProgressRing(
     trackColor: Color = MaterialTheme.colorScheme.outlineVariant,
     content: @Composable () -> Unit = {}
 ) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokePx = stroke.toPx()
-            val inset = strokePx / 2
-            val arcSize = Size(size.width - strokePx, size.height - strokePx)
-            drawArc(
-                color = trackColor,
-                startAngle = 0f,
-                sweepAngle = 360f,
-                useCenter = false,
-                topLeft = Offset(inset, inset),
-                size = arcSize,
-                style = Stroke(strokePx, cap = StrokeCap.Round)
-            )
-            drawArc(
-                color = color,
-                startAngle = -90f,
-                sweepAngle = progress.coerceIn(0f, 1f) * 360f,
-                useCenter = false,
-                topLeft = Offset(inset, inset),
-                size = arcSize,
-                style = Stroke(strokePx, cap = StrokeCap.Round)
-            )
-        }
-        content()
-    }
+    AuraProgressRing(
+        progress = progress,
+        color = color,
+        modifier = modifier,
+        stroke = stroke,
+        trackColor = trackColor,
+        content = content
+    )
 }
-
-// ─── Donut chart ──────────────────────────────────────────────────────────────
 
 data class PieSliceData(
     val label: String,
@@ -395,10 +334,6 @@ data class PieSliceData(
     val color: Color
 )
 
-/**
- * Cashew-style donut chart: slices separated by thin gaps with optional
- * content (e.g. the period total) in the middle hole.
- */
 @Composable
 fun DonutChart(
     data: List<PieSliceData>,
@@ -408,46 +343,14 @@ fun DonutChart(
     trackColor: Color = MaterialTheme.colorScheme.outlineVariant,
     centerContent: @Composable () -> Unit = {}
 ) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val total = data.sumOf { it.value }
-            val strokePx = strokeWidth.toPx()
-            val inset = strokePx / 2
-            val arcSize = Size(size.minDimension - strokePx, size.minDimension - strokePx)
-            val topLeft = Offset(
-                (size.width - arcSize.width) / 2,
-                (size.height - arcSize.height) / 2
-            )
-            if (total <= 0.0 || data.isEmpty()) {
-                drawArc(
-                    color = trackColor,
-                    startAngle = 0f,
-                    sweepAngle = 360f,
-                    useCenter = false,
-                    topLeft = topLeft,
-                    size = arcSize,
-                    style = Stroke(strokePx, cap = StrokeCap.Butt)
-                )
-                return@Canvas
-            }
-            var cursor = -90f
-            data.forEach { slice ->
-                val sweep = (slice.value / total * 360.0).toFloat()
-                val drawableSweep = (sweep - gapDegrees).coerceAtLeast(0.5f)
-                drawArc(
-                    color = slice.color,
-                    startAngle = cursor + gapDegrees / 2,
-                    sweepAngle = drawableSweep,
-                    useCenter = false,
-                    topLeft = topLeft,
-                    size = arcSize,
-                    style = Stroke(strokePx, cap = StrokeCap.Butt)
-                )
-                cursor += sweep
-            }
-        }
-        centerContent()
-    }
+    AuraDonutChart(
+        data = data.map { AuraSlice(it.label, it.value, it.color) },
+        modifier = modifier,
+        strokeWidth = strokeWidth,
+        gapDegrees = gapDegrees,
+        trackColor = trackColor,
+        centerContent = centerContent
+    )
 }
 
 // ─── Amount visibility toggle ─────────────────────────────────────────────────
@@ -457,11 +360,17 @@ fun HideAmountIconButton(
     hidden: Boolean,
     onToggle: () -> Unit
 ) {
-    IconButton(onClick = onToggle) {
+    val haptics = LocalHapticFeedback.current
+    IconButton(
+        onClick = {
+            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onToggle()
+        }
+    ) {
         Icon(
             imageVector = if (hidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
             contentDescription = if (hidden) "Show amounts" else "Hide amounts",
-            tint = MaterialTheme.extendedColors.textLight
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

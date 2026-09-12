@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purpleC700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <!--
+      Pre-Compose window colors only. The live Aurora palette lives in
+      ui/theme/Color.kt; keep these in sync with AuroraBackground (light/dark).
+    -->
+    <color name="aura_window_background">#FAF7FD</color>
+    <color name="aura_window_background_dark">#14101C</color>
+    <color name="aura_primary">#5E3A8B</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>
