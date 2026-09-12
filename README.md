@@ -175,14 +175,22 @@ Build and run:
 
 ## Preview
 
-| Screen | Description |
-|--------|-------------|
-| Dashboard | Balance card, weekly bar chart, budget progress, subscription summary, category breakdown |
-| Classification | Paste bank SMS or read from inbox — auto-categorizes |
-| Transactions | Search, date-groups, swipe-to-delete, income/expense filters |
-| Analytics | Canvas pie chart, category breakdown with percentages, top merchants |
-| Settings | Theme selector, CSV export/import, manage categories/budgets/subscriptions |
-| Onboarding | 3-page carousel with Lottie animations, Google Drive restore option |
+| Home | Quick Add | Activity |
+|---|---|---|
+| ![Home](docs/screenshots/home-light.png) | ![Quick Add](docs/screenshots/quick-add.png) | ![Activity](docs/screenshots/activity.png) |
+
+| Transaction detail | Insights | Savings goals |
+|---|---|---|
+| ![Transaction detail](docs/screenshots/transaction-detail.png) | ![Insights](docs/screenshots/insights.png) | ![Goals](docs/screenshots/goals.png) |
+
+| Onboarding | Dark theme | AMOLED settings |
+|---|---|---|
+| ![Onboarding](docs/screenshots/onboarding.png) | ![Home dark](docs/screenshots/home-dark.png) | ![Settings](docs/screenshots/settings.png) |
+
+The UI is built on the **Aurora design system** (`app/src/main/java/com/awbuilds/auraspend/ui/designsystem`):
+brand purple + lavender + teal, Plus Jakarta Sans with tabular figures, hairline
+borders instead of shadows, spring motion tokens and a light / dark / true-black
+AMOLED theme. Screenshots are from the `free` debug build.
 
 ## Testing
 

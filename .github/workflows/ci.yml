@@ -44,6 +44,14 @@ jobs:
       - name: Unit tests
         run: ./gradlew testFreeDebugUnitTest
 
+      - name: Upload Aurora screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aurora-screenshots
+          path: app/build/screenshots/
+          if-no-files-found: ignore
+
       - name: Build free flavor (debug)
         run: ./gradlew assembleFreeDebug
 
