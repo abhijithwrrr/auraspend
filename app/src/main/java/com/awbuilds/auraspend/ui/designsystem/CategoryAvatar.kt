@@ -6,6 +6,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.LocalGroceryStore
+import androidx.compose.material.icons.filled.LocalHospital
+import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.Subscriptions
+import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,23 +28,49 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Renders the category's icon string. Default categories store Material icon
- * names ("restaurant"); until the vector icon set lands in P2 we render an
- * emoji fallback in the brand avatar.
+ * Material icon names used by the seeded categories → vector icons.
+ * User-created categories can still use emoji.
  */
-fun categoryIconGlyph(icon: String?): String =
-    icon?.take(2)
-        ?.takeIf { it.isNotBlank() && it.any { c -> c.code > 127 } }
-        ?: "🏷️"
+private val knownCategoryIcons: Map<String, ImageVector> = mapOf(
+    "restaurant" to Icons.Default.Restaurant,
+    "directions_car" to Icons.Default.DirectionsCar,
+    "shopping_bag" to Icons.Default.ShoppingBag,
+    "receipt_long" to Icons.Default.ReceiptLong,
+    "movie" to Icons.Default.Movie,
+    "local_hospital" to Icons.Default.LocalHospital,
+    "school" to Icons.Default.School,
+    "account_balance" to Icons.Default.AccountBalance,
+    "subscriptions" to Icons.Default.Subscriptions,
+    "swap_horiz" to Icons.Default.SwapHoriz,
+    "local_grocery_store" to Icons.Default.LocalGroceryStore,
+    "category" to Icons.Default.Category
+)
+
+fun categoryIconVector(icon: String?): ImageVector? = knownCategoryIcons[icon]
 
 /**
- * Circular category badge with an optional hairline ring.
- * The tonal fill keeps the row calm; the ring adds definition on busy screens.
+ * Normalizes a category `icon` value for rendering.
+ *
+ * - Emoji (non-ASCII) values pass through.
+ * - Known Material icon names pass through so [CategoryAvatar] can draw the
+ *   vector.
+ * - Anything else falls back to a tag glyph.
+ */
+fun categoryIconGlyph(icon: String?): String {
+    if (icon.isNullOrBlank()) return "🏷️"
+    if (icon.any { it.code > 127 }) return icon.take(2)
+    return if (knownCategoryIcons.containsKey(icon)) icon else "🏷️"
+}
+
+/**
+ * Circular category badge. Known Material icon names render as vectors tinted
+ * with the category color; emoji (user-created categories) render as text.
  */
 @Composable
 fun CategoryAvatar(
@@ -58,9 +98,20 @@ fun CategoryAvatar(
                 )
             }
         }
-        Text(
-            text = categoryIconGlyph(icon),
-            fontSize = (size.value / 2.3f).sp
-        )
+
+        val vector = categoryIconVector(icon)
+        if (vector != null) {
+            Icon(
+                imageVector = vector,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(size * 0.46f)
+            )
+        } else {
+            Text(
+                text = categoryIconGlyph(icon),
+                fontSize = (size.value / 2.3f).sp
+            )
+        }
     }
 }

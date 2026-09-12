@@ -29,6 +29,7 @@ import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
 import com.awbuilds.auraspend.ui.designsystem.AuraType
 import com.awbuilds.auraspend.ui.designsystem.AnimatedMoney
 import com.awbuilds.auraspend.ui.designsystem.AuraDonutChart
+import com.awbuilds.auraspend.ui.designsystem.SettingsAvatarButton
 import com.awbuilds.auraspend.ui.designsystem.formatMoney
 import com.awbuilds.auraspend.ui.theme.extendedColors
 import androidx.compose.material.icons.Icons
@@ -48,7 +49,8 @@ private enum class StatsPeriod(val label: String) {
 fun AnalyticsScreen(
     transactions: List<Transaction>,
     categories: List<Category>,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onOpenSettings: () -> Unit = {}
 ) {
     val extended = MaterialTheme.extendedColors
     var period by remember { mutableStateOf(StatsPeriod.THIS_MONTH) }
@@ -113,13 +115,21 @@ fun AnalyticsScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
-        Text(
-            "Insights",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(start = AuraSpacing.gutter, top = AuraSpacing.sm, bottom = AuraSpacing.sm)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = AuraSpacing.gutter, top = AuraSpacing.sm, bottom = AuraSpacing.sm),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "Insights",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.weight(1f)
+            )
+            SettingsAvatarButton(onClick = onOpenSettings)
+        }
         AuraSegmentedControl(
             options = StatsPeriod.entries.map { it.label },
             selectedIndex = period.ordinal,
