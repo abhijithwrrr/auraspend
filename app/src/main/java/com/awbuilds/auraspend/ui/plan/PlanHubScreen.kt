@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -39,10 +40,12 @@ fun PlanHubScreen(
     repository: TransactionRepository,
     onOpenBudgets: () -> Unit,
     onOpenSubscriptions: () -> Unit,
+    onOpenGoals: () -> Unit,
     onOpenCategories: () -> Unit
 ) {
     val budgets by repository.getAllBudgets().collectAsState(initial = emptyList())
     val subscriptions by repository.getActiveSubscriptions().collectAsState(initial = emptyList())
+    val goals by repository.getAllSavingsGoals().collectAsState(initial = emptyList())
 
     val totalLimit = remember(budgets) { budgets.sumOf { it.limitAmount } }
     val totalSpent = remember(budgets) { budgets.sumOf { it.spentAmount } }
@@ -152,6 +155,17 @@ fun PlanHubScreen(
             title = "Subscriptions",
             subtitle = "Recurring charges and renewals",
             onClick = onOpenSubscriptions
+        )
+        Spacer(modifier = Modifier.height(AuraSpacing.sm))
+        PlanRow(
+            icon = Icons.Default.Savings,
+            title = "Savings goals",
+            subtitle = if (goals.isEmpty()) {
+                "Set targets and watch them fill up"
+            } else {
+                "${goals.size} ${if (goals.size == 1) "goal" else "goals"} · ${formatMoney(goals.sumOf { it.currentAmount })} saved"
+            },
+            onClick = onOpenGoals
         )
         Spacer(modifier = Modifier.height(AuraSpacing.sm))
         PlanRow(
