@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Sms
@@ -39,6 +41,7 @@ import com.awbuilds.auraspend.ui.designsystem.AuraSegmentedControl
 import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
 import com.awbuilds.auraspend.ui.designsystem.AuraType
 import com.awbuilds.auraspend.ui.designsystem.CategoryAvatar
+import com.awbuilds.auraspend.ui.theme.extendedColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -814,39 +817,117 @@ private fun AutoDetectTab(
                             style = MaterialTheme.typography.titleSmall
                         )
                         if (state.classifiedSmsList.any { !it.isSaved }) {
-                            Button(
-                                onClick = {
-                                    viewModel.handleIntent(ClassificationViewIntent.SaveAllClassified)
-                                },
-                                enabled = !state.isSavingAll,
-                                shape = RoundedCornerShape(16.dp),
-                                modifier = Modifier.height(44.dp)
-                            ) {
-                                if (state.isSavingAll) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        strokeWidth = 2.dp,
-                                        color = MaterialTheme.colorScheme.onPrimary
-                                    )
-                                } else {
-                                    Text("Save All", fontWeight = FontWeight.SemiBold)
+                            Column(horizontalAlignment = Alignment.End) {
+                                Button(
+                                    onClick = {
+                                        viewModel.handleIntent(ClassificationViewIntent.SaveAllClassified)
+                                    },
+                                    enabled = !state.isSavingAll,
+                                    shape = RoundedCornerShape(16.dp),
+                                    modifier = Modifier.height(44.dp)
+                                ) {
+                                    if (state.isSavingAll) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(16.dp),
+                                            strokeWidth = 2.dp,
+                                            color = MaterialTheme.colorScheme.onPrimary
+                                        )
+                                    } else {
+                                        Text("Save All", fontWeight = FontWeight.SemiBold)
+                                    }
                                 }
+                                Spacer(modifier = Modifier.height(AuraSpacing.xs))
+                                Text(
+                                    "Swipe right to save · left to dismiss",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }
                 }
                 items(state.classifiedSmsList, key = { it.sms.id }) { classified ->
-                    ClassifiedSmsItem(
-                        classified = classified,
-                        onSave = {
-                            viewModel.handleIntent(ClassificationViewIntent.SaveClassifiedSms(classified.sms.id))
-                        },
-                        onDismiss = {
-                            viewModel.handleIntent(ClassificationViewIntent.DismissClassifiedSms(classified.sms.id))
+                    if (classified.isSaved) {
+                        ClassifiedSmsItem(
+                            classified = classified,
+                            onSave = {},
+                            onDismiss = {}
+                        )
+                    } else {
+                        // Triage inbox: swipe right to save, left to dismiss.
+                        val dismissState = rememberSwipeToDismissBoxState(
+                            confirmValueChange = { value ->
+                                when (value) {
+                                    SwipeToDismissBoxValue.StartToEnd -> {
+                                        viewModel.handleIntent(
+                                            ClassificationViewIntent.SaveClassifiedSms(classified.sms.id)
+                                        )
+                                        true
+                                    }
+                                    SwipeToDismissBoxValue.EndToStart -> {
+                                        viewModel.handleIntent(
+                                            ClassificationViewIntent.DismissClassifiedSms(classified.sms.id)
+                                        )
+                                        true
+                                    }
+                                    else -> false
+                                }
+                            }
+                        )
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            modifier = Modifier.animateItem(),
+                            backgroundContent = { TriageSwipeBackground(dismissState.dismissDirection) }
+                        ) {
+                            ClassifiedSmsItem(
+                                classified = classified,
+                                onSave = {
+                                    viewModel.handleIntent(
+                                        ClassificationViewIntent.SaveClassifiedSms(classified.sms.id)
+                                    )
+                                },
+                                onDismiss = {
+                                    viewModel.handleIntent(
+                                        ClassificationViewIntent.DismissClassifiedSms(classified.sms.id)
+                                    )
+                                }
+                            )
                         }
-                    )
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun TriageSwipeBackground(direction: SwipeToDismissBoxValue) {
+    val isSave = direction == SwipeToDismissBoxValue.StartToEnd
+    val container = when (direction) {
+        SwipeToDismissBoxValue.StartToEnd ->
+            MaterialTheme.extendedColors.incomeAmount.copy(alpha = 0.18f)
+        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+        else -> Color.Transparent
+    }
+    val contentColor = when (direction) {
+        SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.extendedColors.incomeAmount
+        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.onErrorContainer
+        else -> Color.Transparent
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(20.dp))
+            .background(container),
+        contentAlignment = if (isSave) Alignment.CenterStart else Alignment.CenterEnd
+    ) {
+        if (direction != SwipeToDismissBoxValue.Settled) {
+            Icon(
+                imageVector = if (isSave) Icons.Default.Check else Icons.Default.Close,
+                contentDescription = if (isSave) "Save transaction" else "Dismiss message",
+                tint = contentColor,
+                modifier = Modifier.padding(horizontal = AuraSpacing.xxl)
+            )
         }
     }
 }
@@ -946,9 +1027,13 @@ private fun ClassifiedSmsItem(
                     TextButton(
                         onClick = onDismiss,
                         contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(40.dp)
                     ) {
-                        Text("x", style = MaterialTheme.typography.labelSmall)
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Dismiss",
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
             } else {
