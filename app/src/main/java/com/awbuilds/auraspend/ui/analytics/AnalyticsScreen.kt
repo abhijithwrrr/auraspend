@@ -216,7 +216,8 @@ fun AnalyticsScreen(
                                 modifier = Modifier
                                     .size(190.dp)
                                     .align(Alignment.CenterHorizontally),
-                                strokeWidth = 32.dp
+                                strokeWidth = 32.dp,
+                                contentDescription = "Spending by category, total ${formatMoney(totalSpent)}"
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text("Total", fontSize = 12.sp, color = extended.textLight)

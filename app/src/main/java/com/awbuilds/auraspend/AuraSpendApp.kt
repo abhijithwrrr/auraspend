@@ -68,9 +68,14 @@ class AuraSpendApp : Application() {
         driveSyncManager = DriveSyncManager(this)
 
         LocalLlmProvider.init(this)
-        ModelDownloadManager.sync(this)
 
-        AutoClassificationWorker.schedule(this)
+        // Startup performance: nothing below blocks the first frame. The model
+        // status sync, worker scheduling, merchant CSV parsing and seeding all
+        // run on IO; the UI reads defaults until they settle.
+        applicationScope.launch {
+            ModelDownloadManager.sync(this@AuraSpendApp)
+            AutoClassificationWorker.schedule(this@AuraSpendApp)
+        }
 
         // Startup performance: the merchant CSV (~assets I/O + parsing) never blocks the
         // first frame. Keyword classification works without it; the merchant-database

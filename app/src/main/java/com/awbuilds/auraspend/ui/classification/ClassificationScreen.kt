@@ -3,34 +3,42 @@ package com.awbuilds.auraspend.ui.classification
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.KeyboardType.Companion.Decimal
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.data.ai.AiModelState
-import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.data.classification.ClassifiedSms
+import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.ui.core.isNotificationPermissionNeeded
 import com.awbuilds.auraspend.ui.core.rememberNotificationPermissionLauncher
+import com.awbuilds.auraspend.ui.designsystem.AnimatedMoney
+import com.awbuilds.auraspend.ui.designsystem.AuraCard
+import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
+import com.awbuilds.auraspend.ui.designsystem.AuraEmptyState
+import com.awbuilds.auraspend.ui.designsystem.AuraSegmentedControl
+import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
+import com.awbuilds.auraspend.ui.designsystem.AuraType
+import com.awbuilds.auraspend.ui.designsystem.CategoryAvatar
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -88,37 +96,29 @@ fun ClassificationScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            TabRow(selectedTabIndex = selectedTab) {
-                Tab(
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
-                    text = { Text("Paste Message") }
-                )
-                Tab(
-                    selected = selectedTab == 1,
-                    onClick = {
-                        selectedTab = 1
-                        if (!state.smsPermissionGranted) {
+            AuraSegmentedControl(
+                options = listOf("Paste", "From SMS", "Auto Detect"),
+                selectedIndex = selectedTab,
+                onSelect = { index ->
+                    selectedTab = index
+                    when (index) {
+                        1 -> if (!state.smsPermissionGranted) {
                             smsPermissionLauncher.launch(Manifest.permission.READ_SMS)
                         } else {
                             viewModel.handleIntent(ClassificationViewIntent.LoadSmsMessages)
                         }
-                    },
-                    text = { Text("From SMS") }
-                )
-                Tab(
-                    selected = selectedTab == 2,
-                    onClick = {
-                        selectedTab = 2
-                        if (!state.smsPermissionGranted) {
+                        2 -> if (!state.smsPermissionGranted) {
                             smsPermissionLauncher.launch(Manifest.permission.READ_SMS)
                         } else {
                             viewModel.handleIntent(ClassificationViewIntent.LoadAndClassifyAll)
                         }
-                    },
-                    text = { Text("Auto Detect") }
+                    }
+                },
+                modifier = Modifier.padding(
+                    horizontal = AuraSpacing.gutter,
+                    vertical = AuraSpacing.md
                 )
-            }
+            )
 
             when (selectedTab) {
                 0 -> PasteMessageTab(state, viewModel)
@@ -186,8 +186,11 @@ private fun PasteMessageTab(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = PaddingValues(
+            horizontal = AuraSpacing.gutter,
+            vertical = AuraSpacing.sm
+        ),
+        verticalArrangement = Arrangement.spacedBy(AuraSpacing.lg)
     ) {
         item {
             OutlinedTextField(
@@ -201,17 +204,21 @@ private fun PasteMessageTab(
                     .fillMaxWidth()
                     .heightIn(min = 150.dp),
                 minLines = 5,
-                maxLines = 8
+                maxLines = 8,
+                shape = RoundedCornerShape(14.dp)
             )
         }
 
         item {
             Button(
                 onClick = { viewModel.handleIntent(ClassificationViewIntent.ClassifyMessage) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = state.rawMessage.isNotBlank()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                enabled = state.rawMessage.isNotBlank(),
+                shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Classify Message")
+                Text("Classify Message", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
         }
 
@@ -227,16 +234,20 @@ private fun PasteMessageTab(
             item {
                 Button(
                     onClick = { viewModel.handleIntent(ClassificationViewIntent.SaveTransaction) },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isSaving
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    enabled = !state.isSaving,
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     if (state.isSaving) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     } else {
-                        Text("Save Transaction")
+                        Text("Save Transaction", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -276,17 +287,13 @@ private fun ClassificationResultCard(
 ) {
     val parsed = state.parsedMessage ?: return
 
-    Card(
+    AuraCard(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        style = AuraCardStyle.Tonal,
+        contentPadding = PaddingValues(AuraSpacing.lg)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(AuraSpacing.md)
         ) {
             Text(
                 "Detected Details",
@@ -311,11 +318,7 @@ private fun ClassificationResultCard(
                 )
             }
 
-            DetailRow(
-                label = "Amount",
-                value = parsed.amount?.let { "₹${String.format("%.2f", it)}" } ?: "Not detected",
-                onEdit = { /* handled by manual entry */ }
-            )
+            AmountDetailRow(amount = parsed.amount)
 
             DetailRow(
                 label = "Type",
@@ -340,7 +343,7 @@ private fun ClassificationResultCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
             ) {
                 CategorySelector(
                     categories = state.availableCategories,
@@ -353,7 +356,8 @@ private fun ClassificationResultCard(
                 Button(
                     onClick = onOpenCategoryDialog,
                     modifier = Modifier.size(48.dp),
-                    contentPadding = PaddingValues(0.dp)
+                    contentPadding = PaddingValues(0.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Text("…", fontWeight = FontWeight.Bold)
                 }
@@ -374,20 +378,28 @@ private fun ClassificationResultCard(
     }
 }
 
+/**
+ * Rounded tinted pill shared by the AI/confidence badges — one line, quiet,
+ * and consistent with the badge style used across the app.
+ */
 @Composable
-private fun AiStatusBadge(text: String, tint: androidx.compose.ui.graphics.Color) {
-    Surface(
-        shape = MaterialTheme.shapes.small,
-        color = tint.copy(alpha = 0.14f)
+private fun TintBadge(text: String, tint: Color) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(tint.copy(alpha = 0.14f))
+            .padding(horizontal = AuraSpacing.md, vertical = AuraSpacing.xs)
     ) {
         Text(
-            text = "  $text  ",
+            text = text,
             style = MaterialTheme.typography.labelSmall,
-            color = tint,
-            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+            color = tint
         )
     }
 }
+
+@Composable
+private fun AiStatusBadge(text: String, tint: Color) = TintBadge(text = text, tint = tint)
 
 @Composable
 private fun MerchantConfidenceBadge(merchant: String, confidence: Float) {
@@ -397,21 +409,10 @@ private fun MerchantConfidenceBadge(merchant: String, confidence: Float) {
         else -> MaterialTheme.colorScheme.error
     }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Surface(
-            shape = MaterialTheme.shapes.small,
-            color = color.copy(alpha = 0.15f)
-        ) {
-            Text(
-                text = "  Merchant: $merchant (${(confidence * 100).toInt()}%)  ",
-                style = MaterialTheme.typography.labelSmall,
-                color = color
-            )
-        }
-    }
+    TintBadge(
+        text = "Merchant: $merchant (${(confidence * 100).toInt()}%)",
+        tint = color
+    )
 }
 
 @Composable
@@ -427,18 +428,32 @@ private fun ConfidenceBadge(confidence: Float) {
         else -> "Low confidence - please verify"
     }
 
+    TintBadge(text = label, tint = color)
+}
+
+@Composable
+private fun AmountDetailRow(amount: Double?) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Surface(
-            shape = MaterialTheme.shapes.small,
-            color = color.copy(alpha = 0.15f)
-        ) {
+        Text(
+            text = "Amount",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (amount != null) {
+            AnimatedMoney(
+                amount = amount,
+                style = AuraType.moneySmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        } else {
             Text(
-                text = "  $label  ",
-                style = MaterialTheme.typography.labelSmall,
-                color = color
+                text = "Not detected",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
             )
         }
     }
@@ -447,8 +462,7 @@ private fun ConfidenceBadge(confidence: Float) {
 @Composable
 private fun DetailRow(
     label: String,
-    value: String,
-    onEdit: (() -> Unit)? = null
+    value: String
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -468,6 +482,7 @@ private fun DetailRow(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun CategorySelector(
     categories: List<com.awbuilds.auraspend.domain.model.Category>,
@@ -480,24 +495,31 @@ private fun CategorySelector(
         return
     }
 
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    FlowRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm),
+        verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
     ) {
-        categories.chunked(3).forEach { row ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                row.forEach { category ->
-                    FilterChip(
-                        selected = selectedCategoryId == category.id,
-                        onClick = { onCategorySelected(category.id) },
-                        label = { Text(category.name, style = MaterialTheme.typography.labelSmall) },
-                        modifier = Modifier.weight(1f)
+        categories.forEach { category ->
+            FilterChip(
+                selected = selectedCategoryId == category.id,
+                onClick = { onCategorySelected(category.id) },
+                label = {
+                    Text(
+                        category.name,
+                        style = MaterialTheme.typography.labelSmall,
+                        maxLines = 1
                     )
-                }
-            }
+                },
+                leadingIcon = {
+                    CategoryAvatar(
+                        icon = category.icon,
+                        color = Color(category.color.toLong()),
+                        size = 22.dp
+                    )
+                },
+                shape = RoundedCornerShape(50)
+            )
         }
     }
 }
@@ -507,7 +529,7 @@ private fun ManualEntryFields(
     state: ClassificationViewState,
     viewModel: ClassificationViewModel
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.md)) {
         OutlinedTextField(
             value = state.manualAmount,
             onValueChange = { viewModel.handleIntent(ClassificationViewIntent.AmountChanged(it)) },
@@ -515,23 +537,26 @@ private fun ManualEntryFields(
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             singleLine = true,
-            prefix = { Text("₹") }
+            prefix = { Text("₹") },
+            shape = RoundedCornerShape(14.dp)
         )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(AuraSpacing.md)
         ) {
             FilterChip(
                 selected = state.manualType == TransactionType.EXPENSE,
                 onClick = { viewModel.handleIntent(ClassificationViewIntent.TypeChanged(TransactionType.EXPENSE)) },
                 label = { Text("Expense") },
+                shape = RoundedCornerShape(50),
                 modifier = Modifier.weight(1f)
             )
             FilterChip(
                 selected = state.manualType == TransactionType.INCOME,
                 onClick = { viewModel.handleIntent(ClassificationViewIntent.TypeChanged(TransactionType.INCOME)) },
                 label = { Text("Income") },
+                shape = RoundedCornerShape(50),
                 modifier = Modifier.weight(1f)
             )
         }
@@ -541,7 +566,8 @@ private fun ManualEntryFields(
             onValueChange = { viewModel.handleIntent(ClassificationViewIntent.MerchantChanged(it)) },
             label = { Text("Merchant / Payee") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            shape = RoundedCornerShape(14.dp)
         )
 
         OutlinedTextField(
@@ -550,7 +576,24 @@ private fun ManualEntryFields(
             label = { Text("Note") },
             modifier = Modifier.fillMaxWidth(),
             minLines = 2,
-            maxLines = 4
+            maxLines = 4,
+            shape = RoundedCornerShape(14.dp)
+        )
+    }
+}
+
+@Composable
+private fun SmsPermissionRequired(onGrant: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        AuraEmptyState(
+            icon = Icons.Default.Lock,
+            title = "SMS Permission Required",
+            message = "Allow access to read bank SMS messages for auto-classification.",
+            actionLabel = "Grant Permission",
+            onAction = onGrant
         )
     }
 }
@@ -562,37 +605,16 @@ private fun SmsListTab(
     permissionLauncher: androidx.activity.result.ActivityResultLauncher<String>
 ) {
     if (!state.smsPermissionGranted) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                "SMS Permission Required",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "Allow access to read bank SMS messages for auto-classification.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(onClick = { permissionLauncher.launch(Manifest.permission.READ_SMS) }) {
-                Text("Grant Permission")
-            }
-        }
+        SmsPermissionRequired { permissionLauncher.launch(Manifest.permission.READ_SMS) }
     } else if (state.smsMessages.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                "No bank SMS messages found.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            AuraEmptyState(
+                icon = Icons.Default.Sms,
+                title = "No bank SMS messages found",
+                message = "New bank messages will appear here once detected."
             )
         }
     } else {
@@ -608,26 +630,29 @@ private fun SmsListTab(
                     "AI is categorizing: ${state.aiProgressCurrent} of ${state.aiProgressTotal}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    modifier = Modifier.padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.xs)
                 )
             }
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                contentPadding = PaddingValues(
+                    horizontal = AuraSpacing.gutter,
+                    vertical = AuraSpacing.md
+                ),
+                verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
             ) {
-            items(state.smsMessages) { sms ->
-                SmsItem(
-                    sms = sms,
-                    onClick = {
-                        viewModel.handleIntent(ClassificationViewIntent.SmsSelected(sms))
-                    }
-                )
+                items(state.smsMessages) { sms ->
+                    SmsItem(
+                        sms = sms,
+                        onClick = {
+                            viewModel.handleIntent(ClassificationViewIntent.SmsSelected(sms))
+                        }
+                    )
+                }
             }
         }
     }
-}
 }
 
 @Composable
@@ -635,19 +660,14 @@ private fun SmsItem(
     sms: SmsInfo,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    AuraCard(
+        modifier = Modifier.fillMaxWidth(),
+        style = AuraCardStyle.Outlined,
+        contentPadding = PaddingValues(AuraSpacing.md),
+        onClick = onClick
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(AuraSpacing.xs)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -688,65 +708,38 @@ private fun AutoDetectTab(
     val isModelDownloaded = state.aiModelState is AiModelState.Ready
 
     if (!state.smsPermissionGranted) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                "SMS Permission Required",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "Allow access to read bank SMS messages for auto-classification.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(onClick = { permissionLauncher.launch(Manifest.permission.READ_SMS) }) {
-                Text("Grant Permission")
-            }
-        }
+        SmsPermissionRequired { permissionLauncher.launch(Manifest.permission.READ_SMS) }
     } else if (!isModelDownloaded) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                Icons.Default.AutoAwesome,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                "Local AI Required",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "Download the on-device AI model to automatically detect and categorize your bank messages offline.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = { viewModel.handleIntent(ClassificationViewIntent.StartModelDownload) },
-                enabled = state.aiModelState !is AiModelState.Downloading
-            ) {
-                if (state.aiModelState is AiModelState.Downloading) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Downloading…")
-                } else {
-                    Text("Download AI Model (~380 MB)")
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                AuraEmptyState(
+                    icon = Icons.Default.AutoAwesome,
+                    title = "Local AI Required",
+                    message = "Download the on-device AI model to automatically detect and categorize your bank messages offline."
+                )
+                Button(
+                    onClick = { viewModel.handleIntent(ClassificationViewIntent.StartModelDownload) },
+                    enabled = state.aiModelState !is AiModelState.Downloading,
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .padding(horizontal = AuraSpacing.xxl)
+                        .fillMaxWidth()
+                        .height(52.dp)
+                ) {
+                    if (state.aiModelState is AiModelState.Downloading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Spacer(modifier = Modifier.width(AuraSpacing.sm))
+                        Text("Downloading…")
+                    } else {
+                        Text("Download AI Model (~380 MB)", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    }
                 }
             }
         }
@@ -757,10 +750,10 @@ private fun AutoDetectTab(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(32.dp)
+                modifier = Modifier.padding(AuraSpacing.xxxl)
             ) {
                 CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(AuraSpacing.lg))
                 Text(
                     if (state.isAiEnriching) "AI is categorizing messages..." else "Reading bank messages...",
                     style = MaterialTheme.typography.bodyMedium,
@@ -773,21 +766,15 @@ private fun AutoDetectTab(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    "No bank SMS messages found.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        viewModel.handleIntent(ClassificationViewIntent.LoadAndClassifyAll)
-                    }
-                ) {
-                    Text("Scan SMS")
+            AuraEmptyState(
+                icon = Icons.Default.Sms,
+                title = "No bank SMS messages found",
+                message = "Scan your inbox to detect and categorize bank messages.",
+                actionLabel = "Scan SMS",
+                onAction = {
+                    viewModel.handleIntent(ClassificationViewIntent.LoadAndClassifyAll)
                 }
-            }
+            )
         }
     } else {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -802,60 +789,66 @@ private fun AutoDetectTab(
                     "AI is categorizing: ${state.aiProgressCurrent} of ${state.aiProgressTotal}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    modifier = Modifier.padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.xs)
                 )
             }
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                contentPadding = PaddingValues(
+                    horizontal = AuraSpacing.gutter,
+                    vertical = AuraSpacing.md
+                ),
+                verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
             ) {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "${state.classifiedSmsList.size} message${if (state.classifiedSmsList.size != 1) "s" else ""} found",
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    if (state.classifiedSmsList.any { !it.isSaved }) {
-                        Button(
-                            onClick = {
-                                viewModel.handleIntent(ClassificationViewIntent.SaveAllClassified)
-                            },
-                            enabled = !state.isSavingAll
-                        ) {
-                            if (state.isSavingAll) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
-                                Text("Save All")
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = AuraSpacing.sm),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "${state.classifiedSmsList.size} message${if (state.classifiedSmsList.size != 1) "s" else ""} found",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                        if (state.classifiedSmsList.any { !it.isSaved }) {
+                            Button(
+                                onClick = {
+                                    viewModel.handleIntent(ClassificationViewIntent.SaveAllClassified)
+                                },
+                                enabled = !state.isSavingAll,
+                                shape = RoundedCornerShape(16.dp),
+                                modifier = Modifier.height(44.dp)
+                            ) {
+                                if (state.isSavingAll) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        strokeWidth = 2.dp,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                } else {
+                                    Text("Save All", fontWeight = FontWeight.SemiBold)
+                                }
                             }
                         }
                     }
                 }
-            }
-            items(state.classifiedSmsList, key = { it.sms.id }) { classified ->
-                ClassifiedSmsItem(
-                    classified = classified,
-                    onSave = {
-                        viewModel.handleIntent(ClassificationViewIntent.SaveClassifiedSms(classified.sms.id))
-                    },
-                    onDismiss = {
-                        viewModel.handleIntent(ClassificationViewIntent.DismissClassifiedSms(classified.sms.id))
-                    }
-                )
+                items(state.classifiedSmsList, key = { it.sms.id }) { classified ->
+                    ClassifiedSmsItem(
+                        classified = classified,
+                        onSave = {
+                            viewModel.handleIntent(ClassificationViewIntent.SaveClassifiedSms(classified.sms.id))
+                        },
+                        onDismiss = {
+                            viewModel.handleIntent(ClassificationViewIntent.DismissClassifiedSms(classified.sms.id))
+                        }
+                    )
+                }
             }
         }
     }
-}
 }
 
 @Composable
@@ -865,27 +858,19 @@ private fun ClassifiedSmsItem(
     onDismiss: () -> Unit
 ) {
     val parsed = classified.parsed
-    Card(
+    AuraCard(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (classified.isSaved)
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-            else
-                MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        style = if (classified.isSaved) AuraCardStyle.Tonal else AuraCardStyle.Outlined,
+        contentPadding = PaddingValues(AuraSpacing.md)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(AuraSpacing.xs)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -902,12 +887,21 @@ private fun ClassifiedSmsItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = "₹${String.format("%.2f", parsed.amount ?: 0.0)}",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    parsed.amount?.let { amount ->
+                        AnimatedMoney(
+                            amount = amount,
+                            style = AuraType.moneySmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            animate = false
+                        )
+                    } ?: Text(
+                        text = "₹0.00",
+                        style = AuraType.moneySmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     if (parsed.type != null) {
                         Text(
@@ -934,12 +928,14 @@ private fun ClassifiedSmsItem(
             if (!classified.isSaved) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(AuraSpacing.xs),
+                    modifier = Modifier.padding(start = AuraSpacing.sm)
                 ) {
                     FilledTonalButton(
                         onClick = onSave,
                         modifier = Modifier.size(40.dp),
-                        contentPadding = PaddingValues(0.dp)
+                        contentPadding = PaddingValues(0.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Done,
@@ -956,11 +952,9 @@ private fun ClassifiedSmsItem(
                     }
                 }
             } else {
-                Text(
-                    "Saved",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium
+                TintBadge(
+                    text = "Saved",
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -970,17 +964,18 @@ private fun ClassifiedSmsItem(
 
 @Composable
 private fun AiDownloadStatusBanner(progress: Float) {
-    Card(
+    AuraCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+            .padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.sm),
+        style = AuraCardStyle.Tonal,
+        contentPadding = PaddingValues(AuraSpacing.lg)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
             Text(
                 "Downloading on-device AI… ${(progress * 100).toInt()}%",
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                color = MaterialTheme.colorScheme.onSurface
             )
             LinearProgressIndicator(
                 progress = { progress },
@@ -989,8 +984,7 @@ private fun AiDownloadStatusBanner(progress: Float) {
             Text(
                 "Messages will be auto-categorised into subscriptions, categories, income, expense and other once ready.",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(top = 8.dp)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

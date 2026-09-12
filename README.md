@@ -102,14 +102,15 @@ flavors exist only to separate distribution concerns (Play signing/listing).
 ## Tech Stack
 
 - **Language**: Kotlin
-- **UI**: Jetpack Compose + Material 3
+- **UI**: Jetpack Compose + Material 3 (Expressive), Aurora design system (`ui/designsystem`)
+- **Typography**: Plus Jakarta Sans (bundled, variable) with tabular figures for money
 - **Architecture**: Clean Architecture + MVI (Unidirectional data flow)
 - **DI**: Manual (Application class) — no Hilt/Koin
 - **Local Storage**: Room Database
-- **Charts**: Canvas-based (no external charting library)
-- **Cloud**: Google Drive API v3 (premium)
-- **Target SDK**: Android 16 (API 36)
-- **Min SDK**: Android 13 (API 30)
+- **Charts**: Canvas-based, animated (no external charting library)
+- **Cloud**: Google Drive API v3
+- **Target SDK**: Android 17 (API 37)
+- **Min SDK**: Android 11 (API 30)
 
 ## Project Structure
 

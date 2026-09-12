@@ -24,6 +24,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 
 /** A single donut slice. Kept tiny and allocation-free at draw time. */
 data class AuraSlice(
@@ -43,6 +45,7 @@ fun AuraProgressRing(
     modifier: Modifier = Modifier,
     stroke: Dp = 4.dp,
     trackColor: Color = MaterialTheme.colorScheme.outlineVariant,
+    contentDescription: String? = null,
     content: @Composable () -> Unit = {}
 ) {
     val animated by animateFloatAsState(
@@ -51,7 +54,12 @@ fun AuraProgressRing(
         label = "progressRing"
     )
 
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+    Box(
+        modifier = modifier.semantics {
+            if (contentDescription != null) this.contentDescription = contentDescription
+        },
+        contentAlignment = Alignment.Center
+    ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokePx = stroke.toPx()
             val inset = strokePx / 2
@@ -90,6 +98,7 @@ fun AuraDonutChart(
     strokeWidth: Dp = 28.dp,
     gapDegrees: Float = 2.4f,
     trackColor: Color = MaterialTheme.colorScheme.outlineVariant,
+    contentDescription: String? = null,
     centerContent: @Composable () -> Unit = {}
 ) {
     val settle = remember { Animatable(1f) }
@@ -104,7 +113,12 @@ fun AuraDonutChart(
         )
     }
 
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+    Box(
+        modifier = modifier.semantics {
+            if (contentDescription != null) this.contentDescription = contentDescription
+        },
+        contentAlignment = Alignment.Center
+    ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val total = data.sumOf { it.value }
             val strokePx = strokeWidth.toPx()
@@ -161,7 +175,8 @@ fun AuraAreaChart(
     lineColor: Color = MaterialTheme.colorScheme.primary,
     lineWidth: Dp = 2.5.dp,
     fillTop: Color = lineColor.copy(alpha = 0.26f),
-    fillBottom: Color = lineColor.copy(alpha = 0.0f)
+    fillBottom: Color = lineColor.copy(alpha = 0.0f),
+    contentDescription: String? = null
 ) {
     val maxValue = remember(points) { points.maxOfOrNull { it.second } ?: 0.0 }
     val grow = remember { Animatable(0f) }
@@ -176,7 +191,11 @@ fun AuraAreaChart(
         )
     }
 
-    Canvas(modifier = modifier) {
+    Canvas(
+        modifier = modifier.semantics {
+            if (contentDescription != null) this.contentDescription = contentDescription
+        }
+    ) {
         val n = points.size
         if (n < 2 || maxValue <= 0.0) return@Canvas
 

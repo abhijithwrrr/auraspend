@@ -211,7 +211,8 @@ fun DashboardScreen(
                                 points = points,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(120.dp)
+                                    .height(120.dp),
+                                contentDescription = "Spending this week"
                             )
                             Spacer(modifier = Modifier.height(AuraSpacing.sm))
                             WeekdayLabels(epochDays = state.dailySpending.map { it.first })
@@ -453,7 +454,8 @@ private fun BudgetCarouselCard(
                 progress = progress,
                 color = if (overBudget) MaterialTheme.extendedColors.expenseAmount else color,
                 modifier = Modifier.size(40.dp),
-                stroke = 3.5.dp
+                stroke = 3.5.dp,
+                contentDescription = "$name budget ${(progress.coerceIn(0f, 1f) * 100).toInt()} percent used"
             ) {
                 CategoryAvatar(icon = emoji, color = color, size = 26.dp)
             }
