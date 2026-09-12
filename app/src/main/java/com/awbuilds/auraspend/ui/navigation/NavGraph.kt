@@ -76,6 +76,7 @@ object Routes {
     const val BUDGETS = "budgets"
     const val SUBSCRIPTIONS = "subscriptions"
     const val CATEGORIES = "categories"
+    const val GOALS = "goals"
     const val TRANSACTION_DETAIL = "transaction/{transactionId}"
 
     fun transactionDetail(id: String) = "transaction/$id"
@@ -205,6 +206,7 @@ fun AuraSpendNavHost(
                     repository = repository,
                     onOpenBudgets = { navController.navigate(Routes.BUDGETS) },
                     onOpenSubscriptions = { navController.navigate(Routes.SUBSCRIPTIONS) },
+                    onOpenGoals = { navController.navigate(Routes.GOALS) },
                     onOpenCategories = { navController.navigate(Routes.CATEGORIES) }
                 )
             }
@@ -289,6 +291,19 @@ fun AuraSpendNavHost(
                 popExitTransition = { popExit }
             ) {
                 RecurringScreen(
+                    repository = repository,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = Routes.GOALS,
+                enterTransition = { pushEnter },
+                exitTransition = { pushExit },
+                popEnterTransition = { popEnter },
+                popExitTransition = { popExit }
+            ) {
+                com.awbuilds.auraspend.ui.savings.SavingsGoalsScreen(
                     repository = repository,
                     onBack = { navController.popBackStack() }
                 )
