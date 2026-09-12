@@ -8,7 +8,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,7 +40,8 @@ fun DashboardScreen(
     viewModel: DashboardViewModel,
     onNavigateToTransactions: () -> Unit,
     onNavigateToAdd: () -> Unit,
-    onNavigateToAnalytics: () -> Unit
+    onNavigateToAnalytics: () -> Unit,
+    onOpenSettings: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
     var selectedListIndex by remember { mutableStateOf(0) }
@@ -83,6 +87,8 @@ fun DashboardScreen(
                 )
             }
             HideAmountIconButton(hidden = hideAmounts, onToggle = { hideAmounts = !hideAmounts })
+            Spacer(modifier = Modifier.width(2.dp))
+            SettingsAvatarButton(onClick = onOpenSettings)
         }
 
         LazyColumn(
@@ -532,6 +538,27 @@ private fun EmptyHomeState(onAddClick: () -> Unit) {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Header avatar — the single entry point to Settings (P1 IA). */
+@Composable
+private fun SettingsAvatarButton(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .padding(end = 12.dp)
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            Icons.Default.Person,
+            contentDescription = "Settings",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(22.dp)
+        )
+    }
+}
 
 fun greetingText(): String {
     val hour = java.time.LocalTime.now().hour

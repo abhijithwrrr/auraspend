@@ -3,27 +3,23 @@ package com.awbuilds.auraspend.ui.navigation
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.awbuilds.auraspend.AuraSpendApp
 import com.awbuilds.auraspend.data.ai.ModelDownloadManager
@@ -42,126 +38,182 @@ import com.awbuilds.auraspend.ui.category.CategoryManagementScreen
 import com.awbuilds.auraspend.ui.classification.ClassificationScreen
 import com.awbuilds.auraspend.ui.classification.ClassificationViewIntent
 import com.awbuilds.auraspend.ui.classification.ClassificationViewModel
-import com.awbuilds.auraspend.ui.core.AuraSpendScaffold
+import com.awbuilds.auraspend.ui.core.AuraAppChrome
+import com.awbuilds.auraspend.ui.core.AuraSegmentedAddSheet
 import com.awbuilds.auraspend.ui.core.isNotificationPermissionNeeded
 import com.awbuilds.auraspend.ui.core.rememberNotificationPermissionLauncher
-import com.awbuilds.auraspend.ui.core.softShadow
-import com.awbuilds.auraspend.ui.theme.extendedColors
 import com.awbuilds.auraspend.ui.home.DashboardScreen
 import com.awbuilds.auraspend.ui.home.DashboardViewModel
 import com.awbuilds.auraspend.ui.onboarding.OnboardingScreen
+import com.awbuilds.auraspend.ui.plan.PlanHubScreen
 import com.awbuilds.auraspend.ui.recurring.RecurringScreen
 import com.awbuilds.auraspend.ui.settings.SettingsScreen
 import com.awbuilds.auraspend.ui.splash.SplashScreen
 import com.awbuilds.auraspend.ui.theme.AppThemeMode
+import com.awbuilds.auraspend.ui.theme.AuraSpendTheme
 import com.awbuilds.auraspend.ui.transaction.AddTransactionScreen
 import com.awbuilds.auraspend.ui.transaction.TransactionListScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-object Screen {
+/** All navigation routes in one place. */
+object Routes {
     const val SPLASH = "splash"
     const val ONBOARDING = "onboarding"
-    const val MAIN = "main"
+
+    // Top-level destinations (chrome visible).
+    const val HOME = "home"
+    const val ACTIVITY = "activity"
+    const val PLAN = "plan"
+    const val INSIGHTS = "insights"
+
+    // Pushed destinations.
+    const val SETTINGS = "settings"
     const val ADD_TRANSACTION = "add_transaction"
     const val CLASSIFICATION = "classification"
     const val BUDGETS = "budgets"
     const val SUBSCRIPTIONS = "subscriptions"
     const val CATEGORIES = "categories"
 
-    const val HOME = "home"
-    const val TRANSACTIONS = "transactions"
-    const val ANALYTICS = "analytics"
-    const val SETTINGS = "settings"
+    val topLevel = setOf(HOME, ACTIVITY, PLAN, INSIGHTS)
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+/** Premium-feeling screen transition: subtle horizontal push + fade. */
+private const val TRANSITION_MS = 260
+
+private val pushEnter: EnterTransition =
+    fadeIn(tween(TRANSITION_MS)) + slideInHorizontally(tween(TRANSITION_MS)) { it / 8 }
+
+private val pushExit: ExitTransition = fadeOut(tween(TRANSITION_MS / 2))
+
+private val popEnter: EnterTransition = fadeIn(tween(TRANSITION_MS))
+
+private val popExit: ExitTransition =
+    fadeOut(tween(TRANSITION_MS)) + slideOutHorizontally(tween(TRANSITION_MS)) { it / 8 }
+
+private fun NavHostController.navigateToTab(route: String) {
+    navigate(route) {
+        popUpTo(Routes.HOME) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+}
+
 @Composable
 fun AuraSpendNavHost(
     repository: TransactionRepository,
     themeMode: AppThemeMode = AppThemeMode.LIGHT,
     onThemeChanged: (AppThemeMode) -> Unit = {},
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     onDynamicColorChanged: (Boolean) -> Unit = {}
 ) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("auraspend_prefs", Context.MODE_PRIVATE)
-    val onboardingCompleted = prefs.getBoolean("onboarding_completed", false)
+    val startOnboarding = remember { !prefs.getBoolean("onboarding_completed", false) }
 
-    SharedTransitionLayout {
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+    val showChrome = currentRoute in Routes.topLevel
+
+    var showAddSheet by remember { mutableStateOf(false) }
+
+    AuraAppChrome(
+        showChrome = showChrome,
+        currentRoute = currentRoute,
+        onNavigate = { navController.navigateToTab(it) },
+        onAddClick = { showAddSheet = true }
+    ) {
         NavHost(
             navController = navController,
-            startDestination = Screen.SPLASH
+            startDestination = Routes.SPLASH,
+            modifier = Modifier.fillMaxSize(),
+            enterTransition = { fadeIn(tween(220)) },
+            exitTransition = { fadeOut(tween(160)) }
         ) {
-            composable(Screen.SPLASH) {
+            composable(Routes.SPLASH) {
                 SplashScreen(
                     onAnimationFinished = {
-                        val destination = if (onboardingCompleted) Screen.MAIN else Screen.ONBOARDING
+                        val destination = if (startOnboarding) Routes.ONBOARDING else Routes.HOME
                         navController.navigate(destination) {
-                            popUpTo(Screen.SPLASH) { inclusive = true }
+                            popUpTo(Routes.SPLASH) { inclusive = true }
                         }
                     }
                 )
             }
 
-            composable(Screen.ONBOARDING) {
-                val app = context.applicationContext as AuraSpendApp
-                val driveSyncManager = app.driveSyncManager
-                val scope = rememberCoroutineScope()
-
-                var isRestoring by remember { mutableStateOf(false) }
-                var restoreError by remember { mutableStateOf<String?>(null) }
-
-                val signInLauncher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.StartActivityForResult()
-                ) { result ->
-                    scope.launch {
-                        val signedIn = driveSyncManager.handleSignInResult(result.data)
-                        if (signedIn) {
-                            isRestoring = true
-                            val json = driveSyncManager.restoreLocalData()
-                            if (json != null) {
-                                val backupData = BackupSerializer.deserialize(json)
-                                repository.saveTransactions(backupData.transactions)
-                                repository.saveCategories(backupData.categories)
-                                backupData.budgets.forEach { repository.saveBudget(it) }
-                                backupData.subscriptions.forEach { repository.saveSubscription(it) }
-                                val smsDao = app.database.smsMessageDao()
-                                backupData.smsMessages.forEach { smsDao.insertAll(listOf(it)) }
-                                isRestoring = false
-                                prefs.edit().putBoolean("onboarding_completed", true).apply()
-                                navController.navigate(Screen.MAIN) {
-                                    popUpTo(Screen.ONBOARDING) { inclusive = true }
-                                }
-                            } else {
-                                isRestoring = false
-                                restoreError = "No backup found or restore failed"
-                            }
-                        } else {
-                            restoreError = "Sign-in failed"
-                        }
-                    }
-                }
-
-                OnboardingScreen(
+            composable(Routes.ONBOARDING) {
+                OnboardingFlow(
+                    repository = repository,
                     onFinished = {
                         prefs.edit().putBoolean("onboarding_completed", true).apply()
-                        navController.navigate(Screen.MAIN) {
-                            popUpTo(Screen.ONBOARDING) { inclusive = true }
+                        navController.navigate(Routes.HOME) {
+                            popUpTo(Routes.ONBOARDING) { inclusive = true }
                         }
-                    },
-                    onRestoreFromDrive = {
-                        signInLauncher.launch(driveSyncManager.getSignInIntent())
-                    },
-                    isRestoring = isRestoring,
-                    restoreError = restoreError,
-                    onRestoreErrorDismissed = { restoreError = null }
+                    }
                 )
             }
 
-            composable(Screen.MAIN) {
-                MainScreen(
+            // ── Top-level destinations ────────────────────────────────────────
+
+            composable(Routes.HOME) {
+                val dashboardViewModel = remember { DashboardViewModel(repository) }
+                DashboardScreen(
+                    viewModel = dashboardViewModel,
+                    onNavigateToTransactions = { navController.navigateToTab(Routes.ACTIVITY) },
+                    onNavigateToAdd = { showAddSheet = true },
+                    onNavigateToAnalytics = { navController.navigateToTab(Routes.INSIGHTS) },
+                    onOpenSettings = { navController.navigate(Routes.SETTINGS) }
+                )
+            }
+
+            composable(Routes.ACTIVITY) {
+                val transactions by repository.getAllTransactions()
+                    .collectAsState(initial = emptyList())
+                val categories by repository.getAllCategories()
+                    .collectAsState(initial = emptyList())
+                val scope = rememberCoroutineScope()
+                TransactionListScreen(
+                    transactions = transactions,
+                    categories = categories,
+                    onSearch = { },
+                    onDelete = { id -> scope.launch { repository.deleteTransaction(id) } },
+                    onBack = { navController.navigateToTab(Routes.HOME) },
+                    onRestore = { txn -> scope.launch { repository.saveTransaction(txn) } }
+                )
+            }
+
+            composable(Routes.PLAN) {
+                PlanHubScreen(
+                    repository = repository,
+                    onOpenBudgets = { navController.navigate(Routes.BUDGETS) },
+                    onOpenSubscriptions = { navController.navigate(Routes.SUBSCRIPTIONS) },
+                    onOpenCategories = { navController.navigate(Routes.CATEGORIES) }
+                )
+            }
+
+            composable(Routes.INSIGHTS) {
+                val transactions by repository.getAllTransactions()
+                    .collectAsState(initial = emptyList())
+                val categories by repository.getAllCategories()
+                    .collectAsState(initial = emptyList())
+                AnalyticsScreen(
+                    transactions = transactions,
+                    categories = categories,
+                    onBack = { navController.navigateToTab(Routes.HOME) }
+                )
+            }
+
+            // ── Pushed destinations ───────────────────────────────────────────
+
+            composable(
+                route = Routes.SETTINGS,
+                enterTransition = { pushEnter },
+                exitTransition = { pushExit },
+                popEnterTransition = { popEnter },
+                popExitTransition = { popExit }
+            ) {
+                SettingsDestination(
                     repository = repository,
                     navController = navController,
                     themeMode = themeMode,
@@ -171,8 +223,13 @@ fun AuraSpendNavHost(
                 )
             }
 
-            composable(Screen.CLASSIFICATION) {
-                val context = LocalContext.current
+            composable(
+                route = Routes.CLASSIFICATION,
+                enterTransition = { pushEnter },
+                exitTransition = { pushExit },
+                popEnterTransition = { popEnter },
+                popExitTransition = { popExit }
+            ) {
                 val categories by repository.getAllCategories()
                     .collectAsState(initial = emptyList())
                 val viewModel = remember {
@@ -184,9 +241,7 @@ fun AuraSpendNavHost(
                 }
                 LaunchedEffect(categories) {
                     if (categories.isNotEmpty()) {
-                        viewModel.handleIntent(
-                            ClassificationViewIntent.SetCategories(categories)
-                        )
+                        viewModel.handleIntent(ClassificationViewIntent.SetCategories(categories))
                     }
                 }
                 ClassificationScreen(
@@ -195,7 +250,13 @@ fun AuraSpendNavHost(
                 )
             }
 
-            composable(Screen.BUDGETS) {
+            composable(
+                route = Routes.BUDGETS,
+                enterTransition = { pushEnter },
+                exitTransition = { pushExit },
+                popEnterTransition = { popEnter },
+                popExitTransition = { popExit }
+            ) {
                 val viewModel = remember { BudgetViewModel(repository) }
                 BudgetScreen(
                     viewModel = viewModel,
@@ -203,14 +264,26 @@ fun AuraSpendNavHost(
                 )
             }
 
-            composable(Screen.SUBSCRIPTIONS) {
+            composable(
+                route = Routes.SUBSCRIPTIONS,
+                enterTransition = { pushEnter },
+                exitTransition = { pushExit },
+                popEnterTransition = { popEnter },
+                popExitTransition = { popExit }
+            ) {
                 RecurringScreen(
                     repository = repository,
                     onBack = { navController.popBackStack() }
                 )
             }
 
-            composable(Screen.ADD_TRANSACTION) {
+            composable(
+                route = Routes.ADD_TRANSACTION,
+                enterTransition = { pushEnter },
+                exitTransition = { pushExit },
+                popEnterTransition = { popEnter },
+                popExitTransition = { popExit }
+            ) {
                 val categories by repository.getAllCategories()
                     .collectAsState(initial = emptyList())
                 val scope = rememberCoroutineScope()
@@ -235,7 +308,13 @@ fun AuraSpendNavHost(
                 )
             }
 
-            composable(Screen.CATEGORIES) {
+            composable(
+                route = Routes.CATEGORIES,
+                enterTransition = { pushEnter },
+                exitTransition = { pushExit },
+                popEnterTransition = { popEnter },
+                popExitTransition = { popExit }
+            ) {
                 val scope = rememberCoroutineScope()
                 val categories by repository.getAllCategories()
                     .collectAsState(initial = emptyList())
@@ -252,29 +331,91 @@ fun AuraSpendNavHost(
             }
         }
     }
+
+    if (showAddSheet) {
+        AuraSegmentedAddSheet(
+            onSmartAdd = {
+                showAddSheet = false
+                navController.navigate(Routes.CLASSIFICATION)
+            },
+            onManualAdd = {
+                showAddSheet = false
+                navController.navigate(Routes.ADD_TRANSACTION)
+            },
+            onDismiss = { showAddSheet = false }
+        )
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Onboarding + optional Google Drive restore (unchanged behavior, new route). */
 @Composable
-private fun MainScreen(
+private fun OnboardingFlow(
+    repository: TransactionRepository,
+    onFinished: () -> Unit
+) {
+    val context = LocalContext.current
+    val app = context.applicationContext as AuraSpendApp
+    val driveSyncManager = app.driveSyncManager
+    val prefs = context.getSharedPreferences("auraspend_prefs", Context.MODE_PRIVATE)
+    val scope = rememberCoroutineScope()
+
+    var isRestoring by remember { mutableStateOf(false) }
+    var restoreError by remember { mutableStateOf<String?>(null) }
+
+    val signInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        scope.launch {
+            val signedIn = driveSyncManager.handleSignInResult(result.data)
+            if (signedIn) {
+                isRestoring = true
+                val json = driveSyncManager.restoreLocalData()
+                if (json != null) {
+                    val backupData = BackupSerializer.deserialize(json)
+                    repository.saveTransactions(backupData.transactions)
+                    repository.saveCategories(backupData.categories)
+                    backupData.budgets.forEach { repository.saveBudget(it) }
+                    backupData.subscriptions.forEach { repository.saveSubscription(it) }
+                    val smsDao = app.database.smsMessageDao()
+                    backupData.smsMessages.forEach { smsDao.insertAll(listOf(it)) }
+                    isRestoring = false
+                    prefs.edit().putBoolean("onboarding_completed", true).apply()
+                    onFinished()
+                } else {
+                    isRestoring = false
+                    restoreError = "No backup found or restore failed"
+                }
+            } else {
+                restoreError = "Sign-in failed"
+            }
+        }
+    }
+
+    OnboardingScreen(
+        onFinished = onFinished,
+        onRestoreFromDrive = { signInLauncher.launch(driveSyncManager.getSignInIntent()) },
+        isRestoring = isRestoring,
+        restoreError = restoreError,
+        onRestoreErrorDismissed = { restoreError = null }
+    )
+}
+
+/** Settings keeps its own side effects (CSV, AI model, auto-detect) here. */
+@Composable
+private fun SettingsDestination(
     repository: TransactionRepository,
     navController: NavHostController,
-    themeMode: AppThemeMode = AppThemeMode.LIGHT,
-    onThemeChanged: (AppThemeMode) -> Unit = {},
-    dynamicColor: Boolean = true,
-    onDynamicColorChanged: (Boolean) -> Unit = {}
+    themeMode: AppThemeMode,
+    onThemeChanged: (AppThemeMode) -> Unit,
+    dynamicColor: Boolean,
+    onDynamicColorChanged: (Boolean) -> Unit
 ) {
-    val dashboardViewModel = remember { DashboardViewModel(repository) }
-
-    val transactions by repository.getAllTransactions().collectAsState(initial = emptyList())
-    val categories by repository.getAllCategories().collectAsState(initial = emptyList())
-    val aiModelState by ModelDownloadManager.state.collectAsState()
-
-    val scope = rememberCoroutineScope()
-    var currentTab by remember { mutableStateOf(Screen.HOME) }
-
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val transactions by repository.getAllTransactions().collectAsState(initial = emptyList())
+    val aiModelState by ModelDownloadManager.state.collectAsState()
     val notificationPermissionLauncher = rememberNotificationPermissionLauncher()
+
     val csvLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/csv")
     ) { uri ->
@@ -299,173 +440,39 @@ private fun MainScreen(
         }
     }
 
-    var showAddSheet by remember { mutableStateOf(false) }
-
-    AuraSpendScaffold(
-        currentRoute = currentTab,
-        onNavigate = { currentTab = it },
-        onAddClick = { showAddSheet = true }
-    ) {
-        when (currentTab) {
-            Screen.HOME -> DashboardScreen(
-                viewModel = dashboardViewModel,
-                onNavigateToTransactions = { currentTab = Screen.TRANSACTIONS },
-                onNavigateToAdd = { showAddSheet = true },
-                onNavigateToAnalytics = { currentTab = Screen.ANALYTICS }
-            )
-            Screen.TRANSACTIONS -> TransactionListScreen(
-                transactions = transactions,
-                categories = categories,
-                onSearch = { },
-                onDelete = { id -> scope.launch { repository.deleteTransaction(id) } },
-                onBack = { currentTab = Screen.HOME },
-                // UNDO from the delete snackbar re-inserts the original row.
-                onRestore = { txn -> scope.launch { repository.saveTransaction(txn) } }
-            )
-            Screen.ANALYTICS -> AnalyticsScreen(
-                transactions = transactions,
-                categories = categories,
-                onBack = { currentTab = Screen.HOME }
-            )
-            Screen.SETTINGS -> SettingsScreen(
-                currentTheme = themeMode,
-                onThemeChanged = onThemeChanged,
-                dynamicColor = dynamicColor,
-                onDynamicColorChanged = onDynamicColorChanged,
-                onBack = { currentTab = Screen.HOME },
-                onExportCsv = { csvLauncher.launch("AuraSpend_export.csv") },
-                onImportCsv = { importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values")) },
-                onManageCategories = { navController.navigate(Screen.CATEGORIES) },
-                onManageSubscriptions = { navController.navigate(Screen.SUBSCRIPTIONS) },
-                onManageBudgets = { navController.navigate(Screen.BUDGETS) },
-                aiModelState = aiModelState,
-                onDownloadModel = {
-                    // Downloading from Settings is itself the consent.
-                    ModelDownloadManager.markConsentGiven(context)
-                    if (isNotificationPermissionNeeded(context)) {
-                        notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                    }
-                    ModelDownloadManager.start(context)
-                },
-                onCancelModelDownload = { ModelDownloadManager.cancel() },
-                onDeleteModel = { ModelDownloadManager.deleteModel(context) },
-                autoDetectEnabled = AutoDetect.isEnabled(context),
-                onAutoDetectChanged = { enabled ->
-                    // apply() is async — the pref write never blocks the tap.
-                    AutoDetect.setEnabled(context, enabled)
-                    if (enabled) {
-                        if (isNotificationPermissionNeeded(context)) {
-                            notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                        }
-                        // WorkManager init + enqueue off the main thread: the toggle must
-                        // feel instant. The background coordinator takes over on onStop.
-                        scope.launch(Dispatchers.IO) {
-                            AutoClassificationWorker.runNow(context)
-                        }
-                    } else {
-                        scope.launch(Dispatchers.IO) {
-                            AutoClassificationWorker.cancelPendingWork(context)
-                        }
-                    }
+    SettingsScreen(
+        currentTheme = themeMode,
+        onThemeChanged = onThemeChanged,
+        dynamicColor = dynamicColor,
+        onDynamicColorChanged = onDynamicColorChanged,
+        onBack = { navController.popBackStack() },
+        onExportCsv = { csvLauncher.launch("AuraSpend_export.csv") },
+        onImportCsv = { importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values")) },
+        onManageCategories = { navController.navigate(Routes.CATEGORIES) },
+        onManageSubscriptions = { navController.navigate(Routes.SUBSCRIPTIONS) },
+        onManageBudgets = { navController.navigate(Routes.BUDGETS) },
+        aiModelState = aiModelState,
+        onDownloadModel = {
+            // Downloading from Settings is itself the consent.
+            ModelDownloadManager.markConsentGiven(context)
+            if (isNotificationPermissionNeeded(context)) {
+                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+            ModelDownloadManager.start(context)
+        },
+        onCancelModelDownload = { ModelDownloadManager.cancel() },
+        onDeleteModel = { ModelDownloadManager.deleteModel(context) },
+        autoDetectEnabled = AutoDetect.isEnabled(context),
+        onAutoDetectChanged = { enabled ->
+            AutoDetect.setEnabled(context, enabled)
+            if (enabled) {
+                if (isNotificationPermissionNeeded(context)) {
+                    notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                 }
-            )
-        }
-    }
-
-    if (showAddSheet) {
-        AddTransactionSheet(
-            onSmartAdd = {
-                showAddSheet = false
-                navController.navigate(Screen.CLASSIFICATION)
-            },
-            onManualAdd = {
-                showAddSheet = false
-                navController.navigate(Screen.ADD_TRANSACTION)
-            },
-            onDismiss = { showAddSheet = false }
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AddTransactionSheet(
-    onSmartAdd: () -> Unit,
-    onManualAdd: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        tonalElevation = 0.dp
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(bottom = 40.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                "Add Transaction",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 20.dp)
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                SheetOptionCard(
-                    modifier = Modifier.weight(1f),
-                    icon = Icons.Default.AutoAwesome,
-                    title = "Smart Add",
-                    subtitle = "SMS / Paste",
-                    tint = MaterialTheme.colorScheme.primary,
-                    onClick = onSmartAdd
-                )
-                SheetOptionCard(
-                    modifier = Modifier.weight(1f),
-                    icon = Icons.Default.EditNote,
-                    title = "Manual",
-                    subtitle = "Enter details",
-                    tint = MaterialTheme.colorScheme.secondary,
-                    onClick = onManualAdd
-                )
+                scope.launch(Dispatchers.IO) { AutoClassificationWorker.runNow(context) }
+            } else {
+                scope.launch(Dispatchers.IO) { AutoClassificationWorker.cancelPendingWork(context) }
             }
         }
-    }
-}
-
-@Composable
-private fun SheetOptionCard(
-    modifier: Modifier = Modifier,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    subtitle: String,
-    tint: androidx.compose.ui.graphics.Color,
-    onClick: () -> Unit
-) {
-    val shape = RoundedCornerShape(20.dp)
-    Column(
-        modifier = modifier
-            .softShadow(shape)
-            .clip(shape)
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable(onClick = onClick)
-            .padding(vertical = 26.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(tint.copy(alpha = 0.12f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(26.dp))
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(subtitle, fontSize = 13.sp, color = MaterialTheme.extendedColors.textLight)
-    }
+    )
 }
