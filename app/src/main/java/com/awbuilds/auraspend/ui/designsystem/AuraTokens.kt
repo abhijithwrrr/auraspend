@@ -100,6 +100,9 @@ object AuraGradients {
             )
         )
     }
+
+    /** Text/icon color that is legible on [aurora] in every theme. */
+    val onAurora = Color(0xFFFFFFFF)
 }
 
 /**

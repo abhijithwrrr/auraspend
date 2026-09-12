@@ -1,50 +1,65 @@
 package com.awbuilds.auraspend.ui.home
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.domain.model.TransactionType
-import com.awbuilds.auraspend.ui.core.*
+import com.awbuilds.auraspend.ui.core.HideAmountIconButton
+import com.awbuilds.auraspend.ui.core.SectionHeaderRow
+import com.awbuilds.auraspend.ui.core.TransactionEntryRow
+import com.awbuilds.auraspend.ui.core.categoryColor
+import com.awbuilds.auraspend.ui.core.categoryIconEmoji
+import com.awbuilds.auraspend.ui.core.formatMoney
+import com.awbuilds.auraspend.ui.designsystem.*
 import com.awbuilds.auraspend.ui.theme.extendedColors
 import java.time.Instant
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
+/**
+ * Home — the app's hero surface.
+ *
+ * Hierarchy: greeting → aurora balance hero → quick actions → cash-flow chart
+ * → budgets → subscriptions → recent activity.
+ */
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     onNavigateToTransactions: () -> Unit,
-    onNavigateToAdd: () -> Unit,
+    onQuickAdd: (TransactionType) -> Unit,
+    onOpenSmartAdd: () -> Unit,
     onNavigateToAnalytics: () -> Unit,
-    onOpenSettings: () -> Unit = {}
+    onNavigateToPlan: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
+    onOpenTransaction: (String) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
-    var selectedListIndex by remember { mutableStateOf(0) }
     var hideAmounts by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -52,13 +67,7 @@ fun DashboardScreen(
     }
 
     val extended = MaterialTheme.extendedColors
-    val filteredTransactions = when (selectedListIndex) {
-        1 -> state.recentTransactions.filter { it.type == TransactionType.EXPENSE }
-        2 -> state.recentTransactions.filter { it.type == TransactionType.INCOME }
-        else -> state.recentTransactions
-    }
-    fun money(value: Double): String =
-        if (hideAmounts) "•••" else formatMoney(value)
+    val recent = state.recentTransactions.take(6)
 
     Column(
         modifier = Modifier
@@ -66,142 +75,218 @@ fun DashboardScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
-        // ── Greeting header (Cashew username header style)
+        // ── Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 13.dp, end = 4.dp, top = 10.dp),
+                .padding(start = AuraSpacing.gutter, end = AuraSpacing.sm, top = AuraSpacing.sm),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     greetingText(),
-                    fontSize = 15.sp,
+                    fontSize = 14.sp,
                     color = extended.textLight
                 )
                 Text(
                     "AuraSpend",
-                    fontSize = 30.sp,
+                    fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
             HideAmountIconButton(hidden = hideAmounts, onToggle = { hideAmounts = !hideAmounts })
-            Spacer(modifier = Modifier.width(2.dp))
             SettingsAvatarButton(onClick = onOpenSettings)
         }
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(0.dp)
+            contentPadding = PaddingValues(bottom = AuraSpacing.xxl)
         ) {
             if (state.isLoading && state.recentTransactions.isEmpty()) {
                 item {
-                    Box(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 120.dp),
-                        contentAlignment = Alignment.Center
-                    ) { CircularProgressIndicator() }
+                    Column(
+                        modifier = Modifier.padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.md),
+                        verticalArrangement = Arrangement.spacedBy(AuraSpacing.md)
+                    ) {
+                        AuraSkeleton(modifier = Modifier.fillMaxWidth().height(160.dp), shape = RoundedCornerShape(24.dp))
+                        AuraSkeleton(modifier = Modifier.fillMaxWidth().height(64.dp))
+                        AuraSkeleton(modifier = Modifier.fillMaxWidth().height(160.dp), shape = RoundedCornerShape(20.dp))
+                    }
                 }
                 return@LazyColumn
             }
 
-            // ── Expense | Income summary boxes (Cashew all-spending summary)
+            // ── Balance hero (the one aurora-gradient moment on this screen)
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 13.dp, vertical = 13.dp),
-                    horizontalArrangement = Arrangement.spacedBy(13.dp)
-                ) {
-                    AmountSummaryBox(
-                        label = "Expense",
-                        amount = if (hideAmounts) 0.0 else state.monthlyExpense,
-                        transactionCount = if (hideAmounts) null else state.monthlyExpenseCount,
-                        amountColor = extended.expenseAmount,
-                        modifier = Modifier.weight(1f),
-                        onClick = onNavigateToAnalytics
-                    )
-                    AmountSummaryBox(
-                        label = "Income",
-                        amount = if (hideAmounts) 0.0 else state.monthlyIncome,
-                        transactionCount = if (hideAmounts) null else state.monthlyIncomeCount,
-                        amountColor = extended.incomeAmount,
-                        modifier = Modifier.weight(1f),
-                        onClick = onNavigateToAnalytics
-                    )
-                }
-            }
-
-            // ── Net worth box
-            item {
-                Box(modifier = Modifier.padding(horizontal = 13.dp)) {
-                    CashewCard(modifier = Modifier.fillMaxWidth()) {
+                Box(modifier = Modifier.padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.md)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(28.dp))
+                            .background(AuraGradients.aurora)
+                            .padding(AuraSpacing.xl)
+                    ) {
                         Text(
-                            "Net Worth",
-                            fontSize = 15.sp,
-                            color = extended.textLight
+                            "Total balance",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = AuraGradients.onAurora.copy(alpha = 0.82f)
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            money(state.totalBalance),
-                            fontSize = 30.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1
-                        )
-                    }
-                }
-            }
-
-            // ── Budgets (Cashew budget rows with progress rings + bars)
-            if (state.budgets.isNotEmpty()) {
-                item { SectionHeaderRow("Budget", modifier = Modifier.padding(top = 14.dp)) }
-                item {
-                    Box(modifier = Modifier.padding(horizontal = 13.dp)) {
-                        CashewCard(modifier = Modifier.fillMaxWidth()) {
-                            state.budgets.forEachIndexed { index, budget ->
-                                val category = state.categories.find { it.id == budget.categoryId }
-                                BudgetRowItem(
-                                    name = category?.name ?: "Unknown",
-                                    emoji = categoryIconEmoji(category?.icon),
-                                    color = categoryColor(category?.color),
-                                    spent = budget.spentAmount,
-                                    limit = budget.limitAmount,
-                                    transactionCount = state.recentTransactions.count {
-                                        it.categoryId == budget.categoryId &&
-                                                it.type == TransactionType.EXPENSE
-                                    },
-                                    hideAmounts = hideAmounts
-                                )
-                                if (index != state.budgets.lastIndex) {
-                                    Spacer(modifier = Modifier.height(14.dp))
-                                }
-                            }
+                        Spacer(modifier = Modifier.height(AuraSpacing.xs))
+                        if (hideAmounts) {
+                            Text("•••", style = AuraType.moneyHero, color = AuraGradients.onAurora)
+                        } else {
+                            AnimatedMoney(
+                                amount = state.totalBalance,
+                                style = AuraType.moneyHero,
+                                color = AuraGradients.onAurora
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(AuraSpacing.lg))
+                        Row(horizontalArrangement = Arrangement.spacedBy(AuraSpacing.xxl)) {
+                            HeroStat(
+                                label = "In this month",
+                                value = if (hideAmounts) "•••" else "+${formatMoney(state.monthlyIncome)}",
+                                onClick = onNavigateToAnalytics
+                            )
+                            HeroStat(
+                                label = "Out this month",
+                                value = if (hideAmounts) "•••" else "-${formatMoney(state.monthlyExpense)}",
+                                onClick = onNavigateToAnalytics
+                            )
                         }
                     }
                 }
             }
 
-            // ── Subscriptions summary
+            // ── Quick actions
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = AuraSpacing.gutter),
+                    horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
+                ) {
+                    QuickAction(
+                        icon = Icons.Default.Add,
+                        label = "Expense",
+                        modifier = Modifier.weight(1f),
+                        onClick = { onQuickAdd(TransactionType.EXPENSE) }
+                    )
+                    QuickAction(
+                        icon = Icons.Default.ArrowDownward,
+                        label = "Income",
+                        modifier = Modifier.weight(1f),
+                        onClick = { onQuickAdd(TransactionType.INCOME) }
+                    )
+                    QuickAction(
+                        icon = Icons.Default.AutoAwesome,
+                        label = "Smart Add",
+                        modifier = Modifier.weight(1f),
+                        onClick = onOpenSmartAdd
+                    )
+                    QuickAction(
+                        icon = Icons.Default.BarChart,
+                        label = "Stats",
+                        modifier = Modifier.weight(1f),
+                        onClick = onNavigateToAnalytics
+                    )
+                }
+            }
+
+            // ── Cash flow
+            if (state.dailySpending.isNotEmpty()) {
+                item {
+                    SectionHeaderRow(
+                        title = "Cash flow",
+                        modifier = Modifier.padding(top = AuraSpacing.lg)
+                    )
+                }
+                item {
+                    Box(modifier = Modifier.padding(horizontal = AuraSpacing.gutter)) {
+                        AuraCard(style = AuraCardStyle.Outlined, modifier = Modifier.fillMaxWidth()) {
+                            val points = if (hideAmounts) state.dailySpending.map { it.first to 0.0 } else state.dailySpending
+                            AuraAreaChart(
+                                points = points,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(120.dp)
+                            )
+                            Spacer(modifier = Modifier.height(AuraSpacing.sm))
+                            WeekdayLabels(epochDays = state.dailySpending.map { it.first })
+                        }
+                    }
+                }
+            }
+
+            // ── Budgets carousel
+            if (state.budgets.isNotEmpty()) {
+                item {
+                    SectionHeaderRow(
+                        title = "Budgets",
+                        modifier = Modifier.padding(top = AuraSpacing.lg),
+                        trailing = {
+                            Text(
+                                "Manage",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .clickable(onClick = onNavigateToPlan)
+                                    .padding(horizontal = AuraSpacing.sm, vertical = AuraSpacing.xs)
+                            )
+                        }
+                    )
+                }
+                item {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = AuraSpacing.gutter),
+                        horizontalArrangement = Arrangement.spacedBy(AuraSpacing.md)
+                    ) {
+                        items(state.budgets, key = { it.id }) { budget ->
+                            val category = state.categories.find { it.id == budget.categoryId }
+                            BudgetCarouselCard(
+                                name = category?.name ?: "Unknown",
+                                emoji = categoryIconEmoji(category?.icon),
+                                color = categoryColor(category?.color),
+                                spent = budget.spentAmount,
+                                limit = budget.limitAmount,
+                                hideAmounts = hideAmounts,
+                                onClick = onNavigateToPlan
+                            )
+                        }
+                    }
+                }
+            }
+
+            // ── Subscriptions
             if (state.activeSubscriptions.isNotEmpty()) {
                 item {
-                    Box(modifier = Modifier.padding(horizontal = 13.dp, vertical = 13.dp)) {
-                        CashewCard(
+                    Box(modifier = Modifier.padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.lg)) {
+                        AuraCard(
+                            style = AuraCardStyle.Tonal,
                             modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)
+                            contentPadding = PaddingValues(AuraSpacing.lg),
+                            onClick = onNavigateToPlan
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Box(
                                     modifier = Modifier
                                         .size(44.dp)
                                         .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)),
+                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text("🔁", fontSize = 20.sp)
+                                    Icon(
+                                        Icons.Default.Subscriptions,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(22.dp)
+                                    )
                                 }
-                                Spacer(modifier = Modifier.width(12.dp))
+                                Spacer(modifier = Modifier.width(AuraSpacing.md))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         "Subscriptions",
@@ -212,13 +297,12 @@ fun DashboardScreen(
                                     Text(
                                         "${state.activeSubscriptions.size} active",
                                         fontSize = 13.sp,
-                                        color = extended.textLight
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                                 Text(
-                                    "${money(state.totalSubscriptionCost)}/mo",
-                                    fontSize = 17.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    if (hideAmounts) "•••" else "${formatMoney(state.totalSubscriptionCost)}/mo",
+                                    style = AuraType.moneyMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
@@ -227,319 +311,177 @@ fun DashboardScreen(
                 }
             }
 
-            // ── Weekly spending graph
-            if (state.dailySpending.isNotEmpty()) {
-                item {
-                    SectionHeaderRow("Spending Graph", modifier = Modifier.padding(top = 6.dp))
-                }
-                item {
-                    Box(modifier = Modifier.padding(horizontal = 13.dp)) {
-                        CashewCard(modifier = Modifier.fillMaxWidth()) {
-                            WeeklyLineChart(dailySpending = state.dailySpending)
-                        }
-                    }
-                }
-            }
-
-            // ── Category pie chart
-            if (state.categoryMonthTotals.isNotEmpty()) {
-                item {
-                    SectionHeaderRow("Spending by Category", modifier = Modifier.padding(top = 6.dp))
-                }
-                item {
-                    Box(modifier = Modifier.padding(horizontal = 13.dp)) {
-                        CashewCard(modifier = Modifier.fillMaxWidth(), onClick = onNavigateToAnalytics) {
-                            CategoryPieSection(
-                                categoryTotals = state.categoryMonthTotals,
-                                categories = state.categories,
-                                hideAmounts = hideAmounts
-                            )
-                        }
-                    }
-                }
-            }
-
-            // ── Transactions list
-            item { SectionHeaderRow("Transactions", modifier = Modifier.padding(top = 14.dp)) }
+            // ── Recent activity
             item {
-                SlidingSelector(
-                    options = listOf("All", "Outgoing", "Incoming"),
-                    selectedIndex = selectedListIndex,
-                    onSelect = { selectedListIndex = it },
-                    modifier = Modifier.padding(horizontal = 13.dp)
+                SectionHeaderRow(
+                    title = "Recent",
+                    modifier = Modifier.padding(top = AuraSpacing.sm),
+                    trailing = {
+                        Text(
+                            "View all",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .clickable(onClick = onNavigateToTransactions)
+                                .padding(horizontal = AuraSpacing.sm, vertical = AuraSpacing.xs)
+                        )
+                    }
                 )
             }
 
-            if (filteredTransactions.isEmpty()) {
-                item { EmptyHomeState(onAddClick = onNavigateToAdd) }
+            if (recent.isEmpty()) {
+                item {
+                    AuraEmptyState(
+                        icon = Icons.Default.ReceiptLong,
+                        title = "No transactions yet",
+                        message = "Add your first transaction and AuraSpend will start building your picture.",
+                        actionLabel = "Add transaction",
+                        onAction = { onQuickAdd(TransactionType.EXPENSE) }
+                    )
+                }
             } else {
-                items(filteredTransactions.take(8)) { transaction ->
+                items(recent, key = { it.id }) { transaction ->
                     val category = state.categories.find { it.id == transaction.categoryId }
                     TransactionEntryRow(
                         transaction = transaction,
                         categoryName = category?.name ?: "Other",
                         categoryColor = categoryColor(category?.color),
-                        categoryEmoji = categoryIconEmoji(category?.icon)
+                        categoryEmoji = categoryIconEmoji(category?.icon),
+                        modifier = Modifier.animateItem(),
+                        onClick = { onOpenTransaction(transaction.id) }
                     )
-                }
-            }
-
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    ViewAllButton(onClick = onNavigateToTransactions)
                 }
             }
         }
     }
 }
 
-// ─── Budget row ───────────────────────────────────────────────────────────────
+// ─── Pieces ───────────────────────────────────────────────────────────────────
 
 @Composable
-private fun BudgetRowItem(
+private fun HeroStat(label: String, value: String, onClick: () -> Unit) {
+    Column(modifier = Modifier.clickable(onClick = onClick)) {
+        Text(
+            label,
+            fontSize = 12.sp,
+            color = AuraGradients.onAurora.copy(alpha = 0.78f)
+        )
+        Text(
+            value,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = AuraGradients.onAurora
+        )
+    }
+}
+
+@Composable
+private fun QuickAction(
+    icon: ImageVector,
+    label: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = AuraSpacing.md),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(42.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(AuraSpacing.sm))
+        Text(
+            label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+private fun WeekdayLabels(epochDays: List<Long>) {
+    val formatter = remember { DateTimeFormatter.ofPattern("EEE") }
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        epochDays.forEach { epoch ->
+            Text(
+                Instant.ofEpochMilli(epoch).atZone(ZoneId.systemDefault()).format(formatter),
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun BudgetCarouselCard(
     name: String,
     emoji: String,
     color: Color,
     spent: Double,
     limit: Double,
-    transactionCount: Int,
-    hideAmounts: Boolean
+    hideAmounts: Boolean,
+    onClick: () -> Unit
 ) {
-    val extended = MaterialTheme.extendedColors
     val progress = if (limit > 0) (spent / limit).toFloat() else 0f
     val overBudget = limit > 0 && spent > limit
-    val spentText = if (hideAmounts) "•••" else formatMoney(spent)
-    val limitText = if (hideAmounts) "•••" else formatMoney(limit)
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        CircularProgressRing(
-            progress = progress.coerceIn(0f, 1f),
-            color = if (overBudget) extended.expenseAmount else color,
-            modifier = Modifier.size(50.dp),
-            stroke = 3.dp,
-            trackColor = MaterialTheme.colorScheme.outlineVariant
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(CircleShape)
-                    .background(color.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center
+    AuraCard(
+        modifier = Modifier.width(168.dp),
+        style = AuraCardStyle.Outlined,
+        contentPadding = PaddingValues(AuraSpacing.lg),
+        onClick = onClick
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AuraProgressRing(
+                progress = progress,
+                color = if (overBudget) MaterialTheme.extendedColors.expenseAmount else color,
+                modifier = Modifier.size(40.dp),
+                stroke = 3.5.dp
             ) {
-                Text(emoji, fontSize = 16.sp)
+                CategoryAvatar(icon = emoji, color = color, size = 26.dp)
             }
-        }
-        Spacer(modifier = Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f)) {
+            Spacer(modifier = Modifier.width(AuraSpacing.sm))
             Text(
-                "$name · $transactionCount ${if (transactionCount == 1) "transaction" else "transactions"}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
+                name,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(7.dp))
-            LinearProgressIndicator(
-                progress = { progress.coerceIn(0f, 1f) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(9.dp)
-                    .clip(RoundedCornerShape(50)),
-                color = if (overBudget) extended.expenseAmount else color,
-                trackColor = MaterialTheme.colorScheme.outlineVariant
+                maxLines = 1
             )
         }
-        Spacer(modifier = Modifier.width(12.dp))
-        Column(horizontalAlignment = Alignment.End) {
-            Row {
-                Text(
-                    spentText,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (overBudget) extended.expenseAmount else MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    " / $limitText",
-                    fontSize = 15.sp,
-                    color = extended.textLight
-                )
-            }
-        }
+        Spacer(modifier = Modifier.height(AuraSpacing.md))
+        Text(
+            if (hideAmounts) "•••" else formatMoney(spent),
+            style = AuraType.moneyMedium,
+            color = if (overBudget) MaterialTheme.extendedColors.expenseAmount
+            else MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            if (hideAmounts) "of •••" else "of ${formatMoney(limit)}",
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
-// ── Weekly line chart ────────────────────────────────────────────────────────
-
-@Composable
-private fun WeeklyLineChart(dailySpending: List<Pair<Long, Double>>) {
-    val primary = MaterialTheme.colorScheme.primary
-    val textLight = MaterialTheme.extendedColors.textLight
-    val dayFormatter = remember { java.time.format.DateTimeFormatter.ofPattern("EEE") }
-
-    Column {
-        val maxVal = dailySpending.maxOfOrNull { it.second } ?: 0.0
-        Canvas(modifier = Modifier.fillMaxWidth().height(130.dp)) {
-            val n = dailySpending.size
-            if (n < 2 || maxVal <= 0.0) return@Canvas
-            val stepX = size.width / (n - 1)
-            val points = dailySpending.mapIndexed { i, (_, value) ->
-                Offset(i * stepX, size.height - (value / maxVal).toFloat() * (size.height - 12f))
-            }
-            val path = Path().apply {
-                moveTo(points.first().x, points.first().y)
-                for (i in 1 until points.size) {
-                    val p0 = points[i - 1]
-                    val p1 = points[i]
-                    val midX = (p0.x + p1.x) / 2
-                    cubicTo(midX, p0.y, midX, p1.y, p1.x, p1.y)
-                }
-            }
-            drawPath(path, primary, style = Stroke(width = 5f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            dailySpending.forEach { (epochMillis, _) ->
-                Text(
-                    Instant.ofEpochMilli(epochMillis).atZone(ZoneId.systemDefault()).format(dayFormatter),
-                    fontSize = 12.sp,
-                    color = textLight
-                )
-            }
-        }
-    }
-}
-
-// ── Category pie section ─────────────────────────────────────────────────────
-
-@Composable
-private fun CategoryPieSection(
-    categoryTotals: List<Pair<String, Double>>,
-    categories: List<com.awbuilds.auraspend.domain.model.Category>,
-    hideAmounts: Boolean
-) {
-    val total = categoryTotals.sumOf { it.second }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        DonutChart(
-            data = categoryTotals.map { (categoryId, value) ->
-                val category = categories.find { it.id == categoryId }
-                PieSliceData(
-                    label = category?.name ?: "Other",
-                    value = value,
-                    color = categoryColor(category?.color)
-                )
-            },
-            modifier = Modifier.size(150.dp),
-            strokeWidth = 28.dp
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Total", fontSize = 13.sp, color = MaterialTheme.extendedColors.textLight)
-                Text(
-                    if (hideAmounts) "•••" else formatMoney(total),
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-        Spacer(modifier = Modifier.width(18.dp))
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            categoryTotals.take(5).forEach { (categoryId, value) ->
-                val category = categories.find { it.id == categoryId }
-                val pct = if (total > 0) ((value / total) * 100).toInt() else 0
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(11.dp)
-                            .clip(CircleShape)
-                            .background(categoryColor(category?.color))
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        category?.name ?: "Other",
-                        fontSize = 14.sp,
-                        maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        "$pct%",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.extendedColors.textLight
-                    )
-                }
-            }
-            if (categoryTotals.size > 5) {
-                Text(
-                    "+${categoryTotals.size - 5} more",
-                    fontSize = 13.sp,
-                    color = MaterialTheme.extendedColors.textLight
-                )
-            }
-        }
-    }
-}
-
-// ── Empty state ───────────────────────────────────────────────────────────────
-
-@Composable
-private fun EmptyHomeState(onAddClick: () -> Unit) {
-    Box(modifier = Modifier.padding(13.dp)) {
-        CashewCard(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(28.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("🪙", fontSize = 42.sp)
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    "No transactions yet",
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    "Add your first transaction to start tracking your finances.",
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.extendedColors.textLight
-                )
-                Spacer(modifier = Modifier.height(14.dp))
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .clickable(onClick = onAddClick)
-                        .padding(horizontal = 22.dp, vertical = 11.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        "Add Transaction",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-            }
-        }
-    }
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/** Header avatar — the single entry point to Settings (P1 IA). */
+/** Header avatar — the single entry point to Settings. */
 @Composable
 private fun SettingsAvatarButton(onClick: () -> Unit) {
     Box(
@@ -568,4 +510,3 @@ fun greetingText(): String {
         else -> "Good evening"
     }
 }
-
