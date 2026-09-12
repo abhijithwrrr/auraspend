@@ -27,8 +27,8 @@ Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
 ## Active work
 | Item | State |
 |------|-------|
-| **Phase 0 — Foundation** | In progress on `phase-0-aurora-foundation` |
-| **Phase 1 — App shell** | Not started (needs P0 gate + handoff) |
+| **Phase 0 — Foundation** | ✅ Complete — see `docs/handoffs/0001-phase0-foundation.md` |
+| **Phase 1 — App shell** | Next up; branch off `dev` per phase convention |
 | **Paywall removal** | Done in P0 (PremiumGate, PremiumUpgradeScreen, BillingManager deleted) |
 | **Master plan** | `docs/handoffs/0000-master-plan.md` |
 
