@@ -4,66 +4,57 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.*
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.ui.designsystem.AuraCard
+import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
+import com.awbuilds.auraspend.ui.designsystem.AuraGradients
+import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
-data class OnboardingPage(
+private data class OnboardingPage(
     val title: String,
     val description: String,
-    val icon: @Composable () -> Unit
+    val icon: ImageVector
 )
 
-val onboardingPages = listOf(
+private val onboardingPages = listOf(
     OnboardingPage(
-        "Track Your Wealth",
-        "Manage your income and expenses effortlessly. Get insights into your spending habits.",
-        icon = {
-            Icon(
-                Icons.Default.AccountBalanceWallet,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        }
+        "Track every rupee",
+        "Income, expenses and balance — always up to date, always on your device.",
+        Icons.Default.Wallet
     ),
     OnboardingPage(
-        "Smart SMS Classification",
-        "Paste bank messages and let AuraSpend auto-detect amounts, merchants, and categories.",
-        icon = {
-            Icon(
-                Icons.Default.AutoAwesome,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        }
+        "Smart by default",
+        "Bank SMS is categorised automatically, on-device, by a local AI that never uploads your data.",
+        Icons.Default.AutoAwesome
     ),
     OnboardingPage(
-        "Budgets & Subscriptions",
-        "Set spending limits, track recurring subscriptions, and stay on top of your finances.",
-        icon = {
-            Icon(
-                Icons.Default.Subscriptions,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        }
+        "Plan ahead",
+        "Budgets, subscriptions and goals in one place, with insights that actually help.",
+        Icons.Default.Savings
     )
 )
 
@@ -77,15 +68,11 @@ fun OnboardingScreen(
 ) {
     val pagerState = rememberPagerState(pageCount = { onboardingPages.size })
     val coroutineScope = rememberCoroutineScope()
-    var showRestoreConfirm by remember { mutableStateOf(false) }
-
     val snackbarHostState = remember { SnackbarHostState() }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        onFinished()
-    }
+    ) { onFinished() }
 
     LaunchedEffect(restoreError) {
         restoreError?.let {
@@ -103,124 +90,109 @@ fun OnboardingScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .systemBarsPadding()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = AuraSpacing.gutter),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Skip button at top
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = onFinished, enabled = !isRestoring) {
-                    Text("Skip")
-                }
+                TextButton(onClick = onFinished, enabled = !isRestoring) { Text("Skip") }
             }
 
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.weight(1f)
             ) { page ->
-                OnboardingPageContent(onboardingPages[page], page)
+                val pageOffset =
+                    (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                OnboardingPageContent(onboardingPages[page], pageOffset)
             }
 
-            // Page Indicator + Next/Get Started
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 24.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Spacer for balance
-                Spacer(modifier = Modifier.width(72.dp))
+            PageIndicator(
+                currentPage = pagerState.currentPage,
+                totalPages = onboardingPages.size
+            )
 
-                PageIndicator(
-                    currentPage = pagerState.currentPage,
-                    totalPages = onboardingPages.size
-                )
+            Spacer(modifier = Modifier.height(AuraSpacing.xxl))
 
-                Button(
-                    onClick = {
-                        coroutineScope.launch {
-                            if (pagerState.currentPage < onboardingPages.size - 1) {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        if (pagerState.currentPage < onboardingPages.size - 1) {
+                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                        } else {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             } else {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                } else {
-                                    onFinished()
-                                }
+                                onFinished()
                             }
                         }
-                    },
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = Modifier.height(48.dp),
-                    enabled = !isRestoring
-                ) {
-                    Text(
-                        if (pagerState.currentPage == onboardingPages.size - 1) "Get Started" else "Next"
-                    )
-                }
+                    }
+                },
+                enabled = !isRestoring,
+                shape = CircleShape,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+            ) {
+                Text(
+                    if (pagerState.currentPage == onboardingPages.size - 1) "Get started" else "Continue",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
 
-            // Restore from Drive - only on last page
             if (pagerState.currentPage == onboardingPages.size - 1) {
-                TextButton(
-                    onClick = { showRestoreConfirm = true },
-                    enabled = !isRestoring
+                Spacer(modifier = Modifier.height(AuraSpacing.md))
+                AuraCard(
+                    style = AuraCardStyle.Outlined,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(AuraSpacing.lg),
+                    onClick = { if (!isRestoring) onRestoreFromDrive() }
                 ) {
-                    if (isRestoring) {
-                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                        Spacer(modifier = Modifier.width(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (isRestoring) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        } else {
+                            Icon(
+                                Icons.Default.CloudDownload,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(AuraSpacing.md))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "Restore from Google Drive",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                "Bring back a previous backup",
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
-                    Text("Restore from Google Drive")
                 }
             }
+
+            Spacer(modifier = Modifier.height(AuraSpacing.xxl))
         }
 
-        // Restore confirm dialog
-        if (showRestoreConfirm) {
-            AlertDialog(
-                onDismissRequest = { showRestoreConfirm = false },
-                title = { Text("Restore Data") },
-                text = {
-                    Text("This will replace all existing data with your Google Drive backup. Continue?")
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            showRestoreConfirm = false
-                            onRestoreFromDrive()
-                        }
-                    ) {
-                        Text("Restore")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showRestoreConfirm = false }) {
-                        Text("Cancel")
-                    }
-                }
-            )
-        }
-
-        // Loading overlay
         if (isRestoring) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f)),
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.35f)),
                 contentAlignment = Alignment.Center
             ) {
-                Card {
-                    Column(
-                        modifier = Modifier.padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator()
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text("Restoring from Drive...")
-                    }
+                AuraCard(style = AuraCardStyle.Filled, contentPadding = PaddingValues(AuraSpacing.xxl)) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(AuraSpacing.lg))
+                    Text("Restoring your backup…")
                 }
             }
         }
@@ -233,68 +205,81 @@ fun OnboardingScreen(
 }
 
 @Composable
-fun OnboardingPageContent(page: OnboardingPage, pageIndex: Int) {
-    var visible by remember { mutableStateOf(false) }
+private fun OnboardingPageContent(page: OnboardingPage, pageOffset: Float) {
+    val alpha by animateFloatAsState(
+        targetValue = (1f - abs(pageOffset) * 0.6f).coerceIn(0f, 1f),
+        label = "pageAlpha"
+    )
+    val scale by animateFloatAsState(
+        targetValue = (1f - abs(pageOffset) * 0.08f).coerceIn(0.85f, 1f),
+        label = "pageScale"
+    )
 
-    LaunchedEffect(pageIndex) {
-        visible = false
-        kotlinx.coroutines.delay(100)
-        visible = true
-    }
-
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn() + slideInVertically(initialOffsetY = { it / 4 })
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                this.alpha = alpha
+                scaleX = scale
+                scaleY = scale
+                translationX = pageOffset * 120f
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Box(
+            modifier = Modifier
+                .size(148.dp)
+                .clip(CircleShape)
+                .background(AuraGradients.aurora),
+            contentAlignment = Alignment.Center
         ) {
-            // Icon Circle
-            Surface(
-                modifier = Modifier.size(140.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                tonalElevation = 0.dp
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    page.icon()
-                }
-            }
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            Text(
-                page.title,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                page.description,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 24.dp)
+            Icon(
+                page.icon,
+                contentDescription = null,
+                tint = AuraGradients.onAurora,
+                modifier = Modifier.size(60.dp)
             )
         }
+
+        Spacer(modifier = Modifier.height(AuraSpacing.xxxl))
+
+        Text(
+            page.title,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
+        Spacer(modifier = Modifier.height(AuraSpacing.md))
+
+        Text(
+            page.description,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = AuraSpacing.lg)
+        )
     }
 }
 
 @Composable
-fun PageIndicator(currentPage: Int, totalPages: Int) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun PageIndicator(currentPage: Int, totalPages: Int) {
+    Row(horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
         repeat(totalPages) { index ->
+            val selected = index == currentPage
+            val width by animateDpAsState(
+                targetValue = if (selected) 26.dp else 8.dp,
+                label = "dotWidth"
+            )
             Box(
                 modifier = Modifier
-                    .size(if (index == currentPage) 24.dp else 8.dp, 8.dp)
+                    .height(8.dp)
+                    .width(width)
                     .clip(CircleShape)
                     .background(
-                        if (index == currentPage) MaterialTheme.colorScheme.primary
+                        if (selected) MaterialTheme.colorScheme.primary
                         else MaterialTheme.colorScheme.outlineVariant
                     )
             )

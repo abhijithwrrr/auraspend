@@ -19,7 +19,7 @@ import com.awbuilds.auraspend.data.local.entities.*
         SmsMessageEntity::class,
         ClassificationMemoryEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -108,6 +108,32 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v6 -> v7: add query indices. Dashboard, Activity and Insights filter
+         * transactions by date/category/type on every screen; without these the
+         * table is scanned fully once data grows.
+         */
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_transactions_dateTimestamp " +
+                        "ON transactions(dateTimestamp)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_transactions_categoryId " +
+                        "ON transactions(categoryId)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_transactions_type_dateTimestamp " +
+                        "ON transactions(type, dateTimestamp)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_budgets_categoryId " +
+                        "ON budgets(categoryId)"
+                )
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -115,7 +141,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "auraspend_db"
                 )
-                    .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                    .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                     .fallbackToDestructiveMigration(false)
                     // Write-ahead logging lets dashboard reads proceed while the
                     // SMS pipeline writes transactions — no lock contention.

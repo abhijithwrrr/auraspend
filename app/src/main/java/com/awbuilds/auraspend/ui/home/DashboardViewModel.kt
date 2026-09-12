@@ -46,38 +46,51 @@ class DashboardViewModel(
                     ts in monthStartEpoch..monthEndEpoch
                 }
 
-                val income = monthlyTransactions
-                    .filter { it.type == TransactionType.INCOME }
-                    .sumOf { it.amount }
-
-                val expense = monthlyTransactions
-                    .filter { it.type == TransactionType.EXPENSE }
-                    .sumOf { it.amount }
-
-                val incomeCount = monthlyTransactions.count { it.type == TransactionType.INCOME }
-                val expenseCount = monthlyTransactions.count { it.type == TransactionType.EXPENSE }
-
-                val categoryTotals = monthlyTransactions
-                    .filter { it.type == TransactionType.EXPENSE }
-                    .groupBy { it.categoryId }
-                    .map { (categoryId, list) -> categoryId to list.sumOf { t -> t.amount } }
+                // Single pass for month totals + counts (was 5 separate passes).
+                var income = 0.0
+                var expense = 0.0
+                var incomeCount = 0
+                var expenseCount = 0
+                val categoryTotalsMap = HashMap<String, Double>()
+                monthlyTransactions.forEach { t ->
+                    if (t.type == TransactionType.INCOME) {
+                        income += t.amount
+                        incomeCount++
+                    } else {
+                        expense += t.amount
+                        expenseCount++
+                        categoryTotalsMap[t.categoryId] = (categoryTotalsMap[t.categoryId] ?: 0.0) + t.amount
+                    }
+                }
+                val categoryTotals = categoryTotalsMap.entries
+                    .map { it.key to it.value }
                     .sortedByDescending { it.second }
 
-                val balance = transactions
-                    .sumOf { if (it.type == TransactionType.INCOME) it.amount else -it.amount }
+                var balance = 0.0
+                transactions.forEach { t ->
+                    balance += if (t.type == TransactionType.INCOME) t.amount else -t.amount
+                }
 
-                val dailySpending = (0..6).map { dayOffset ->
-                    val day = weekStart.plusDays(dayOffset.toLong())
-                    val dayStart = day.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                    val dayEnd = day.with(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                    val spent = transactions
-                        .filter { it.type == TransactionType.EXPENSE }
-                        .filter { t ->
-                            val ts = t.date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                            ts in dayStart..dayEnd
-                        }
-                        .sumOf { t -> t.amount }
-                    Pair(dayStart, spent)
+                // Weekly chart: one pass, bucketed by local date (DST-safe).
+                val weekDates = (0..6).map { weekStart.plusDays(it.toLong()).toLocalDate() }
+                val weekEndEpoch = weekDates.last()
+                    .atTime(LocalTime.MAX)
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+                val weekStartEpoch = weekStart.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                val dailyTotals = HashMap<java.time.LocalDate, Double>()
+                transactions.forEach { t ->
+                    if (t.type != TransactionType.EXPENSE) return@forEach
+                    val ts = t.date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    if (ts in weekStartEpoch..weekEndEpoch) {
+                        val day = t.date.toLocalDate()
+                        dailyTotals[day] = (dailyTotals[day] ?: 0.0) + t.amount
+                    }
+                }
+                val dailySpending = weekDates.map { day ->
+                    day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() to
+                        (dailyTotals[day] ?: 0.0)
                 }
 
                 val categories = repository.getAllCategories().first()
