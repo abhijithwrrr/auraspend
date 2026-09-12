@@ -12,11 +12,11 @@ Apache-2.0, open source.
 
 ## Current phase
 
-**P2–P5 rollout landed** (core loop, Insights, Settings, first-run, query
-indices) — see `docs/handoffs/0003-phases-2-5-rollout.md`. Remaining work:
-Classification/Smart Add rebuild, supporting-screen design-system pass, P5
-perf remainder (Paging/aggregates/baseline profiles), P6 accessibility + tests.
-Phases are defined in `docs/handoffs/0000-master-plan.md`.
+**P0–P5 rollout landed and device-verified** — see
+`docs/handoffs/0004-savings-goals-and-device-verification.md`. Remaining:
+Classification wizard + triage inbox, P5 Paging/aggregates/baseline profiles,
+P6 accessibility + screenshot tests + i18n. Phases are defined in
+`docs/handoffs/0000-master-plan.md`.
 Do not start new work without reading the latest handoff.
 
 ## Module map
