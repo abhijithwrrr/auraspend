@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -268,7 +269,14 @@ fun TransactionEntryRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(enabled = onClick != null) { onClick?.invoke() }
+            .semantics(mergeDescendants = true) {}
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(role = androidx.compose.ui.semantics.Role.Button) { onClick() }
+                } else {
+                    Modifier
+                }
+            )
             .padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.sm + AuraSpacing.xxs),
         verticalAlignment = Alignment.CenterVertically
     ) {

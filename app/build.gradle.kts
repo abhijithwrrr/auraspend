@@ -48,6 +48,12 @@ android {
     // Unit tests exercise JVM-only logic; unmocked android.framework calls (e.g. Log) no-op.
     testOptions {
         unitTests.isReturnDefaultValues = true
+        // Robolectric + Roborazzi render real resources (fonts, colors) on the JVM.
+        unitTests.isIncludeAndroidResources = true
+        // Record Aurora screenshots during unit tests (Roborazzi).
+        unitTests.all {
+            it.systemProperty("roborazzi.test.record", "true")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -115,6 +121,15 @@ dependencies {
     testImplementation("org.json:json:20240303")
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // JVM screenshot tests (Robolectric + Roborazzi) for visual regressions.
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     // Compose previews / inspection in debug builds only.
     debugImplementation(libs.androidx.compose.ui.tooling)

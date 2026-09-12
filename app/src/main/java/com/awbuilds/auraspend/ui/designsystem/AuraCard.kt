@@ -81,7 +81,7 @@ fun AuraCard(
             .then(if (border != null) Modifier.border(border, shape) else Modifier)
             .then(
                 if (onClick != null) {
-                    Modifier.clickable { onClick() }
+                    Modifier.clickable(role = androidx.compose.ui.semantics.Role.Button) { onClick() }
                 } else {
                     Modifier
                 }
