@@ -50,7 +50,8 @@ android {
         unitTests.isReturnDefaultValues = true
         // Robolectric + Roborazzi render real resources (fonts, colors) on the JVM.
         unitTests.isIncludeAndroidResources = true
-        // Record Aurora screenshots during unit tests (Roborazzi).
+        // Screenshot tests record directly into the committed baseline directory;
+        // CI fails if regenerating changes any tracked PNG (git diff).
         unitTests.all {
             it.systemProperty("roborazzi.test.record", "true")
         }

@@ -44,12 +44,21 @@ jobs:
       - name: Unit tests
         run: ./gradlew testFreeDebugUnitTest
 
+      - name: Verify Aurora screenshots
+        run: |
+          changes=$(git status --porcelain -- app/src/test/screenshots)
+          if [ -n "$changes" ]; then
+            echo "::error::Aurora screenshots changed. Review app/src/test/screenshots and commit the new baselines if the UI change is intentional."
+            echo "$changes"
+            exit 1
+          fi
+
       - name: Upload Aurora screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: aurora-screenshots
-          path: app/build/screenshots/
+          path: app/src/test/screenshots/
           if-no-files-found: ignore
 
       - name: Build free flavor (debug)
