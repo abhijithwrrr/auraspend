@@ -34,6 +34,7 @@ import com.awbuilds.auraspend.ui.core.formatMoney
 import com.awbuilds.auraspend.ui.designsystem.AuraEmptyState
 import com.awbuilds.auraspend.ui.designsystem.AuraSegmentedControl
 import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
+import com.awbuilds.auraspend.ui.designsystem.SettingsAvatarButton
 import com.awbuilds.auraspend.ui.theme.extendedColors
 import java.time.LocalDate
 import java.time.ZoneId
@@ -50,7 +51,8 @@ fun TransactionListScreen(
     onDelete: (String) -> Unit,
     onBack: () -> Unit,
     onRestore: (Transaction) -> Unit = {},
-    onOpenTransaction: (String) -> Unit = {}
+    onOpenTransaction: (String) -> Unit = {},
+    onOpenSettings: () -> Unit = {}
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var filter by remember { mutableStateOf(TxnFilter.ALL) }
@@ -174,6 +176,7 @@ fun TransactionListScreen(
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
+                    SettingsAvatarButton(onClick = onOpenSettings)
                 }
             }
 

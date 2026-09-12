@@ -197,7 +197,8 @@ fun AuraSpendNavHost(
                     onDelete = { id -> scope.launch { repository.deleteTransaction(id) } },
                     onBack = { navController.navigateToTab(Routes.HOME) },
                     onRestore = { txn -> scope.launch { repository.saveTransaction(txn) } },
-                    onOpenTransaction = { id -> navController.navigate(Routes.transactionDetail(id)) }
+                    onOpenTransaction = { id -> navController.navigate(Routes.transactionDetail(id)) },
+                    onOpenSettings = { navController.navigate(Routes.SETTINGS) }
                 )
             }
 
@@ -207,7 +208,8 @@ fun AuraSpendNavHost(
                     onOpenBudgets = { navController.navigate(Routes.BUDGETS) },
                     onOpenSubscriptions = { navController.navigate(Routes.SUBSCRIPTIONS) },
                     onOpenGoals = { navController.navigate(Routes.GOALS) },
-                    onOpenCategories = { navController.navigate(Routes.CATEGORIES) }
+                    onOpenCategories = { navController.navigate(Routes.CATEGORIES) },
+                    onOpenSettings = { navController.navigate(Routes.SETTINGS) }
                 )
             }
 
@@ -219,7 +221,8 @@ fun AuraSpendNavHost(
                 AnalyticsScreen(
                     transactions = transactions,
                     categories = categories,
-                    onBack = { navController.navigateToTab(Routes.HOME) }
+                    onBack = { navController.navigateToTab(Routes.HOME) },
+                    onOpenSettings = { navController.navigate(Routes.SETTINGS) }
                 )
             }
 

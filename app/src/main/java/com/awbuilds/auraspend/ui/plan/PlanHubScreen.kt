@@ -28,6 +28,7 @@ import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
 import com.awbuilds.auraspend.ui.designsystem.AuraProgressRing
 import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
 import com.awbuilds.auraspend.ui.designsystem.AuraType
+import com.awbuilds.auraspend.ui.designsystem.SettingsAvatarButton
 import com.awbuilds.auraspend.ui.designsystem.formatMoney
 import com.awbuilds.auraspend.ui.theme.extendedColors
 
@@ -41,7 +42,8 @@ fun PlanHubScreen(
     onOpenBudgets: () -> Unit,
     onOpenSubscriptions: () -> Unit,
     onOpenGoals: () -> Unit,
-    onOpenCategories: () -> Unit
+    onOpenCategories: () -> Unit,
+    onOpenSettings: () -> Unit = {}
 ) {
     val budgets by repository.getAllBudgets().collectAsState(initial = emptyList())
     val subscriptions by repository.getActiveSubscriptions().collectAsState(initial = emptyList())
@@ -68,13 +70,21 @@ fun PlanHubScreen(
             .statusBarsPadding()
             .padding(horizontal = AuraSpacing.gutter)
     ) {
-        Text(
-            "Plan",
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(top = AuraSpacing.sm, bottom = AuraSpacing.xs)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "Plan",
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = AuraSpacing.sm, bottom = AuraSpacing.xs)
+            )
+            SettingsAvatarButton(onClick = onOpenSettings)
+        }
 
         Spacer(modifier = Modifier.height(AuraSpacing.md))
 

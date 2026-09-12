@@ -483,27 +483,6 @@ private fun BudgetCarouselCard(
     }
 }
 
-/** Header avatar — the single entry point to Settings. */
-@Composable
-private fun SettingsAvatarButton(onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .padding(end = 12.dp)
-            .size(40.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            Icons.Default.Person,
-            contentDescription = "Settings",
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(22.dp)
-        )
-    }
-}
-
 fun greetingText(): String {
     val hour = java.time.LocalTime.now().hour
     return when {
