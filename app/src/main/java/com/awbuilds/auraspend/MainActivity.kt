@@ -26,7 +26,8 @@ class MainActivity : ComponentActivity() {
                 AppThemeMode.valueOf(prefs.getString("theme_mode", AppThemeMode.LIGHT.name) ?: AppThemeMode.LIGHT.name)
             ) }
             var dynamicColor by remember { mutableStateOf(
-                prefs.getBoolean("dynamic_color", true)
+                // Brand-first: Aurora colors by default; Material You is opt-in.
+                prefs.getBoolean("dynamic_color", false)
             ) }
 
             AuraSpendTheme(themeMode = themeMode, dynamicColor = dynamicColor) {

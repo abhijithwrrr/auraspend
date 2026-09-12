@@ -14,7 +14,7 @@ Made with ❤️ by AW Builds
 
 ## Features
 
-| Category | Details | Premium |
+| Category | Details | Availability |
 |----------|---------|---------|
 | **Smart Classification** | Paste bank SMS or read from inbox — auto-categorizes via regex + optional on-device AI (Qwen2.5) into subscriptions / categories / income / expense / other | Free |
 | **Dashboard** | Balance card, weekly bar chart, budget progress, subscription summary, category breakdown | Free |
@@ -22,9 +22,9 @@ Made with ❤️ by AW Builds
 | **Budgets** | Per-category monthly/weekly/yearly spending limits with progress bars | Free |
 | **Recurring Subscriptions** | Track monthly costs, next billing dates | Free |
 | **CSV Export/Import** | Backup and restore your transactions | Free |
-| **Dark & AMOLED Theme** | Light, Dark, and true-black AMOLED modes | 🔒 Premium |
-| **Advanced Analytics** | Canvas pie charts, category breakdowns, merchant insights | 🔒 Premium |
-| **Google Drive Backup** | Cloud sync and restore from onboarding | 🔒 Premium |
+| **Dark & AMOLED Theme** | Light, Dark, and true-black AMOLED modes | Free |
+| **Advanced Analytics** | Canvas pie charts, category breakdowns, merchant insights | Free |
+| **Google Drive Backup** | Cloud sync and restore from onboarding | Free |
 
 ## On-Device AI (Local Categorization)
 
@@ -91,12 +91,13 @@ HuggingFace after user consent.
 
 ## Build Flavors
 
-| Flavor | Command | Play Billing | Use Case |
-|--------|---------|--------------|----------|
-| `free` | `./gradlew assembleFreeDebug` | Stub (all premium unlocked) | Development, self-build, F-Droid |
-| `play` | `./gradlew assemblePlayDebug` | Real IAP verification | Play Store release |
+| Flavor | Command | Use Case |
+|--------|---------|----------|
+| `free` | `./gradlew assembleFreeDebug` | Development, self-build, F-Droid |
+| `play` | `./gradlew assemblePlayDebug` | Play Store release |
 
-The `free` flavor has all premium features unlocked at no cost. Only the Play Store build enforces the paywall.
+Every feature is available in both flavors — AuraSpend has no paywall. The
+flavors exist only to separate distribution concerns (Play signing/listing).
 
 ## Tech Stack
 

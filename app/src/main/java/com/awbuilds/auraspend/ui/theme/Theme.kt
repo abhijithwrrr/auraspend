@@ -2,26 +2,34 @@ package com.awbuilds.auraspend.ui.theme
 
 import android.app.Activity
 import android.os.Build
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import com.awbuilds.auraspend.R
 
 enum class AppThemeMode {
     LIGHT, DARK, AMOLED
 }
 
 /**
- * Semantic design tokens mirroring Cashew's AppColors theme extension.
+ * Semantic design tokens that go beyond the Material color roles.
+ * Field names are stable — screens read them through [MaterialTheme.extendedColors].
  */
 data class ExtendedColors(
     val incomeAmount: Color,
@@ -57,6 +65,56 @@ val LocalExtendedColors = staticCompositionLocalOf { LightExtendedColors }
 
 val MaterialTheme.extendedColors: ExtendedColors
     @Composable get() = LocalExtendedColors.current
+
+// ─── Typography ───────────────────────────────────────────────────────────────
+// Plus Jakarta Sans (variable, OFL) — a geometric humanist face with confident
+// numerals. `tnum` keeps money columns from jittering while they animate.
+
+val PlusJakartaSans = FontFamily(
+    Font(R.font.plus_jakarta_sans, weight = FontWeight.Light),
+    Font(R.font.plus_jakarta_sans, weight = FontWeight.Normal),
+    Font(R.font.plus_jakarta_sans, weight = FontWeight.Medium),
+    Font(R.font.plus_jakarta_sans, weight = FontWeight.SemiBold),
+    Font(R.font.plus_jakarta_sans, weight = FontWeight.Bold),
+    Font(R.font.plus_jakarta_sans, weight = FontWeight.ExtraBold)
+)
+
+private const val NUMERIC_FEATURES = "tnum"
+
+private fun auraStyle(
+    weight: FontWeight,
+    size: Int,
+    lineHeight: Int,
+    letterSpacing: Double = 0.0,
+    numeric: Boolean = false
+) = TextStyle(
+    fontFamily = PlusJakartaSans,
+    fontWeight = weight,
+    fontSize = size.sp,
+    lineHeight = lineHeight.sp,
+    letterSpacing = letterSpacing.sp,
+    fontFeatureSettings = if (numeric) NUMERIC_FEATURES else null
+)
+
+private val AuraSpendTypography = Typography(
+    displayLarge = auraStyle(FontWeight.Bold, 52, 60, -0.5, numeric = true),
+    displayMedium = auraStyle(FontWeight.Bold, 42, 50, -0.4, numeric = true),
+    displaySmall = auraStyle(FontWeight.SemiBold, 34, 42, -0.3, numeric = true),
+    headlineLarge = auraStyle(FontWeight.Bold, 30, 38, -0.2, numeric = true),
+    headlineMedium = auraStyle(FontWeight.SemiBold, 26, 34, -0.1, numeric = true),
+    headlineSmall = auraStyle(FontWeight.SemiBold, 22, 30, numeric = true),
+    titleLarge = auraStyle(FontWeight.SemiBold, 20, 26),
+    titleMedium = auraStyle(FontWeight.SemiBold, 16, 22, 0.1),
+    titleSmall = auraStyle(FontWeight.Medium, 14, 20, 0.1),
+    bodyLarge = auraStyle(FontWeight.Normal, 16, 24, 0.15),
+    bodyMedium = auraStyle(FontWeight.Normal, 14, 20, 0.2),
+    bodySmall = auraStyle(FontWeight.Normal, 12, 16, 0.3),
+    labelLarge = auraStyle(FontWeight.SemiBold, 14, 20, 0.1),
+    labelMedium = auraStyle(FontWeight.SemiBold, 12, 16, 0.4),
+    labelSmall = auraStyle(FontWeight.Medium, 11, 14, 0.5)
+)
+
+// ─── Color schemes ────────────────────────────────────────────────────────────
 
 private val LightColorScheme = lightColorScheme(
     primary = LightPrimary,
@@ -148,129 +206,22 @@ private val AmoledColorScheme = darkColorScheme(
     surfaceContainerHighest = AmoledSurfContainerHighest
 )
 
-private val AuraSpendTypography = Typography(
-    displayLarge = TextStyle(
-        fontWeight = FontWeight.Bold,
-        fontSize = 57.sp,
-        lineHeight = 64.sp,
-        letterSpacing = (-0.25).sp
-    ),
-    displayMedium = TextStyle(
-        fontWeight = FontWeight.Bold,
-        fontSize = 45.sp,
-        lineHeight = 52.sp
-    ),
-    displaySmall = TextStyle(
-        fontWeight = FontWeight.Bold,
-        fontSize = 36.sp,
-        lineHeight = 44.sp
-    ),
-    headlineLarge = TextStyle(
-        fontWeight = FontWeight.Bold,
-        fontSize = 32.sp,
-        lineHeight = 40.sp
-    ),
-    headlineMedium = TextStyle(
-        fontWeight = FontWeight.Bold,
-        fontSize = 28.sp,
-        lineHeight = 36.sp
-    ),
-    headlineSmall = TextStyle(
-        fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        lineHeight = 32.sp
-    ),
-    titleLarge = TextStyle(
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 22.sp,
-        lineHeight = 28.sp
-    ),
-    titleMedium = TextStyle(
-        fontWeight = FontWeight.Medium,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.15.sp
-    ),
-    titleSmall = TextStyle(
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.1.sp
-    ),
-    bodyLarge = TextStyle(
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    ),
-    bodyMedium = TextStyle(
-        fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.25.sp
-    ),
-    bodySmall = TextStyle(
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.4.sp
-    ),
-    labelLarge = TextStyle(
-        fontWeight = FontWeight.ExtraBold,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.1.sp
-    ),
-    labelMedium = TextStyle(
-        fontWeight = FontWeight.Bold,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    ),
-    labelSmall = TextStyle(
-        fontWeight = FontWeight.Bold,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-)
-
 @Composable
 fun AuraSpendTheme(
     themeMode: AppThemeMode = AppThemeMode.LIGHT,
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
+    val dynamicAvailable = dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
     val colorScheme = when (themeMode) {
         AppThemeMode.AMOLED -> AmoledColorScheme
-        AppThemeMode.DARK -> {
-            if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                dynamicDarkColorScheme(context)
-            } else {
-                DarkColorScheme
-            }
-        }
-        AppThemeMode.LIGHT -> {
-            if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                dynamicLightColorScheme(context)
-            } else {
-                LightColorScheme
-            }
-        }
+        AppThemeMode.DARK -> if (dynamicAvailable) dynamicDarkColorScheme(context) else DarkColorScheme
+        AppThemeMode.LIGHT -> if (dynamicAvailable) dynamicLightColorScheme(context) else LightColorScheme
     }
 
-    val extendedColors = when (themeMode) {
-        AppThemeMode.LIGHT -> if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // Derive semantic amounts from the dynamic scheme so they harmonize
-            // with wallpaper colors; keep Cashew fallbacks otherwise.
-            LightExtendedColors.copy(
-                incomeAmount = IncomeGreenLight,
-                expenseAmount = ExpenseRedLight
-            )
-        } else LightExtendedColors
-        else -> DarkExtendedColors
-    }
+    val extendedColors = if (themeMode == AppThemeMode.LIGHT) LightExtendedColors else DarkExtendedColors
 
     val view = LocalView.current
     if (!view.isInEditMode) {
