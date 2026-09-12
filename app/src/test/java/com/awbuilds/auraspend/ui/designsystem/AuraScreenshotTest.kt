@@ -101,6 +101,6 @@ class AuraScreenshotTest {
                 }
             }
         }
-        compose.onRoot().captureRoboImage("build/screenshots/aurora_$name.png")
+        compose.onRoot().captureRoboImage("src/test/screenshots/aurora_$name.png")
     }
 }
