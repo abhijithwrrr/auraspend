@@ -10,13 +10,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.ListAlt
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,84 +38,130 @@ import com.awbuilds.auraspend.ui.designsystem.AuraGradients
 import com.awbuilds.auraspend.ui.designsystem.AuraMotion
 import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
 
-enum class BottomNavItem(
+/** Top-level destinations shown in the app chrome. */
+enum class TopLevelDestination(
     val route: String,
     val label: String,
     val icon: ImageVector
 ) {
     HOME("home", "Home", Icons.Filled.Home),
-    TRANSACTIONS("transactions", "Transactions", Icons.Filled.ListAlt),
-    ANALYTICS("analytics", "Stats", Icons.Filled.BarChart),
-    SETTINGS("settings", "Settings", Icons.Filled.Settings)
+    ACTIVITY("activity", "Activity", Icons.AutoMirrored.Filled.ListAlt),
+    PLAN("plan", "Plan", Icons.Filled.Savings),
+    INSIGHTS("insights", "Insights", Icons.Filled.BarChart)
 }
 
 /**
- * Aurora app frame: a flat, hairline-topped navigation bar with a raised
- * gradient add button. The selected tab gets a tonal pill and a spring, and
- * every tap carries a light haptic tick.
+ * Aurora app frame.
+ *
+ * Compact widths get a bottom navigation bar with a center add button; medium
+ * and expanded widths get a navigation rail so tablets and foldables feel
+ * native instead of stretched. Chrome is only shown on top-level destinations.
  */
 @Composable
-fun AuraSpendScaffold(
+fun AuraAppChrome(
+    showChrome: Boolean,
     currentRoute: String?,
     onNavigate: (String) -> Unit,
     onAddClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(1f)) {
-                content()
-            }
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.surfaceContainer,
-                tonalElevation = 0.dp
-            ) {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    // Hairline separation instead of a drop shadow.
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .navigationBarsPadding()
-                            .height(72.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        NavItem(
-                            item = BottomNavItem.HOME,
-                            selected = currentRoute == BottomNavItem.HOME.route,
-                            onClick = { onNavigate(BottomNavItem.HOME.route) },
-                            modifier = Modifier.weight(1f)
-                        )
-                        NavItem(
-                            item = BottomNavItem.TRANSACTIONS,
-                            selected = currentRoute == BottomNavItem.TRANSACTIONS.route,
-                            onClick = { onNavigate(BottomNavItem.TRANSACTIONS.route) },
-                            modifier = Modifier.weight(1f)
-                        )
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val expanded = maxWidth >= 600.dp
+
+        if (!showChrome) {
+            content()
+            return@BoxWithConstraints
+        }
+
+        if (expanded) {
+            Row(modifier = Modifier.fillMaxSize()) {
+                NavigationRail(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    header = {
                         AddButton(
                             onClick = onAddClick,
-                            modifier = Modifier.weight(1f)
-                        )
-                        NavItem(
-                            item = BottomNavItem.ANALYTICS,
-                            selected = currentRoute == BottomNavItem.ANALYTICS.route,
-                            onClick = { onNavigate(BottomNavItem.ANALYTICS.route) },
-                            modifier = Modifier.weight(1f)
-                        )
-                        NavItem(
-                            item = BottomNavItem.SETTINGS,
-                            selected = currentRoute == BottomNavItem.SETTINGS.route,
-                            onClick = { onNavigate(BottomNavItem.SETTINGS.route) },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.padding(top = AuraSpacing.md, bottom = AuraSpacing.sm)
                         )
                     }
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    TopLevelDestination.entries.forEach { destination ->
+                        NavigationRailItem(
+                            selected = currentRoute == destination.route,
+                            onClick = { onNavigate(destination.route) },
+                            icon = { Icon(destination.icon, contentDescription = destination.label) },
+                            label = { Text(destination.label) },
+                            alwaysShowLabel = true
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
                 }
+                Box(modifier = Modifier.weight(1f)) { content() }
+            }
+        } else {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.weight(1f)) { content() }
+                AuraBottomBar(
+                    currentRoute = currentRoute,
+                    onNavigate = onNavigate,
+                    onAddClick = onAddClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AuraBottomBar(
+    currentRoute: String?,
+    onNavigate: (String) -> Unit,
+    onAddClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        tonalElevation = 0.dp
+    ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            // Hairline separation instead of a drop shadow.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .height(72.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                NavItem(
+                    destination = TopLevelDestination.HOME,
+                    selected = currentRoute == TopLevelDestination.HOME.route,
+                    onClick = { onNavigate(TopLevelDestination.HOME.route) },
+                    modifier = Modifier.weight(1f)
+                )
+                NavItem(
+                    destination = TopLevelDestination.ACTIVITY,
+                    selected = currentRoute == TopLevelDestination.ACTIVITY.route,
+                    onClick = { onNavigate(TopLevelDestination.ACTIVITY.route) },
+                    modifier = Modifier.weight(1f)
+                )
+                AddButton(onClick = onAddClick, modifier = Modifier.weight(1f))
+                NavItem(
+                    destination = TopLevelDestination.PLAN,
+                    selected = currentRoute == TopLevelDestination.PLAN.route,
+                    onClick = { onNavigate(TopLevelDestination.PLAN.route) },
+                    modifier = Modifier.weight(1f)
+                )
+                NavItem(
+                    destination = TopLevelDestination.INSIGHTS,
+                    selected = currentRoute == TopLevelDestination.INSIGHTS.route,
+                    onClick = { onNavigate(TopLevelDestination.INSIGHTS.route) },
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
@@ -165,7 +213,7 @@ private fun AddButton(
 
 @Composable
 private fun NavItem(
-    item: BottomNavItem,
+    destination: TopLevelDestination,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -200,11 +248,11 @@ private fun NavItem(
                 .padding(horizontal = 14.dp, vertical = 4.dp),
             contentAlignment = Alignment.Center
         ) {
-            Icon(item.icon, contentDescription = item.label, tint = tint, modifier = Modifier.size(22.dp))
+            Icon(destination.icon, contentDescription = destination.label, tint = tint, modifier = Modifier.size(22.dp))
         }
         Spacer(modifier = Modifier.height(AuraSpacing.xs))
         Text(
-            item.label,
+            destination.label,
             fontSize = 11.sp,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
             color = tint,
