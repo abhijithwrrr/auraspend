@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AuraSpend">
 
+        <!-- Macrobenchmark / baseline profile generation needs a profileable app. -->
+        <profileable android:shell="true" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

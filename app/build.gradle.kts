@@ -44,6 +44,13 @@ android {
                 "proguard-rules.pro"
             )
         }
+        // Release-like build for Macrobenchmark / baseline profiles.
+        create("benchmark") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
+        }
     }
     // Unit tests exercise JVM-only logic; unmocked android.framework calls (e.g. Log) no-op.
     testOptions {
