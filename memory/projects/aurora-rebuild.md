@@ -12,8 +12,8 @@ layer, classification pipeline or business logic.
 ## Phases
 | Phase | Scope | State |
 |-------|-------|-------|
-| P0 | Tokens, theme, fonts, design-system foundation, catalog, agent docs, paywall removal | In progress |
-| P1 | Real NavHost, 4-tab + FAB IA, adaptive layout, shared elements, splash hand-off | Not started |
+| P0 | Tokens, theme, fonts, design-system foundation, catalog, agent docs, paywall removal | ✅ Complete |
+| P1 | Real NavHost, 4-tab + FAB IA, adaptive layout, shared elements, splash hand-off | Next |
 | P2 | Home, Activity, Transaction Detail/Edit, Quick Add, Smart Add wizard, triage inbox | Not started |
 | P3 | Plan hub (budgets/subs/goals), Insights, category manager | Not started |
 | P4 | Onboarding/splash, settings redesign, empty/loading/error states | Not started |
