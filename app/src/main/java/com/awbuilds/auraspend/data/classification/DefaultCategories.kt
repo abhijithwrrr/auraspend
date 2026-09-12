@@ -2,6 +2,7 @@ package com.awbuilds.auraspend.data.classification
 
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.ui.theme.*
+import java.util.Locale
 
 val defaultCategories = listOf(
     Category(id = "cat_food", name = "Food & Dining", icon = "restaurant", color = 0xFFE53935.toInt(), isDefault = true),
@@ -18,6 +19,16 @@ val defaultCategories = listOf(
     Category(id = "cat_other", name = "Other", icon = "category", color = 0xFF757575.toInt(), isDefault = true)
 )
 
+/**
+ * Merchant keyword -> category. Scanned with WORD-BOUNDARY matching and
+ * longest-key-wins priority (see [keywordCategoryFor]) against both the
+ * extracted merchant string and the raw message body.
+ *
+ * Keys are deliberately safe as standalone tokens: never add a key that is a
+ * common substring or sub-word of unrelated text. ("fee" once matched
+ * "coffee" -> Education and "credit" matched every "Credit Card" payment ->
+ * Salary.)
+ */
 val categoryKeywordMap: Map<String, String> = mapOf(
     // Food & Dining
     "swiggy" to "cat_food",
@@ -28,22 +39,48 @@ val categoryKeywordMap: Map<String, String> = mapOf(
     "kfc" to "cat_food",
     "burger king" to "cat_food",
     "subway" to "cat_food",
+    "starbucks" to "cat_food",
+    "cafe coffee day" to "cat_food",
+    "chaayos" to "cat_food",
+    "chai point" to "cat_food",
+    "third wave coffee" to "cat_food",
+    "barbeque nation" to "cat_food",
+    "haldiram" to "cat_food",
+    "bikanervala" to "cat_food",
+    "wow momo" to "cat_food",
+    "behrouz" to "cat_food",
+    "faasos" to "cat_food",
+    "oven story" to "cat_food",
+    "ovenstory" to "cat_food",
+    "freshmenu" to "cat_food",
+    "box8" to "cat_food",
+    "eatsure" to "cat_food",
+    "eatfit" to "cat_food",
     "dining" to "cat_food",
     "restaurant" to "cat_food",
     "cafe" to "cat_food",
+    "coffee" to "cat_food",
     "food" to "cat_food",
-    "eat" to "cat_food",
     "hotel" to "cat_food",
     "dhaba" to "cat_food",
     "tiffin" to "cat_food",
     "lunch" to "cat_food",
     "dinner" to "cat_food",
     "breakfast" to "cat_food",
+
+    // Grocery
     "zepto" to "cat_grocery",
     "blinkit" to "cat_grocery",
     "instamart" to "cat_grocery",
     "grocery" to "cat_grocery",
     "bigbasket" to "cat_grocery",
+    "jiomart" to "cat_grocery",
+    "dmart" to "cat_grocery",
+    "more supermarket" to "cat_grocery",
+    "natures basket" to "cat_grocery",
+    "nature basket" to "cat_grocery",
+    "milk basket" to "cat_grocery",
+    "amazon fresh" to "cat_grocery",
     "vegetable" to "cat_grocery",
     "milk" to "cat_grocery",
     "provision" to "cat_grocery",
@@ -53,19 +90,42 @@ val categoryKeywordMap: Map<String, String> = mapOf(
     "ola" to "cat_transport",
     "rapido" to "cat_transport",
     "metro" to "cat_transport",
+    "namma metro" to "cat_transport",
+    "delhi metro" to "cat_transport",
+    "metro rail" to "cat_transport",
     "petrol" to "cat_transport",
     "fuel" to "cat_transport",
     "indian oil" to "cat_transport",
+    "iocl" to "cat_transport",
     "bharat petroleum" to "cat_transport",
+    "bpcl" to "cat_transport",
     "hp petrol" to "cat_transport",
+    "hpcl" to "cat_transport",
+    "fastag" to "cat_transport",
+    "nhai" to "cat_transport",
     "bus" to "cat_transport",
+    "redbus" to "cat_transport",
+    "abhibus" to "cat_transport",
     "taxi" to "cat_transport",
     "cab" to "cat_transport",
+    "porter" to "cat_transport",
+    "driveu" to "cat_transport",
+    "zoomcar" to "cat_transport",
+    "revv" to "cat_transport",
+    "yulu" to "cat_transport",
     "parking" to "cat_transport",
     "toll" to "cat_transport",
     "railway" to "cat_transport",
     "irctc" to "cat_transport",
     "flight" to "cat_transport",
+    "indigo" to "cat_transport",
+    "spicejet" to "cat_transport",
+    "vistara" to "cat_transport",
+    "air india" to "cat_transport",
+    "go air" to "cat_transport",
+    "goair" to "cat_transport",
+    "airasia" to "cat_transport",
+    "akasa air" to "cat_transport",
     "goibibo" to "cat_transport",
     "makemytrip" to "cat_transport",
 
@@ -77,6 +137,21 @@ val categoryKeywordMap: Map<String, String> = mapOf(
     "meesho" to "cat_shopping",
     "nykaa" to "cat_shopping",
     "tatacliq" to "cat_shopping",
+    "croma" to "cat_shopping",
+    "reliance digital" to "cat_shopping",
+    "vijay sales" to "cat_shopping",
+    "lenskart" to "cat_shopping",
+    "titan" to "cat_shopping",
+    "tanishq" to "cat_shopping",
+    "kalyan jewellers" to "cat_shopping",
+    "westside" to "cat_shopping",
+    "zudio" to "cat_shopping",
+    "lifestyle" to "cat_shopping",
+    "pantaloons" to "cat_shopping",
+    "max fashion" to "cat_shopping",
+    "shoppers stop" to "cat_shopping",
+    "firstcry" to "cat_shopping",
+    "decathlon" to "cat_shopping",
     "shopping" to "cat_shopping",
     "mall" to "cat_shopping",
     "clothing" to "cat_shopping",
@@ -92,8 +167,33 @@ val categoryKeywordMap: Map<String, String> = mapOf(
     "mobile" to "cat_bills",
     "airtel" to "cat_bills",
     "jio" to "cat_bills",
-    "vi" to "cat_bills",
+    "jiofiber" to "cat_bills",
+    "jio fiber" to "cat_bills",
+    "vodafone" to "cat_bills",
+    "bsnl" to "cat_bills",
+    "act fibernet" to "cat_bills",
+    "act fibre" to "cat_bills",
+    "hathway" to "cat_bills",
+    "tata play fiber" to "cat_bills",
+    "bescom" to "cat_bills",
+    "tneb" to "cat_bills",
+    "msedcl" to "cat_bills",
+    "adani electricity" to "cat_bills",
+    "torrent power" to "cat_bills",
+    "mahanagar gas" to "cat_bills",
+    "igl" to "cat_bills",
+    "indane" to "cat_bills",
+    "bharat gas" to "cat_bills",
+    "hp gas" to "cat_bills",
     "bill" to "cat_bills",
+    "bill payment" to "cat_bills",
+    "lic" to "cat_bills",
+    "policybazaar" to "cat_bills",
+    "hdfc life" to "cat_bills",
+    "sbi life" to "cat_bills",
+    "icici prudential" to "cat_bills",
+    "bajaj finserv" to "cat_bills",
+    "cred" to "cat_bills",
     "rent" to "cat_bills",
     "maintenance" to "cat_bills",
 
@@ -104,15 +204,20 @@ val categoryKeywordMap: Map<String, String> = mapOf(
     "hotstar" to "cat_entertainment",
     "disney" to "cat_entertainment",
     "sony liv" to "cat_entertainment",
+    "sonyliv" to "cat_entertainment",
     "zee5" to "cat_entertainment",
     "youtube" to "cat_entertainment",
     "spotify" to "cat_entertainment",
     "gaana" to "cat_entertainment",
+    "jiocinema" to "cat_entertainment",
     "bookmyshow" to "cat_entertainment",
+    "pvr" to "cat_entertainment",
+    "inox" to "cat_entertainment",
     "movie" to "cat_entertainment",
     "cinema" to "cat_entertainment",
     "games" to "cat_entertainment",
     "playstation" to "cat_entertainment",
+    "steam" to "cat_entertainment",
 
     // Healthcare
     "hospital" to "cat_healthcare",
@@ -127,6 +232,14 @@ val categoryKeywordMap: Map<String, String> = mapOf(
     "practo" to "cat_healthcare",
     "1mg" to "cat_healthcare",
     "apollo" to "cat_healthcare",
+    "pharmeasy" to "cat_healthcare",
+    "netmeds" to "cat_healthcare",
+    "medplus" to "cat_healthcare",
+    "wellness forever" to "cat_healthcare",
+    "lal pathlabs" to "cat_healthcare",
+    "thyrocare" to "cat_healthcare",
+    "cult fit" to "cat_healthcare",
+    "cultfit" to "cat_healthcare",
 
     // Education
     "udemy" to "cat_education",
@@ -134,19 +247,21 @@ val categoryKeywordMap: Map<String, String> = mapOf(
     "unacademy" to "cat_education",
     "byju" to "cat_education",
     "vedantu" to "cat_education",
+    "physics wallah" to "cat_education",
+    "upgrad" to "cat_education",
+    "great learning" to "cat_education",
+    "duolingo" to "cat_education",
+    "khan academy" to "cat_education",
     "college" to "cat_education",
     "school" to "cat_education",
     "tuition" to "cat_education",
-    "fee" to "cat_education",
     "course" to "cat_education",
-    "book" to "cat_education",
 
-    // Salary
+    // Salary — deliberately narrow. Never map bare "credit"/"income": those
+    // words appear in ordinary card-payment SMS and misfiled them as Salary.
     "salary" to "cat_salary",
-    "credit" to "cat_salary",
     "payroll" to "cat_salary",
     "wages" to "cat_salary",
-    "income" to "cat_salary",
 
     // Subscriptions
     "subscription" to "cat_subscription",
@@ -165,26 +280,51 @@ val categoryKeywordMap: Map<String, String> = mapOf(
     "to self" to "cat_transfer"
 )
 
+/**
+ * Resolves a category for a merchant name / message fragment.
+ *
+ * 1. Curated merchant-database lookup (highest precision, normalized so noisy
+ *    SMS strings like "SWIGGY*Zomato/BLR" still hit).
+ * 2. Word-boundary keyword scan, longest key wins.
+ */
 fun getCategoryIdForKeyword(input: String): String? {
-    // First try merchant database lookup (if initialized)
+    if (input.isBlank()) return null
+
     val merchantSuggestion = MerchantRepository.suggestCategory(input)
     if (merchantSuggestion != null && merchantSuggestion.second >= 0.80f) {
-        // Map merchant category to our category IDs
-        return mapMerchantCategoryToLocal(merchantSuggestion.first)
+        mapMerchantCategoryToLocal(merchantSuggestion.first)?.let { return it }
     }
-
-    // Fall back to keyword matching
-    val lower = input.lowercase()
-    return categoryKeywordMap.entries.firstOrNull { (key, _) ->
-        lower.contains(key)
-    }?.value
+    return keywordCategoryFor(input)
 }
 
 /**
- * Map merchant database categories to local category IDs
+ * Word-boundary, longest-key-wins keyword scan over [text]. Punctuation
+ * becomes whitespace so "swiggy," still matches "swiggy" while "coffee"
+ * can never match "fee".
  */
-private fun mapMerchantCategoryToLocal(merchantCategory: String): String? {
-    return when (merchantCategory.lowercase()) {
+fun keywordCategoryFor(text: String): String? {
+    val haystack = " " +
+        text.lowercase(Locale.ENGLISH).replace(Regex("[^a-z0-9& ]+"), " ")
+            .replace(Regex("\\s+"), " ") + " "
+
+    var bestLen = -1
+    var bestId: String? = null
+    for ((key, id) in categoryKeywordMap) {
+        val k = key.lowercase(Locale.ENGLISH)
+        if (k.length > bestLen && haystack.contains(" $k ")) {
+            bestLen = k.length
+            bestId = id
+        }
+    }
+    return bestId
+}
+
+/**
+ * Maps merchant-database category names to local category IDs.
+ * Internal so tests can prove every CSV category maps somewhere.
+ */
+internal fun mapMerchantCategoryToLocal(merchantCategory: String): String? {
+    return when (merchantCategory.lowercase(Locale.ENGLISH)) {
         "food" -> "cat_food"
         "groceries" -> "cat_grocery"
         "transport" -> "cat_transport"
@@ -192,6 +332,7 @@ private fun mapMerchantCategoryToLocal(merchantCategory: String): String? {
         "entertainment" -> "cat_entertainment"
         "health & fitness" -> "cat_healthcare"
         "software" -> "cat_subscription"
+        "education" -> "cat_education"
         "utilities" -> "cat_bills"
         "travel" -> "cat_transport"
         "banking" -> "cat_bills"

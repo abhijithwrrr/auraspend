@@ -9,18 +9,40 @@ Zepto,zepto,"Groceries","Quick Commerce","zepto delivery",0.92
 BigBasket,bigbasket,"Groceries","Grocery Delivery","bigbasket order",0.90
 Amazon Fresh,amazon fresh,"Groceries","Grocery Delivery","amazon fresh",0.90
 Reliance Fresh,reliance fresh,"Groceries","Supermarket","reliance supermarket",0.88
+JioMart,jiomart,"Groceries","Supermarket","jiomart grocery",0.92
+DMart,dmart,"Groceries","Supermarket","dmart supermarket",0.92
+Nature's Basket,naturesbasket,"Groceries","Supermarket","natures basket gourmet",0.88
+MilkBasket,milkbasket,"Groceries","Daily Essentials","milkbasket milk",0.88
+Fraazo,fraazo,"Groceries","Fresh Produce","fraazo vegetables",0.85
 Starbucks,starbucks,"Food","Coffee","starbucks coffee",0.92
 Cafe Coffee Day,ccd,"Food","Coffee","cafe coffee day",0.92
 Costa Coffee,costa,"Food","Coffee","costa coffee",0.92
+Chaayos,chaayos,"Food","Cafe","chaayos tea cafe",0.90
+Chai Point,chaipoint,"Food","Cafe","chai point tea",0.90
+Third Wave Coffee,thirdwavecoffee,"Food","Cafe","third wave coffee",0.90
 McDonald's,mcdonalds,"Food","Restaurant","mcdonalds food",0.90
 Burger King,burger king,"Food","Restaurant","burger king",0.90
 Subway,subway,"Food","Restaurant","subway sandwich",0.88
+KFC,kfc,"Food","Restaurant","kfc restaurant",0.92
 Domino's,dominos,"Food","Restaurant","dominos pizza",0.92
 Pizza Hut,pizza hut,"Food","Restaurant","pizza hut",0.90
+Barbeque Nation,barbequenation,"Food","Restaurant","barbeque nation dining",0.90
+Haldiram's,haldiram,"Food","Restaurant","haldiram sweets restaurant",0.90
+Bikanervala,bikanervala,"Food","Restaurant","bikanervala sweets",0.90
+Wow! Momo,wowmomo,"Food","Restaurant","wow momo restaurant",0.90
+Behrouz Biryani,behrouz,"Food","Restaurant","behrouz biryani",0.90
+Faasos,faasos,"Food","Restaurant","faasos wraps",0.90
+Oven Story,ovenstory,"Food","Restaurant","oven story pizza",0.90
+FreshMenu,freshmenu,"Food","Food Delivery","freshmenu order",0.88
+Box8,box8,"Food","Restaurant","box8 meals",0.88
+EatSure,eatsure,"Food","Food Delivery","eatsure order",0.88
 Taj Hotels,taj hotel,"Travel","Hotel","taj hotel group",0.92
 OYO Rooms,oyo,"Travel","Hotel","oyo rooms booking",0.92
+Treebo,treebo,"Travel","Hotel","treebo hotel booking",0.88
+FabHotels,fabhotels,"Travel","Hotel","fabhotels hotel booking",0.88
+Ginger Hotels,ginger,"Travel","Hotel","ginger hotel booking",0.85
 Airbnb,airbnb,"Travel","Accommodation","airbnb booking",0.90
-Booking.com,booking,"Travel","Accommodation","booking.com hotel",0.90
+Booking.com,booking,"Travel","Accommodation","booking hotel",0.90
 MakeMyTrip,makemytrip,"Travel","Flight/Hotel","makemytrip booking",0.92
 Cleartrip,cleartrip,"Travel","Flight/Hotel","cleartrip booking",0.92
 Yatra.com,yatra,"Travel","Flight/Hotel","yatra booking",0.90
@@ -28,7 +50,12 @@ SpiceJet,spicejet,"Travel","Flight","spicejet airline",0.95
 IndiGo,indigo,"Travel","Flight","indigo airline",0.95
 Air India,air india,"Travel","Flight","air india airline",0.95
 Vistara,vistara,"Travel","Flight","vistara airline",0.95
-GoAir,goair,"Travel","Flight","go air airline",0.95
+Go First,goair,"Travel","Flight","goair airline",0.90
+AirAsia,airasia,"Travel","Flight","airasia airline",0.92
+Akasa Air,akasa,"Travel","Flight","akasa airline",0.92
+IRCTC,irctc,"Travel","Train Ticket","irctc railway booking",0.95
+Redbus,redbus,"Travel","Bus Ticket","redbus booking",0.92
+AbhiBus,abhibus,"Travel","Bus Ticket","abhibus booking",0.90
 Uber,uber,"Transport","Cab Service","uber ride booking",0.95
 Ola,ola,"Transport","Cab Service","ola ride booking",0.95
 Rapido,rapido,"Transport","Cab Service","rapido bike taxi",0.92
@@ -40,7 +67,13 @@ Shell,shell,"Transport","Auto Fuel","shell fuel station",0.92
 Reliance Petrol,reliance jio fuel,"Transport","Auto Fuel","reliance fuel",0.90
 Mumbai Metro,metro rail,"Transport","Public Transit","metro card recharge",0.95
 Delhi Metro,dmrc,"Transport","Public Transit","metro card",0.95
+NHAI FASTag,fastag,"Transport","Toll","fastag toll nhai",0.95
 Ola Auto,ola auto,"Transport","Auto Rickshaw","ola auto ride",0.92
+Porter,porter,"Transport","Logistics","porter logistics",0.88
+DriveU,driveu,"Transport","Driver Service","driveu driver",0.88
+Zoomcar,zoomcar,"Transport","Car Rental","zoomcar self drive",0.88
+Revv,revv,"Transport","Car Rental","revv rental car",0.85
+Yulu,yulu,"Transport","Micro Mobility","yulu bike rental",0.85
 Spotify,spotify,"Entertainment","Music Streaming","spotify subscription",0.98
 Apple Music,apple music,"Entertainment","Music Streaming","apple music",0.98
 Amazon Prime Music,prime music,"Entertainment","Music Streaming","prime music",0.90
@@ -48,83 +81,8 @@ Wynk,wynk music,"Entertainment","Music Streaming","wynk music",0.88
 Netflix,netflix,"Entertainment","Streaming Video","netflix subscription",0.98
 Amazon Prime Video,prime video,"Entertainment","Streaming Video","prime video",0.95
 Disney+,disney hotstar,"Entertainment","Streaming Video","disney hotstar",0.95
-SonyLIV,sonyLIV,"Entertainment","Streaming Video","sonylix streaming",0.92
+SonyLIV,sonyliv,"Entertainment","Streaming Video","sonyliv streaming",0.92
 YouTube Premium,youtube,"Entertainment","Streaming Video","youtube premium",0.95
-Adobe Creative Cloud,adobe,"Software","Subscription","adobe cloud",0.95
-Microsoft Office 365,microsoft,"Software","Subscription","microsoft office",0.95
-Google Drive,google,"Software","Subscription","google one storage",0.90
-Dropbox,dropbox,"Software","Subscription","dropbox storage",0.92
-Notion,notion,"Software","Subscription","notion workspace",0.90
-Slack,slack,"Software","Subscription","slack workspace",0.92
-Figma,figma,"Software","Subscription","figma design",0.92
-Canva,canva,"Software","Subscription","canva pro",0.92
-Gym Name,gym,"Health & Fitness","Gym Membership","gym membership",0.88
-Cult Fit,cultfit,"Health & Fitness","Gym Membership","cultfit training",0.92
-Gold's Gym,goldsgym,"Health & Fitness","Gym Membership","golds gym",0.92
-Fittr,fittr,"Health & Fitness","Fitness App","fittr training",0.90
-Apollo Pharmacy,apollo,"Health & Fitness","Pharmacy","apollo pharmacy",0.92
-CVS Pharmacy,cvs,"Health & Fitness","Pharmacy","cvs pharmacy",0.90
-Medlife,medlife,"Health & Fitness","Pharmacy","medlife medicines",0.90
-Practo,practo,"Health & Fitness","Doctor Consultation","practo appointment",0.92
-Lybrate,lybrate,"Health & Fitness","Doctor Consultation","lybrate doctor",0.92
-1mg,onemg,"Health & Fitness","Pharmacy","1mg medicines",0.92
-Flipkart,flipkart,"Shopping","E-commerce","flipkart shopping",0.92
-Amazon Shopping,amazon,"Shopping","E-commerce","amazon order",0.92
-Myntra,myntra,"Shopping","Fashion E-commerce","myntra clothing",0.92
-Nykaa,nykaa,"Shopping","Beauty E-commerce","nykaa beauty",0.92
-Decathlon,decathlon,"Shopping","Sports Retail","decathlon sports",0.92
-Uniqlo,uniqlo,"Shopping","Fashion Retail","uniqlo clothing",0.92
-H&M,hm,"Shopping","Fashion Retail","h&m fashion",0.92
-Forever 21,forever 21,"Shopping","Fashion Retail","forever 21 clothing",0.90
-Zara,zara,"Shopping","Fashion Retail","zara clothing",0.92
-Shoppers Stop,shoppers stop,"Shopping","Fashion Retail","shoppers stop mall",0.90
-Central,central,"Shopping","Fashion Retail","central department store",0.88
-Big Bazaar,bigbazaar,"Shopping","Retail","big bazaar supermarket",0.92
-Spencer's,spencers,"Shopping","Retail","spencers supermarket",0.90
-Metro Cash Carry,metro cash,"Shopping","Wholesale","metro cash wholesale",0.90
-Dunzo Daily,dunzo,"Shopping","Quick Commerce","dunzo daily",0.88
-HDFC Bank,hdfc,"Banking","Bank","hdfc bank",0.95
-ICICI Bank,icici,"Banking","Bank","icici bank",0.95
-SBI,sbi,"Banking","Bank","sbi bank",0.95
-Axis Bank,axis,"Banking","Bank","axis bank",0.95
-Kotak Bank,kotak,"Banking","Bank","kotak bank",0.95
-YES Bank,yes,"Banking","Bank","yes bank",0.95
-IDBI,idbi,"Banking","Bank","idbi bank",0.95
-Visa,visa,"Banking","Card Payment","visa payment",0.92
-Mastercard,mastercard,"Banking","Card Payment","mastercard payment",0.92
-American Express,amex,"Banking","Card Payment","amex payment",0.92
-Diners,diners,"Banking","Card Payment","diners payment",0.90
-RupayCard,rupay,"Banking","Card Payment","rupay card",0.92
-Google Pay,gpay,"Banking","Digital Wallet","google pay",0.95
-PhonePe,phonepe,"Banking","Digital Wallet","phonepe wallet",0.95
-Paytm,paytm,"Banking","Digital Wallet","paytm wallet",0.95
-Amazon Pay,amazon pay,"Banking","Digital Wallet","amazon pay",0.93
-Apple Pay,applepay,"Banking","Digital Wallet","apple pay",0.95
-WhatsApp Pay,whatsappay,"Banking","Digital Wallet","whatsapp payment",0.92
-UPI Transfer,upi,"Banking","Bank Transfer","upi transfer",0.90
-IRCTC,irctc,"Travel","Train Ticket","irctc railway booking",0.95
-Redbus,redbus,"Travel","Bus Ticket","redbus booking",0.92
-AbhiBus,abhibus,"Travel","Bus Ticket","abhibus booking",0.90
-FirstCry,firstcry,"Shopping","Baby & Kids","firstcry shopping",0.90
-Mothercare,mothercare,"Shopping","Baby & Kids","mothercare baby",0.88
-FBB,forever beauty,"Shopping","Beauty Retail","fbb beauty store",0.88
-Tanishq,tanishq,"Shopping","Jewelry","tanishq gold",0.92
-Malabar Gold,malabar,"Shopping","Jewelry","malabar gold",0.92
-CaratLane,caratLane,"Shopping","Jewelry","caratLane jewelry",0.92
-CRED,cred,"Finance","Credit Card App","cred rewards",0.92
-PayU,payu,"Finance","Payment Gateway","payu payment",0.90
-Razorpay,razorpay,"Finance","Payment Gateway","razorpay payment",0.90
-InstaMojo,instamojo,"Finance","Payment Gateway","instamojo payment",0.88
-GoDaddy,godaddy,"Software","Domain/Hosting","godaddy hosting",0.92
-Bluehost,bluehost,"Software","Domain/Hosting","bluehost hosting",0.90
-AWS,amazon web services,"Software","Cloud Services","aws cloud",0.95
-Google Cloud,gcp,"Software","Cloud Services","google cloud",0.95
-Microsoft Azure,azure,"Software","Cloud Services","azure cloud",0.95
-Digitalocean,digitalocean,"Software","Cloud Services","digitalocean server",0.92
-Heroku,heroku,"Software","Cloud Services","heroku dyno",0.92
-Vercel,vercel,"Software","Cloud Services","vercel deployment",0.92
-Netlify,netlify,"Software","Cloud Services","netlify hosting",0.92
-Railway,railway,"Software","Cloud Services","railway deploy",0.88
 JioCinema,jiocinema,"Entertainment","Streaming Video","jio cinema",0.92
 ALT Balaji,altbalaji,"Entertainment","Streaming Video","alt balaji",0.90
 Voot,voot,"Entertainment","Streaming Video","voot streaming",0.90
@@ -132,35 +90,87 @@ MX Player,mxplayer,"Entertainment","Streaming Video","mx player",0.90
 Eros Now,erosnow,"Entertainment","Streaming Video","eros now",0.88
 MUBI,mubi,"Entertainment","Streaming Video","mubi films",0.88
 Crunchyroll,crunchyroll,"Entertainment","Streaming Anime","crunchyroll anime",0.92
-WeChat,wechat,"Utilities","Messaging","wechat app",0.90
-Telegram,telegram,"Utilities","Messaging","telegram app",0.90
-Signal,signal,"Utilities","Messaging","signal app",0.88
-Viber,viber,"Utilities","Messaging","viber app",0.88
-Airtel,airtel,"Utilities","Mobile Recharge","airtel mobile",0.95
-Jio,jio reliance,"Utilities","Mobile Recharge","jio mobile",0.95
-Vodafone,vodafone,"Utilities","Mobile Recharge","vodafone mobile",0.95
-BSNL,bsnl,"Utilities","Mobile Recharge","bsnl mobile",0.92
-Electricity Board,power bill,"Utilities","Electricity Bill","electricity bill payment",0.92
-Water Board,water bill,"Utilities","Water Bill","water bill payment",0.92
-Gas Connection,gas bill,"Utilities","Gas Bill","gas bill payment",0.92
-Broadband Provider,internet bill,"Utilities","Internet Bill","broadband bill",0.88
-Idea,idea cellular,"Utilities","Mobile Recharge","idea mobile",0.92
-Tata Sky,tatasky,"Utilities","DTH/TV","tatasky subscription",0.92
-Dish TV,dishtv,"Utilities","DTH/TV","dishtv subscription",0.92
-Sun Direct,sundirect,"Utilities","DTH/TV","sun direct",0.90
-Housing.com,housing,"Real Estate","Property Portal","housing rental",0.90
-99acres,99acres,"Real Estate","Property Portal","99acres property",0.88
-Sulekha,sulekha,"Services","General Services","sulekha services",0.88
-JustDial,justdial,"Services","General Services","justdial",0.88
-SafeExpress,safeexpress,"Services","Courier","safeexpress delivery",0.90
-DHL,dhl,"Services","Courier","dhl courier",0.92
-FedEx,fedex,"Services","Courier","fedex shipping",0.92
-Ecom Express,ecomexpress,"Services","Courier","ecom express",0.88
-Delhivery,delhivery,"Services","Courier","delhivery shipping",0.92
-Rivigo,rivigo,"Services","Courier","rivigo logistics",0.88
+PVR Cinemas,pvr,"Entertainment","Cinema","pvr cinemas tickets",0.92
+INOX,inox,"Entertainment","Cinema","inox cinema tickets",0.90
+Cinepolis,cinepolis,"Entertainment","Cinema","cinepolis cinema",0.88
+BookMyShow,bookmyshow,"Entertainment","Ticketing","bookmyshow tickets",0.92
+Steam,steam,"Entertainment","Gaming","steam games",0.85
+Adobe Creative Cloud,adobe,"Software","Subscription","adobe cloud",0.95
+Microsoft Office 365,microsoft,"Software","Subscription","microsoft office",0.95
+Google One,googleone,"Software","Subscription","google one storage",0.90
+Dropbox,dropbox,"Software","Subscription","dropbox storage",0.92
+Notion,notion,"Software","Subscription","notion workspace",0.90
+Slack,slack,"Software","Subscription","slack workspace",0.92
+Figma,figma,"Software","Subscription","figma design",0.92
+Canva,canva,"Software","Subscription","canva pro",0.92
+GoDaddy,godaddy,"Software","Domain/Hosting","godaddy hosting",0.92
+Bluehost,bluehost,"Software","Domain/Hosting","bluehost hosting",0.90
+AWS,amazon web services,"Software","Cloud Services","aws cloud",0.95
+Google Cloud,gcp,"Software","Cloud Services","google cloud",0.95
+Microsoft Azure,azure,"Software","Cloud Services","azure cloud",0.95
+DigitalOcean,digitalocean,"Software","Cloud Services","digitalocean server",0.92
+Heroku,heroku,"Software","Cloud Services","heroku dyno",0.92
+Vercel,vercel,"Software","Cloud Services","vercel deployment",0.92
+Netlify,netlify,"Software","Cloud Services","netlify hosting",0.92
+Anytime Fitness,anytimefitness,"Health & Fitness","Gym Membership","anytime fitness gym",0.88
+Gym Membership,gym,"Health & Fitness","Gym Membership","gym membership",0.85
+Cult Fit,cultfit,"Health & Fitness","Gym Membership","cultfit training",0.92
+Gold's Gym,goldsgym,"Health & Fitness","Gym Membership","golds gym",0.92
+Fittr,fittr,"Health & Fitness","Fitness App","fittr training",0.90
+Apollo Pharmacy,apollo,"Health & Fitness","Pharmacy","apollo pharmacy",0.92
+PharmEasy,pharmeasy,"Health & Fitness","Pharmacy","pharmeasy medicines",0.92
+Netmeds,netmeds,"Health & Fitness","Pharmacy","netmeds medicines",0.92
+MedPlus,medplus,"Health & Fitness","Pharmacy","medplus pharmacy",0.90
+Wellness Forever,wellnessforever,"Health & Fitness","Pharmacy","wellness forever pharmacy",0.88
+Practo,practo,"Health & Fitness","Doctor Consultation","practo appointment",0.92
+Lybrate,lybrate,"Health & Fitness","Doctor Consultation","lybrate doctor",0.92
+1mg,onemg,"Health & Fitness","Pharmacy","1mg medicines",0.92
+Dr Lal PathLabs,lalpathlabs,"Health & Fitness","Diagnostics","lal pathlabs tests",0.92
+Thyrocare,thyrocare,"Health & Fitness","Diagnostics","thyrocare tests",0.90
+Fortis,fortis,"Health & Fitness","Hospital","fortis hospital",0.88
+Manipal Hospitals,manipal,"Health & Fitness","Hospital","manipal hospital",0.88
+Flipkart,flipkart,"Shopping","E-commerce","flipkart shopping",0.92
+Amazon Shopping,amazon,"Shopping","E-commerce","amazon order",0.92
+Myntra,myntra,"Shopping","Fashion E-commerce","myntra clothing",0.92
+Nykaa,nykaa,"Shopping","Beauty E-commerce","nykaa beauty",0.92
+Ajio,ajio,"Shopping","Fashion E-commerce","ajio fashion shopping",0.92
+Meesho,meesho,"Shopping","E-commerce","meesho order",0.92
+Tata CLiQ,tatacliq,"Shopping","E-commerce","tatacliq shopping",0.90
+Decathlon,decathlon,"Shopping","Sports Retail","decathlon sports",0.92
+Uniqlo,uniqlo,"Shopping","Fashion Retail","uniqlo clothing",0.92
+H&M,hm,"Shopping","Fashion Retail","hm fashion",0.92
+Forever 21,forever21,"Shopping","Fashion Retail","forever21 clothing",0.90
+Zara,zara,"Shopping","Fashion Retail","zara clothing",0.92
+Shoppers Stop,shoppersstop,"Shopping","Fashion Retail","shoppers stop",0.90
+Westside,westside,"Shopping","Fashion Retail","westside fashion",0.90
+Zudio,zudio,"Shopping","Fashion Retail","zudio fashion",0.90
+Lifestyle,lifestyle,"Shopping","Fashion Retail","lifestyle fashion",0.88
+Pantaloons,pantaloons,"Shopping","Fashion Retail","pantaloons fashion",0.90
+Max Fashion,maxfashion,"Shopping","Fashion Retail","max fashion clothing",0.90
+Reliance Trends,reliancetrends,"Shopping","Fashion Retail","reliance trends clothing",0.90
+Big Bazaar,bigbazaar,"Shopping","Retail","big bazaar supermarket",0.92
+Spencer's,spencers,"Shopping","Retail","spencers supermarket",0.90
+Metro Cash Carry,metro cash,"Shopping","Wholesale","metro cash wholesale",0.90
 Lulu Hypermarket,lulu,"Shopping","Hypermarket","lulu mall supermarket",0.90
-Carrefour,carrefour,"Shopping","Hypermarket","carrefour supermarket",0.88
-Marks & Spencer,marksandspencer,"Shopping","Fashion Retail","m&s clothing",0.92
+FirstCry,firstcry,"Shopping","Baby & Kids","firstcry shopping",0.90
+Mothercare,mothercare,"Shopping","Baby & Kids","mothercare baby",0.88
+Tanishq,tanishq,"Shopping","Jewelry","tanishq gold",0.92
+Malabar Gold,malabar,"Shopping","Jewelry","malabar gold",0.92
+CaratLane,caratlane,"Shopping","Jewelry","caratlane jewelry",0.92
+Kalyan Jewellers,kalyan,"Shopping","Jewelry","kalyan jewellers",0.92
+Lenskart,lenskart,"Shopping","Eyewear","lenskart glasses",0.92
+Titan,titan,"Shopping","Watches","titan watches",0.90
+Pepperfry,pepperfry,"Shopping","Furniture","pepperfry furniture",0.90
+Urban Ladder,urbanladder,"Shopping","Furniture","urban ladder furniture",0.90
+IKEA,ikea,"Shopping","Furniture","ikea furniture",0.90
+Wakefit,wakefit,"Shopping","Furniture","wakefit mattress",0.88
+Croma,croma,"Shopping","Electronics","croma electronics",0.92
+Reliance Digital,reliancedigital,"Shopping","Electronics","reliance digital electronics",0.92
+Vijay Sales,vijaysales,"Shopping","Electronics","vijay sales electronics",0.92
+Sephora,sephora,"Shopping","Beauty Retail","sephora makeup",0.92
+Lakme,lakme,"Shopping","Beauty Retail","lakme beauty",0.90
+L'Oreal,loreal,"Shopping","Beauty Retail","loreal beauty",0.88
+Marks & Spencer,marksandspencer,"Shopping","Fashion Retail","marks spencer clothing",0.92
 Ralph Lauren,ralphlauren,"Shopping","Fashion Retail","ralph lauren",0.90
 Tommy Hilfiger,tommyhilfiger,"Shopping","Fashion Retail","tommy hilfiger",0.90
 Calvin Klein,calvinklein,"Shopping","Fashion Retail","calvin klein",0.90
@@ -170,16 +180,9 @@ Adidas,adidas,"Shopping","Sports Retail","adidas sports",0.95
 Reebok,reebok,"Shopping","Sports Retail","reebok shoes",0.92
 New Balance,newbalance,"Shopping","Sports Retail","new balance",0.90
 Skechers,skechers,"Shopping","Sports Retail","skechers shoes",0.90
-Sephora,sephora,"Shopping","Beauty Retail","sephora makeup",0.92
-Nykaa Beauty,nykaabeauty,"Shopping","Beauty Retail","nykaa beauty store",0.92
-MAC,mac,"Shopping","Beauty Retail","mac cosmetics",0.92
-Bobbi Brown,bobibrown,"Shopping","Beauty Retail","bobbi brown",0.90
-Lakme,lakme,"Shopping","Beauty Retail","lakme store",0.90
-L'Oreal,loreal,"Shopping","Beauty Retail","loreal products",0.88
 Philips,philips,"Shopping","Electronics","philips appliances",0.90
 Sony,sony,"Shopping","Electronics","sony electronics",0.90
 Samsung,samsung,"Shopping","Electronics","samsung devices",0.95
-LG,lg,"Shopping","Electronics","lg appliances",0.90
 OnePlus,oneplus,"Shopping","Electronics","oneplus mobile",0.92
 Realme,realme,"Shopping","Electronics","realme phone",0.92
 Xiaomi,xiaomi,"Shopping","Electronics","xiaomi devices",0.92
@@ -187,7 +190,68 @@ Vivo,vivo,"Shopping","Electronics","vivo mobile",0.92
 Oppo,oppo,"Shopping","Electronics","oppo phone",0.92
 Apple,apple,"Shopping","Electronics","apple store",0.95
 Dell,dell,"Shopping","Electronics","dell laptop",0.92
-Lenovo,lenovo,"Shopping","Electronics","lenovo computer",0.92
+Lenovo,lenovo,"Shopping","Electronics","lenovo laptop",0.92
 Asus,asus,"Shopping","Electronics","asus laptop",0.90
-HP,hewlett,"Shopping","Electronics","hp computer",0.90
 Acer,acer,"Shopping","Electronics","acer laptop",0.88
+HDFC Bank,hdfc,"Banking","Bank","hdfc bank",0.95
+ICICI Bank,icici,"Banking","Bank","icici bank",0.95
+SBI,sbi,"Banking","Bank","sbi bank",0.95
+Axis Bank,axis,"Banking","Bank","axis bank",0.95
+Kotak Bank,kotak,"Banking","Bank","kotak bank",0.95
+YES Bank,yesbank,"Banking","Bank","yes bank",0.95
+IDBI,idbi,"Banking","Bank","idbi bank",0.95
+Airtel,airtel,"Utilities","Mobile Recharge","airtel mobile",0.95
+Jio,jio reliance,"Utilities","Mobile Recharge","jio mobile",0.95
+Vodafone,vodafone,"Utilities","Mobile Recharge","vodafone mobile",0.95
+BSNL,bsnl,"Utilities","Mobile Recharge","bsnl mobile",0.92
+Tata Play,tataplay,"Utilities","DTH/TV","tataplay dth",0.90
+Tata Sky,tatasky,"Utilities","DTH/TV","tatasky subscription",0.92
+Dish TV,dishtv,"Utilities","DTH/TV","dishtv subscription",0.92
+Sun Direct,sundirect,"Utilities","DTH/TV","sun direct",0.90
+ACT Fibernet,actfibernet,"Utilities","Broadband","act fibernet broadband",0.92
+Hathway,hathway,"Utilities","Broadband","hathway broadband",0.90
+Tata Play Fiber,tataplayfiber,"Utilities","Broadband","tata play fiber broadband",0.90
+JioFiber,jiofiber,"Utilities","Broadband","jiofiber broadband",0.92
+BESCOM,bescom,"Utilities","Electricity Bill","bescom electricity",0.92
+TNEB,tneb,"Utilities","Electricity Bill","tneb electricity",0.92
+MSEDCL,msedcl,"Utilities","Electricity Bill","msedcl electricity",0.92
+Adani Electricity,adanielectricity,"Utilities","Electricity Bill","adani electricity",0.92
+Torrent Power,torrentpower,"Utilities","Electricity Bill","torrent power",0.90
+Mahanagar Gas,mahanagargas,"Utilities","Gas Bill","mahanagar gas",0.90
+Indane,indane,"Utilities","Gas Bill","indane gas booking",0.90
+Bharat Gas,bharatgas,"Utilities","Gas Bill","bharatgas booking",0.90
+HP Gas,hpgas,"Utilities","Gas Bill","hp gas booking",0.90
+Electricity Board,power bill,"Utilities","Electricity Bill","electricity bill payment",0.92
+Water Board,water bill,"Utilities","Water Bill","water bill payment",0.92
+Gas Connection,gas bill,"Utilities","Gas Bill","gas bill payment",0.92
+Broadband Provider,internet bill,"Utilities","Internet Bill","broadband bill",0.88
+CRED,cred,"Finance","Credit Card Bill","cred credit card",0.92
+LIC India,lic,"Finance","Insurance","lic premium",0.90
+PolicyBazaar,policybazaar,"Finance","Insurance","policybazaar insurance",0.90
+HDFC Life,hdfclife,"Finance","Insurance","hdfc life premium",0.90
+SBI Life,sbilife,"Finance","Insurance","sbi life premium",0.90
+ICICI Prudential,icicipru,"Finance","Insurance","icici prudential premium",0.90
+Bajaj Finserv,bajajfinserv,"Finance","EMI/Loan","bajaj finserv emi",0.90
+PayU,payu,"Finance","Payment Gateway","payu gateway",0.90
+Razorpay,razorpay,"Finance","Payment Gateway","razorpay gateway",0.90
+InstaMojo,instamojo,"Finance","Payment Gateway","instamojo gateway",0.88
+Housing.com,housing,"Real Estate","Property Portal","housing rental",0.90
+99acres,99acres,"Real Estate","Property Portal","99acres property",0.88
+Urban Company,urbancompany,"Services","Home Services","urban company home",0.90
+UrbanClap,urbanclap,"Services","Home Services","urbanclap home",0.88
+NoBroker,nobroker,"Services","Property Services","nobroker property",0.88
+Sulekha,sulekha,"Services","General Services","sulekha services",0.88
+JustDial,justdial,"Services","General Services","justdial services",0.88
+SafeExpress,safeexpress,"Services","Courier","safeexpress delivery",0.90
+DHL,dhl,"Services","Courier","dhl courier",0.92
+FedEx,fedex,"Services","Courier","fedex courier",0.92
+Ecom Express,ecomexpress,"Services","Courier","ecom express",0.88
+Delhivery,delhivery,"Services","Courier","delhivery courier",0.92
+Physics Wallah,physicswallah,"Education","EdTech","physics wallah courses",0.92
+upGrad,upgrad,"Education","EdTech","upgrad courses",0.90
+Great Learning,greatlearning,"Education","EdTech","great learning courses",0.90
+Duolingo,duolingo,"Education","EdTech","duolingo courses",0.88
+WeChat,wechat,"Utilities","Messaging","wechat app",0.90
+Telegram,telegram,"Utilities","Messaging","telegram app",0.90
+Signal,signal,"Utilities","Messaging","signal app",0.88
+Viber,viber,"Utilities","Messaging","viber app",0.88

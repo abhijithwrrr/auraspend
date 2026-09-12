@@ -16,8 +16,11 @@ Apache-2.0, open source.
 `docs/handoffs/0006-backlog-completion.md`. Recent: Paging 3 on Activity,
 baseline profile (8,932 rules, generated on-device) + Macrobenchmark module,
 Hindi locale (344 entries), ADRs 0001–0007, committed screenshot baselines
-with a CI drift gate, Smart Add wizard + swipe triage. Remaining nice-to-haves:
-physical-device benchmark numbers, full 200% font-scale sweep, more locales.
+with a CI drift gate, Smart Add wizard + swipe triage. Classification
+accuracy pass: `docs/handoffs/0007-classification-accuracy.md` (word-boundary
+keywords, noise-tolerant merchant KB). Remaining nice-to-haves:
+physical-device benchmark numbers, full 200% font-scale sweep, more locales,
+a golden-set classification eval script.
 Do not start new work without reading the latest handoff.
 
 ## Module map

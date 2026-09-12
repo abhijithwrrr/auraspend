@@ -465,22 +465,8 @@ object BankMessageParser {
         return null
     }
 
-    /** Word-boundary keyword scan across the whole message. */
-    private fun messageKeywordCategory(message: String): String? {
-        // Punctuation becomes whitespace so "swiggy," still matches "swiggy".
-        val haystack = " " +
-            message.lowercase(Locale.ENGLISH).replace(Regex("[^a-z0-9& ]+"), " ")
-                .replace(Regex("\\s+"), " ") + " "
-
-        var bestLen = -1
-        var bestId: String? = null
-        for ((key, id) in categoryKeywordMap) {
-            if (haystack.contains(" ${key.lowercase(Locale.ENGLISH)} ") && key.length > bestLen) {
-                bestLen = key.length
-                bestId = id
-            }
-        }
-        return bestId
-    }
+    /** Word-boundary keyword scan across the whole message (shared logic). */
+    private fun messageKeywordCategory(message: String): String? =
+        keywordCategoryFor(message)
 }
 
