@@ -5,6 +5,7 @@ import com.awbuilds.auraspend.data.local.entities.SmsMessageEntity
 import com.awbuilds.auraspend.data.local.entities.SmsMessageStatus
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
 import com.awbuilds.auraspend.ui.classification.SmsInfo
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.yield
 
@@ -34,12 +35,97 @@ data class SmsProcessResult(
 class SmsPipelineProcessor(
     private val dao: SmsMessageDao,
     private val transactionRepository: TransactionRepository,
-    private val enrich: (ClassifiedSms, Map<String, String>) -> ClassifiedSms = { c, _ -> c },
+    private val enrich: suspend (ClassifiedSms, Map<String, String>) -> ClassifiedSms = { c, _ -> c },
     private val categoryResolver: (String?) -> String? = { merchant ->
         merchant?.let { getCategoryIdForKeyword(it) }
     },
-    private val maxAttempts: Int = 3
+    /** Called after a successful save so the classification memory can learn the mapping. */
+    private val onSaved: suspend (transaction: com.awbuilds.auraspend.domain.model.Transaction) -> Unit = {},
+    private val maxAttempts: Int = 3,
+    /**
+     * Pause between messages so a long background batch never saturates the CPU
+     * for minutes straight — the phone stays responsive while the queue drains.
+     */
+    private val interMessageDelayMs: Long = 0L
 ) {
+
+    private companion object {
+        /** Bodies shorter than this are too generic for exact-content matching. */
+        const val MIN_BODY_FOR_EXACT_MATCH = 20
+
+        /** How far back (and slightly forward) of the candidate's own date to look. */
+        const val DUPLICATE_WINDOW_MS = 72L * 60 * 60 * 1000
+        const val DUPLICATE_WINDOW_AFTER_MS = 6L * 60 * 60 * 1000
+
+        /** Same amount + same type within this many minutes = same event, two senders. */
+        const val FINGERPRINT_WINDOW_MINUTES = 120L
+
+        /**
+         * High precision on purpose: auto-skipping a real payment is worse than letting a
+         * rare duplicate through.
+         */
+        const val DUPLICATE_SIMILARITY_THRESHOLD = 0.96f
+    }
+
+    /**
+     * Layer 1 — identical normalized body already produced a SAVED transaction.
+     * Layer 2 — fingerprint: same amount + same type within ±2h is the same real-world
+     *   event announced twice (bank SMS + biller SMS), unless both sides carry clearly
+     *   DIFFERENT merchants (two distinct equal-amount payments).
+     * Layer 3 — near-identical transaction per [DuplicateDetector].
+     *
+     * The comparison window is centred on the CANDIDATE'S OWN DATE, because historical
+     * messages are often processed weeks after they arrived. Skipped rows stay in the
+     * queue, so a wrongly-caught real payment remains re-saveable from Smart Add.
+     */
+    private suspend fun isSemanticDuplicate(
+        message: SmsMessageEntity,
+        transaction: com.awbuilds.auraspend.domain.model.Transaction
+    ): Boolean {
+        val normalized = normalizeBody(message.body)
+        if (normalized.length >= MIN_BODY_FOR_EXACT_MATCH) {
+            val alreadySaved = dao.observeAll().first().any {
+                it.status == SmsMessageStatus.SAVED.name &&
+                    it.id != message.id &&
+                    normalizeBody(it.body) == normalized
+            }
+            if (alreadySaved) return true
+        }
+
+        val txnMillis = transaction.date
+            .atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val recent = transactionRepository.getTransactionsInRange(
+            txnMillis - DUPLICATE_WINDOW_MS, txnMillis + DUPLICATE_WINDOW_AFTER_MS
+        ).first()
+
+        val fingerprintDuplicate = recent.any { other ->
+            val minutesApart = kotlin.math.abs(
+                java.time.Duration.between(other.date, transaction.date).toMinutes()
+            )
+            other.type == transaction.type &&
+                kotlin.math.abs(other.amount - transaction.amount) < 0.01 &&
+                minutesApart <= FINGERPRINT_WINDOW_MINUTES &&
+                merchantsCompatible(other.merchant, transaction.merchant)
+        }
+        if (fingerprintDuplicate) return true
+
+        val sameTypeRecent = recent.filter { it.type == transaction.type }
+        return DuplicateDetector.findMostLikelyDuplicate(
+            transaction,
+            sameTypeRecent,
+            threshold = DUPLICATE_SIMILARITY_THRESHOLD
+        ) != null
+    }
+
+    /** Two payments are indistinguishable when at least one side has no merchant name. */
+    private fun merchantsCompatible(a: String?, b: String?): Boolean = when {
+        a.isNullOrBlank() || b.isNullOrBlank() -> true
+        a.trim().equals(b.trim(), ignoreCase = true) -> true
+        else -> DuplicateDetector.textSimilarity(a, b) >= 0.5f
+    }
+
+    private fun normalizeBody(body: String): String =
+        body.replace(Regex("\\s+"), " ").trim().lowercase()
 
     private enum class Outcome { SAVED, SKIPPED, FAILED, RETRY }
 
@@ -52,9 +138,10 @@ class SmsPipelineProcessor(
         val categories = transactionRepository.getAllCategories().first()
             .associate { it.id to it.name }
 
-        repeat(maxMessages) {
+        repeat(maxMessages) { index ->
             val message = dao.getPending(SmsMessageStatus.NEW.name, 1).firstOrNull()
                 ?: return SmsProcessResult(saved, skipped, failed, attempted)
+            if (index > 0 && interMessageDelayMs > 0L) delay(interMessageDelayMs)
             attempted++
             when (processOne(message, categories)) {
                 Outcome.SAVED -> saved++
@@ -104,8 +191,21 @@ class SmsPipelineProcessor(
             ?: categoryResolver(enriched.parsed.merchant)
         val transaction = SmsAutoClassifier.toTransaction(enriched, categoryId)
 
+        // Semantic-duplicate guard: banks/wallets often deliver the SAME payment as several
+        // distinct SMS (provider retries, app + bank notifications). The sourceSmsId unique
+        // index only stops the identical message id — this catches identical content and
+        // near-identical transactions before they inflate totals.
+        if (isSemanticDuplicate(message, transaction)) {
+            dao.update(message.copy(
+                status = SmsMessageStatus.SKIPPED.name,
+                updatedAt = now
+            ))
+            return Outcome.SKIPPED
+        }
+
         return try {
             transactionRepository.saveTransaction(transaction)
+            onSaved(transaction)
             dao.update(message.copy(
                 status = SmsMessageStatus.SAVED.name,
                 amount = transaction.amount,

@@ -1,9 +1,15 @@
 package com.awbuilds.auraspend
 
 import android.app.Application
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.awbuilds.auraspend.data.classification.AutoClassificationWorker
 import com.awbuilds.auraspend.data.ai.LocalLlmProvider
 import com.awbuilds.auraspend.data.ai.ModelDownloadManager
+import com.awbuilds.auraspend.data.classification.BackgroundClassificationCoordinator
+import com.awbuilds.auraspend.data.classification.ClassificationMemory
+import com.awbuilds.auraspend.data.privacy.PrivacyBackfill
 import com.awbuilds.auraspend.data.classification.defaultCategories
 import com.awbuilds.auraspend.data.classification.MerchantRepository
 import com.awbuilds.auraspend.data.local.AppDatabase
@@ -35,13 +41,14 @@ class AuraSpendApp : Application() {
     lateinit var driveSyncManager: DriveSyncManager
         private set
 
+    /** Shared learned-classification store (merchant -> category) used by the AI pipeline. */
+    lateinit var classificationMemory: ClassificationMemory
+        private set
+
     private val applicationScope = CoroutineScope(Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
-
-        // Initialize merchant database
-        MerchantRepository.initialize(this)
 
         database = AppDatabase.getInstance(this)
 
@@ -56,6 +63,8 @@ class AuraSpendApp : Application() {
         classifyMessageUseCase = ClassifyMessageUseCase()
         saveTransactionUseCase = SaveTransactionUseCase(transactionRepository)
 
+        classificationMemory = ClassificationMemory(database.classificationMemoryDao())
+
         driveSyncManager = DriveSyncManager(this)
 
         LocalLlmProvider.init(this)
@@ -63,8 +72,32 @@ class AuraSpendApp : Application() {
 
         AutoClassificationWorker.schedule(this)
 
+        // Startup performance: the merchant CSV (~assets I/O + parsing) never blocks the
+        // first frame. Keyword classification works without it; the merchant-database
+        // upgrade lands within milliseconds on a background thread.
+        applicationScope.launch {
+            MerchantRepository.initialize(this@AuraSpendApp)
+        }
         applicationScope.launch {
             seedDefaultCategories()
+        }
+
+        // Background auto-classification: while the app sits in the background but its process
+        // is alive (not cleared from recents), keep classifying pending queue rows one-by-one.
+        // The moment any activity becomes visible, the loop stops so the device stays smooth.
+        ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                BackgroundClassificationCoordinator.stop()
+            }
+
+            override fun onStop(owner: LifecycleOwner) {
+                BackgroundClassificationCoordinator.start(this@AuraSpendApp)
+            }
+        })
+
+        // One-time PII scrub of rows written before SensitiveDataMasker existed.
+        applicationScope.launch {
+            PrivacyBackfill.runIfNeeded(this@AuraSpendApp)
         }
     }
 

@@ -9,12 +9,15 @@ data class DashboardViewState(
     val totalBalance: Double = 0.0,
     val monthlyIncome: Double = 0.0,
     val monthlyExpense: Double = 0.0,
+    val monthlyIncomeCount: Int = 0,
+    val monthlyExpenseCount: Int = 0,
     val recentTransactions: List<Transaction> = emptyList(),
     val categories: List<Category> = emptyList(),
     val budgets: List<Budget> = emptyList(),
     val activeSubscriptions: List<Subscription> = emptyList(),
     val totalSubscriptionCost: Double = 0.0,
     val dailySpending: List<Pair<Long, Double>> = emptyList(),
+    val categoryMonthTotals: List<Pair<String, Double>> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null
 )

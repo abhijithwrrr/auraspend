@@ -3,7 +3,6 @@
 // Cleaned to match AuraSpend's toolchain (AGP 8.9.1 / Kotlin 2.0.0 / NDK 29).
 plugins {
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -45,9 +44,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    // Built-in Kotlin (AGP 9): jvmTarget defaults to compileOptions.targetCompatibility.
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"

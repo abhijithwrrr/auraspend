@@ -51,7 +51,7 @@ object DuplicateDetector {
 
         // Merchant similarity (40% weight)
         val merchantSimilarity = if (t1.merchant != null && t2.merchant != null) {
-            stringSimilarity(t1.merchant, t2.merchant)
+            textSimilarity(t1.merchant, t2.merchant)
         } else if (t1.merchant == t2.merchant) {
             1f
         } else {
@@ -60,14 +60,17 @@ object DuplicateDetector {
         score += merchantSimilarity * 0.40f
         weightSum += 0.40f
 
-        // Date similarity (30% weight) - same day or within 1 hour
-        val timeDiff = abs(
-            t1.date.toLocalDate().toEpochDay() - t2.date.toLocalDate().toEpochDay()
+        // Date similarity — finer granularity so two legitimate purchases at the same
+        // merchant on the same DAY score lower than re-delivered copies of ONE payment.
+        val t1 = t1.date
+        val t2 = t2.date
+        val hoursApart = kotlin.math.abs(
+            java.time.Duration.between(t1, t2).toHours()
         )
         val dateSimilarity = when {
-            timeDiff == 0L -> 1f
-            timeDiff == 1L -> 0.8f
-            timeDiff <= 2L -> 0.6f
+            hoursApart <= 1L -> 1f          // near-simultaneous: likely the same event
+            t1.toLocalDate() == t2.toLocalDate() -> 0.75f
+            kotlin.math.abs(t1.toLocalDate().toEpochDay() - t2.toLocalDate().toEpochDay()) == 1L -> 0.5f
             else -> 0f
         }
         score += dateSimilarity * 0.30f
@@ -77,9 +80,10 @@ object DuplicateDetector {
     }
 
     /**
-     * Levenshtein distance-based string similarity (0.0 - 1.0)
+     * Levenshtein distance-based string similarity (0.0 - 1.0).
+     * Exposed for the pipeline's merchant-compatibility check.
      */
-    private fun stringSimilarity(s1: String, s2: String): Float {
+    internal fun textSimilarity(s1: String, s2: String): Float {
         val maxLength = maxOf(s1.length, s2.length)
         if (maxLength == 0) return 1f
 

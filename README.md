@@ -2,10 +2,11 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Min SDK](https://img.shields.io/badge/minSdk-30-green)](app/build.gradle.kts)
-[![Target SDK](https://img.shields.io/badge/targetSdk-36-green)](app/build.gradle.kts)
+[![Target SDK](https://img.shields.io/badge/targetSdk-37-green)](app/build.gradle.kts)
+[![AGP](https://img.shields.io/badge/AGP-9.3.1-blue)](build.gradle.kts)
 [![CI](https://github.com/abhijithwrrr/auraspend/actions/workflows/ci.yml/badge.svg)](https://github.com/abhijithwrrr/auraspend/actions/workflows/ci.yml)
 
-A world-class expense manager for Android 16 with bank message classification, Material 3 UI, budget tracking, and Google Drive backup.
+A world-class expense manager for Android 17 (API 37) with bank message classification, edge-to-edge Material 3 UI, budget tracking, and Google Drive backup.
 
 Made with ❤️ by AW Builds
 
@@ -40,6 +41,19 @@ improve message auto-categorization into **subscriptions, categories, income, ex
   (`BankMessageParser`), while the LLM handles the parts regex is bad at — *subscription detection,
   category selection, income-vs-expense*. If the model isn't downloaded (or the native runtime isn't
   linked), the app transparently falls back to the pure regex classifier, so nothing breaks.
+- **Learned classification memory**: every save (manual or auto) records a normalized
+  merchant/note → category mapping in a local Room table (`classification_memory`). Repeat
+  merchants are categorized **instantly** — the LLM is skipped entirely — and your manual
+  corrections always win over automated suggestions. Stored in `classification_memory`, migrated
+  safely from previous schema versions (v5 → v6).
+- **Multi-signal fusion** (`AiSignalFusion`): an explicit LLM "not a transaction" verdict vetoes
+  false positives; explicit *credited/debited* keywords beat an LLM type guess on conflict;
+  recurring-payment keywords (auto-debit, NACH, renewal…) force subscription classification even
+  without AI; confidence rises when signals agree and drops when they conflict.
+- **Hardened inference**: every LLM generation runs under a 90 s wall-clock timeout, an
+  errored engine short-circuits instead of blocking, unparseable output triggers one retry, and
+  JSON extraction survives markdown fences / surrounding prose / nested braces. Category names
+  returned by the model are matched fuzzily ("food" → *Food & Dining*).
 - **Manage it**: an **Intelligent Features** card in Settings shows status, lets you download, cancel and delete the model.
 
 ### Build prerequisites (native runtime)
@@ -53,6 +67,17 @@ The runtime lives in the vendored `llama-lib/` module (a cleaned copy of llama.c
 `examples/llama.android`), and the upstream source is pinned as a git submodule at
 `third_party/llama.cpp`. Without the native toolchain installed, the app still **compiles and runs**
 with regex-only classification (the UI shows the download option but the model won't load).
+
+### Toolchain
+
+| Component | Version |
+|-----------|---------|
+| Gradle    | 9.5.0   |
+| AGP       | 9.3.1 (built-in Kotlin, KGP 2.2.10) |
+| Kotlin / Compose compiler | 2.2.10 |
+| compileSdk / targetSdk    | 37 |
+| minSdk    | 30 |
+| R8        | Full mode (minify + optimize + obfuscate + resource shrinking) |
 
 ```bash
 # first time, fetch the llama.cpp submodule

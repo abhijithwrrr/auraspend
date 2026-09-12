@@ -2,6 +2,7 @@ package com.awbuilds.auraspend.data.repository
 
 import com.awbuilds.auraspend.data.local.toDomain
 import com.awbuilds.auraspend.data.local.toEntity
+import com.awbuilds.auraspend.data.privacy.SensitiveDataMasker
 import com.awbuilds.auraspend.data.local.dao.BudgetDao
 import com.awbuilds.auraspend.data.local.dao.CategoryDao
 import com.awbuilds.auraspend.data.local.dao.SavingsGoalDao
@@ -35,12 +36,22 @@ class TransactionRepositoryImpl(
     override fun getRecurringTransactions(): Flow<List<Transaction>> =
         transactionDao.getRecurringTransactions().map { it.map { e -> e.toDomain() } }
 
+    /**
+     * PRIVACY: notes and merchant names are passed through [SensitiveDataMasker] before
+     * touching the database. This is the single choke-point for every write path —
+     * SMS pipeline, Smart Add, manual entry, CSV import and Drive restore all land here.
+     */
+    private fun Transaction.sanitized(): Transaction = copy(
+        note = SensitiveDataMasker.mask(note),
+        merchant = merchant?.let { SensitiveDataMasker.mask(it) }
+    )
+
     override suspend fun saveTransaction(transaction: Transaction) {
-        transactionDao.insertTransaction(transaction.toEntity())
+        transactionDao.insertTransaction(transaction.sanitized().toEntity())
     }
 
     override suspend fun saveTransactions(transactions: List<Transaction>) {
-        transactionDao.insertTransactions(transactions.map { it.toEntity() })
+        transactionDao.insertTransactions(transactions.map { it.sanitized().toEntity() })
     }
 
     override suspend fun deleteTransaction(id: String) {

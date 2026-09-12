@@ -92,9 +92,63 @@ fun BudgetScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // ── Overall budget health ──────────────────────────────────────
+                item {
+                    val totalLimit = state.budgets.sumOf { it.limitAmount }
+                    val totalSpent = state.budgets.sumOf { it.spentAmount }
+                    val overall = if (totalLimit > 0) (totalSpent / totalLimit).toFloat() else 0f
+                    val today = java.time.LocalDate.now()
+                    val daysLeft = today.lengthOfMonth() - today.dayOfMonth + 1
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        ),
+                        shape = MaterialTheme.shapes.medium,
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("All budgets", style = MaterialTheme.typography.labelMedium)
+                                Text(
+                                    "$daysLeft day${if (daysLeft == 1) "" else "s"} left this month",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                "₹${String.format("%.0f", totalSpent)} of ₹${String.format("%.0f", totalLimit)}",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            LinearProgressIndicator(
+                                progress = { overall.coerceIn(0f, 1f) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp)
+                                    .clip(RoundedCornerShape(4.dp)),
+                                color = when {
+                                    overall >= 1f -> MaterialTheme.colorScheme.error
+                                    overall >= 0.8f -> MaterialTheme.colorScheme.tertiary
+                                    else -> MaterialTheme.colorScheme.primary
+                                },
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        }
+                    }
+                }
+
                 items(state.budgets) { budget ->
                     val category = state.categories.find { it.id == budget.categoryId }
                     val progress = if (budget.limitAmount > 0) (budget.spentAmount / budget.limitAmount).toFloat().coerceIn(0f, 1f) else 0f
+                    val overBy = budget.spentAmount - budget.limitAmount
                     val progressColor = when {
                         progress >= 1f -> MaterialTheme.colorScheme.error
                         progress >= 0.8f -> MaterialTheme.colorScheme.tertiary
@@ -158,17 +212,46 @@ fun BudgetScreen(
                                     "₹${String.format("%.0f", budget.spentAmount)} spent",
                                     style = MaterialTheme.typography.labelSmall
                                 )
-                                Text(
-                                    "₹${String.format("%.0f", budget.limitAmount)} limit",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.SemiBold
-                                )
+                                if (overBy > 0) {
+                                    Text(
+                                        "Over by ₹${String.format("%.0f", overBy)}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                } else {
+                                    Text(
+                                        "₹${String.format("%.0f", budget.limitAmount)} limit",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
                             }
-                            Text(
-                                budget.period.name.lowercase().replaceFirstChar { it.uppercase() },
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    budget.period.name.lowercase().replaceFirstChar { it.uppercase() },
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                if (progress >= 1f) {
+                                    Text(
+                                        "⚠️ Limit reached",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.error,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                } else if (progress >= 0.8f) {
+                                    Text(
+                                        "${(progress * 100).toInt()}% used",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.tertiary,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+                            }
                         }
                     }
                 }

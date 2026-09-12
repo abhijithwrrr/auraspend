@@ -1,43 +1,74 @@
 package com.awbuilds.auraspend.ui.analytics
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
+import com.awbuilds.auraspend.ui.core.AmountSummaryBox
+import com.awbuilds.auraspend.ui.core.CashewCard
+import com.awbuilds.auraspend.ui.core.DonutChart
+import com.awbuilds.auraspend.ui.core.PieSliceData
+import com.awbuilds.auraspend.ui.core.SectionHeaderRow
+import com.awbuilds.auraspend.ui.core.SlidingSelector
+import com.awbuilds.auraspend.ui.core.categoryColor
+import com.awbuilds.auraspend.ui.core.formatMoney
+import com.awbuilds.auraspend.ui.theme.extendedColors
+import java.time.LocalDate
 import java.time.ZoneId
 
-@OptIn(ExperimentalMaterial3Api::class)
+private enum class StatsPeriod(val label: String) {
+    THIS_MONTH("This Month"), LAST_30("30 Days"), ALL_TIME("All Time")
+}
+
 @Composable
 fun AnalyticsScreen(
     transactions: List<Transaction>,
     categories: List<Category>,
     onBack: () -> Unit
 ) {
-    val expenseTransactions = transactions.filter { it.type == TransactionType.EXPENSE }
-    val totalExpense = expenseTransactions.sumOf { it.amount }
-    val totalIncome = transactions.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
+    val extended = MaterialTheme.extendedColors
+    var period by remember { mutableStateOf(StatsPeriod.THIS_MONTH) }
+    val zone = ZoneId.systemDefault()
 
-    // Category breakdown
+    val windowStartMillis = remember(period) {
+        val today = LocalDate.now()
+        val start = when (period) {
+            StatsPeriod.THIS_MONTH -> today.withDayOfMonth(1)
+            StatsPeriod.LAST_30 -> today.minusDays(29)
+            StatsPeriod.ALL_TIME -> null
+        }
+        start?.atStartOfDay(zone)?.toInstant()?.toEpochMilli() ?: 0L
+    }
+
+    val scoped = remember(transactions, windowStartMillis) {
+        transactions.filter {
+            it.date.atZone(zone).toInstant().toEpochMilli() >= windowStartMillis
+        }
+    }
+
+    val expenseTransactions = scoped.filter { it.type == TransactionType.EXPENSE }
+    val totalExpense = expenseTransactions.sumOf { it.amount }
+    val totalIncome = scoped.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
+    val incomeCount = scoped.count { it.type == TransactionType.INCOME }
+    val expenseCount = expenseTransactions.size
+    val net = totalIncome - totalExpense
+    val savingsRate = if (totalIncome > 0) ((net / totalIncome) * 100).coerceIn(-999.0, 100.0) else null
+
     val categorySpending = categories.map { cat ->
         val spent = expenseTransactions
             .filter { it.categoryId == cat.id }
@@ -48,154 +79,102 @@ fun AnalyticsScreen(
 
     val totalSpent = categorySpending.sumOf { it.second }
 
-    // Top merchants
+    data class MerchantStat(val label: String, val amount: Double, val count: Int)
+
     val merchantSpending = expenseTransactions
-        .groupBy { it.merchant ?: it.note }
-        .mapValues { (_, list) -> list.sumOf { it.amount } }
-        .entries
-        .sortedByDescending { it.value }
+        .groupBy { it.merchant?.takeIf { m -> m.isNotBlank() } ?: "Unlabelled" }
+        .map { (name, list) -> MerchantStat(name.trim(), list.sumOf { it.amount }, list.size) }
+        .sortedByDescending { it.amount }
         .take(10)
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Analytics") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { padding ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
+    ) {
+        Text(
+            "Stats",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(start = 13.dp, top = 10.dp, bottom = 4.dp)
+        )
+
+        // ── Period selector ────────────────────────────────────────────────────
+        SlidingSelector(
+            options = StatsPeriod.entries.map { it.label },
+            selectedIndex = period.ordinal,
+            onSelect = { period = StatsPeriod.entries[it] },
+            modifier = Modifier.padding(horizontal = 13.dp, vertical = 6.dp)
+        )
+
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 24.dp)
         ) {
-            // Summary Cards
+            // ── Income | Expense summary boxes
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 13.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(13.dp)
                 ) {
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        ),
-                        shape = MaterialTheme.shapes.medium,
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Income", style = MaterialTheme.typography.labelSmall)
-                            Text(
-                                "₹${String.format("%.0f", totalIncome)}",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                        ),
-                        shape = MaterialTheme.shapes.medium,
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Expense", style = MaterialTheme.typography.labelSmall)
-                            Text(
-                                "₹${String.format("%.0f", totalExpense)}",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    }
+                    AmountSummaryBox(
+                        label = "Expense",
+                        amount = totalExpense,
+                        transactionCount = expenseCount,
+                        amountColor = extended.expenseAmount,
+                        modifier = Modifier.weight(1f)
+                    )
+                    AmountSummaryBox(
+                        label = "Income",
+                        amount = totalIncome,
+                        transactionCount = incomeCount,
+                        amountColor = extended.incomeAmount,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
 
-            // Pie Chart
-            if (categorySpending.isNotEmpty()) {
+            // ── Net & savings rate ─────────────────────────────────────────────
+            if (scoped.isNotEmpty()) {
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        shape = MaterialTheme.shapes.medium,
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                "Spending by Category",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            PieChart(
-                                data = categorySpending.map { (cat, amount) ->
-                                    PieSlice(
-                                        label = cat.name,
-                                        value = amount.toFloat(),
-                                        color = Color(cat.color)
+                    Box(modifier = Modifier.padding(horizontal = 13.dp)) {
+                        CashewCard(modifier = Modifier.fillMaxWidth()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        "Net ${period.label.lowercase()}",
+                                        fontSize = 13.sp,
+                                        color = extended.textLight
                                     )
-                                },
-                                modifier = Modifier
-                                    .size(200.dp)
-                                    .align(Alignment.CenterHorizontally)
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            categorySpending.forEach { (cat, amount) ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
+                                    Text(
+                                        "${if (net >= 0) "+" else "-"}${formatMoney(kotlin.math.abs(net))}",
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (net >= 0) extended.incomeAmount else extended.expenseAmount
+                                    )
+                                }
+                                savingsRate?.let { rate ->
                                     Box(
                                         modifier = Modifier
-                                            .size(12.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(cat.color))
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        cat.name,
-                                        modifier = Modifier.weight(1f),
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                    Text(
-                                        "${if (totalSpent > 0) (amount / totalSpent * 100).toInt() else 0}%",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                    Text(
-                                        "₹${String.format("%.0f", amount)}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontWeight = FontWeight.Medium
-                                    )
+                                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(14.dp))
+                                            .background(
+                                                if (rate >= 0) extended.incomeAmount.copy(alpha = 0.14f)
+                                                else extended.expenseAmount.copy(alpha = 0.14f)
+                                            )
+                                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            "Saving ${rate.toInt()}%",
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (rate >= 0) extended.incomeAmount else extended.expenseAmount
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -203,44 +182,114 @@ fun AnalyticsScreen(
                 }
             }
 
-            // Top Merchants
-            if (merchantSpending.isNotEmpty()) {
+            // ── Spending by category (donut + legend)
+            if (categorySpending.isNotEmpty()) {
+                item { SectionHeaderRow("Spending by Category") }
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        shape = MaterialTheme.shapes.medium,
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                "Top Merchants",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            merchantSpending.forEach { (merchant, amount) ->
+                    Box(modifier = Modifier.padding(horizontal = 13.dp)) {
+                        CashewCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(20.dp)) {
+                            DonutChart(
+                                data = categorySpending.map { (cat, value) ->
+                                    PieSliceData(cat.name, value, categoryColor(cat.color))
+                                },
+                                modifier = Modifier
+                                    .size(190.dp)
+                                    .align(Alignment.CenterHorizontally),
+                                strokeWidth = 34.dp
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text("Total", fontSize = 13.sp, color = extended.textLight)
+                                    Text(
+                                        formatMoney(totalExpense),
+                                        fontSize = 17.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(18.dp))
+                            categorySpending.forEachIndexed { index, (cat, amount) ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(vertical = 6.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                        .padding(vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(12.dp)
+                                            .clip(CircleShape)
+                                            .background(categoryColor(cat.color))
+                                    )
+                                    Spacer(modifier = Modifier.width(9.dp))
                                     Text(
-                                        merchant,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        maxLines = 1
+                                        cat.name,
+                                        modifier = Modifier.weight(1f),
+                                        fontSize = 15.sp,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
-                                        "₹${String.format("%.0f", amount)}",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.SemiBold
+                                        "${if (totalSpent > 0) (amount / totalSpent * 100).toInt() else 0}%",
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = extended.textLight
+                                    )
+                                    Spacer(modifier = Modifier.width(14.dp))
+                                    Text(
+                                        formatMoney(amount),
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
-                                if (merchant != merchantSpending.last().key) {
+                                if (index != categorySpending.lastIndex) {
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ── Top merchants
+            if (merchantSpending.isNotEmpty()) {
+                item { SectionHeaderRow("Top Merchants", modifier = Modifier.padding(top = 8.dp)) }
+                item {
+                    Box(modifier = Modifier.padding(horizontal = 13.dp)) {
+                        CashewCard(modifier = Modifier.fillMaxWidth()) {
+                            merchantSpending.forEachIndexed { index, stat ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 7.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            stat.label.let {
+                                                if (it.length > 26) it.take(25) + "…" else it
+                                            },
+                                            fontSize = 16.sp,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            "${stat.count} txn${if (stat.count > 1) "s" else ""}",
+                                            fontSize = 12.sp,
+                                            color = extended.textLight
+                                        )
+                                    }
+                                    Text(
+                                        formatMoney(stat.amount),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = extended.expenseAmount
+                                    )
+                                }
+                                if (index != merchantSpending.lastIndex) {
                                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                                 }
                             }
@@ -254,70 +303,31 @@ fun AnalyticsScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(32.dp),
+                            .padding(vertical = 100.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                Icons.Default.BarChart,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Text("📊", fontSize = 44.sp)
+                            Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                "No analytics data yet",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface
+                                if (period == StatsPeriod.ALL_TIME) "No analytics data yet"
+                                else "Nothing in this period",
+                                fontSize = 19.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                textAlign = TextAlign.Center
                             )
+                            Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 "Add transactions to see insights.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                fontSize = 14.sp,
+                                color = extended.textLight,
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
                 }
             }
-
-            item { Spacer(modifier = Modifier.height(16.dp)) }
-        }
-    }
-}
-
-data class PieSlice(
-    val label: String,
-    val value: Float,
-    val color: Color
-)
-
-@Composable
-fun PieChart(
-    data: List<PieSlice>,
-    modifier: Modifier = Modifier
-) {
-    val total = data.sumOf { it.value.toDouble() }.toFloat()
-
-    Canvas(modifier = modifier) {
-        val strokeWidth = 40f
-        val radius = (size.minDimension - strokeWidth) / 2
-        val center = Offset(size.width / 2, size.height / 2)
-        val topLeft = Offset(center.x - radius, center.y - radius)
-        val arcSize = Size(radius * 2, radius * 2)
-
-        var startAngle = -90f
-        data.forEach { slice ->
-            val sweepAngle = if (total > 0) (slice.value / total) * 360f else 0f
-            drawArc(
-                color = slice.color,
-                startAngle = startAngle,
-                sweepAngle = sweepAngle,
-                useCenter = false,
-                topLeft = topLeft,
-                size = arcSize,
-                style = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
-            )
-            startAngle += sweepAngle
         }
     }
 }

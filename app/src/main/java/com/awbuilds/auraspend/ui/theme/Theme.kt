@@ -4,12 +4,14 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
@@ -17,6 +19,44 @@ import androidx.core.view.WindowCompat
 enum class AppThemeMode {
     LIGHT, DARK, AMOLED
 }
+
+/**
+ * Semantic design tokens mirroring Cashew's AppColors theme extension.
+ */
+data class ExtendedColors(
+    val incomeAmount: Color,
+    val expenseAmount: Color,
+    val upcoming: Color,
+    val overdue: Color,
+    val warningOrange: Color,
+    val textLight: Color,
+    val canvasContainer: Color
+)
+
+val LightExtendedColors = ExtendedColors(
+    incomeAmount = IncomeGreenLight,
+    expenseAmount = ExpenseRedLight,
+    upcoming = UpcomingBlue,
+    overdue = OverdueIndigo,
+    warningOrange = WarningOrangeLight,
+    textLight = LightOnSurfaceVariant,
+    canvasContainer = LightSurfContainerHighest
+)
+
+val DarkExtendedColors = ExtendedColors(
+    incomeAmount = IncomeGreenDark,
+    expenseAmount = ExpenseRedDark,
+    upcoming = UpcomingBlueDark,
+    overdue = OverdueIndigoDark,
+    warningOrange = WarningOrangeDark,
+    textLight = DarkOnSurfaceVariant,
+    canvasContainer = DarkSurfaceVariant
+)
+
+val LocalExtendedColors = staticCompositionLocalOf { LightExtendedColors }
+
+val MaterialTheme.extendedColors: ExtendedColors
+    @Composable get() = LocalExtendedColors.current
 
 private val LightColorScheme = lightColorScheme(
     primary = LightPrimary,
@@ -40,7 +80,12 @@ private val LightColorScheme = lightColorScheme(
     outline = LightOutline,
     outlineVariant = LightOutlineVariant,
     error = LightError,
-    onError = LightOnError
+    onError = LightOnError,
+    surfaceContainerLowest = LightSurfContainerLowest,
+    surfaceContainerLow = LightSurfContainerLow,
+    surfaceContainer = LightSurfContainer,
+    surfaceContainerHigh = LightSurfContainerHigh,
+    surfaceContainerHighest = LightSurfContainerHighest
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -65,7 +110,12 @@ private val DarkColorScheme = darkColorScheme(
     outline = DarkOutline,
     outlineVariant = DarkOutlineVariant,
     error = DarkError,
-    onError = DarkOnError
+    onError = DarkOnError,
+    surfaceContainerLowest = DarkSurfContainerLowest,
+    surfaceContainerLow = DarkSurfContainerLow,
+    surfaceContainer = DarkSurfContainer,
+    surfaceContainerHigh = DarkSurfContainerHigh,
+    surfaceContainerHighest = DarkSurfContainerHighest
 )
 
 private val AmoledColorScheme = darkColorScheme(
@@ -90,7 +140,12 @@ private val AmoledColorScheme = darkColorScheme(
     outline = AmoledOutline,
     outlineVariant = AmoledOutlineVariant,
     error = AmoledError,
-    onError = AmoledOnError
+    onError = AmoledOnError,
+    surfaceContainerLowest = AmoledSurfContainerLowest,
+    surfaceContainerLow = AmoledSurfContainerLow,
+    surfaceContainer = AmoledSurfContainer,
+    surfaceContainerHigh = AmoledSurfContainerHigh,
+    surfaceContainerHighest = AmoledSurfContainerHighest
 )
 
 private val AuraSpendTypography = Typography(
@@ -205,6 +260,18 @@ fun AuraSpendTheme(
         }
     }
 
+    val extendedColors = when (themeMode) {
+        AppThemeMode.LIGHT -> if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Derive semantic amounts from the dynamic scheme so they harmonize
+            // with wallpaper colors; keep Cashew fallbacks otherwise.
+            LightExtendedColors.copy(
+                incomeAmount = IncomeGreenLight,
+                expenseAmount = ExpenseRedLight
+            )
+        } else LightExtendedColors
+        else -> DarkExtendedColors
+    }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -214,10 +281,12 @@ fun AuraSpendTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AuraSpendTypography,
-        shapes = AuraSpendShapes,
-        content = content
-    )
+    CompositionLocalProvider(LocalExtendedColors provides extendedColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AuraSpendTypography,
+            shapes = AuraSpendShapes,
+            content = content
+        )
+    }
 }

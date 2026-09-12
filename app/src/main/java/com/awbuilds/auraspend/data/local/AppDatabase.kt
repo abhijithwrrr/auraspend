@@ -16,9 +16,10 @@ import com.awbuilds.auraspend.data.local.entities.*
         BudgetEntity::class,
         SubscriptionEntity::class,
         SavingsGoalEntity::class,
-        SmsMessageEntity::class
+        SmsMessageEntity::class,
+        ClassificationMemoryEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -28,6 +29,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun subscriptionDao(): SubscriptionDao
     abstract fun savingsGoalDao(): SavingsGoalDao
     abstract fun smsMessageDao(): SmsMessageDao
+    abstract fun classificationMemoryDao(): ClassificationMemoryDao
 
     companion object {
         @Volatile
@@ -79,6 +81,33 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v5 -> v6: add the learned classification memory. Maps normalized merchant / note keys to
+         * the category the user (or a confirmed auto-save) last used, so repeat transactions are
+         * categorized instantly without an LLM call. Starts empty; safe to create on upgrade.
+         */
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `classification_memory` (
+                        `rowId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `memoryKey` TEXT NOT NULL,
+                        `categoryId` TEXT NOT NULL,
+                        `type` TEXT,
+                        `source` TEXT NOT NULL,
+                        `hits` INTEGER NOT NULL,
+                        `updatedAt` INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS index_classification_memory_memoryKey " +
+                        "ON classification_memory(memoryKey)"
+                )
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -86,8 +115,11 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "auraspend_db"
                 )
-                    .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     .fallbackToDestructiveMigration(false)
+                    // Write-ahead logging lets dashboard reads proceed while the
+                    // SMS pipeline writes transactions — no lock contention.
+                    .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
                     .build()
                 INSTANCE = instance
                 instance

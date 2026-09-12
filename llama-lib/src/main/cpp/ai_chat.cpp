@@ -25,13 +25,21 @@ static std::string join(const std::vector<T> &values, const std::string &delim) 
  * LLama resources: context, model, batch and sampler
  */
 constexpr int   N_THREADS_MIN           = 2;
-constexpr int   N_THREADS_MAX           = 4;
-constexpr int   N_THREADS_HEADROOM      = 2;
+// Leave cores for the UI/render threads: inference runs at background priority,
+// but capping the pool keeps foreground frames smooth on big.LITTLE devices.
+constexpr int   N_THREADS_MAX           = 3;
+constexpr int   N_THREADS_HEADROOM      = 3;
 
-constexpr int   DEFAULT_CONTEXT_SIZE    = 8192;
+// AuraSpend prompts (system + few-shot + SMS) fit well under 600 tokens and we
+// generate <=96. A compact context keeps the KV-cache tiny: decoding touches a
+// fraction of the memory bandwidth of the previous 8 Ki context, which removes
+// most of the device-wide lag during background categorisation.
+constexpr int   DEFAULT_CONTEXT_SIZE    = 2048;
 constexpr int   OVERFLOW_HEADROOM       = 4;
 constexpr int   BATCH_SIZE              = 512;
-constexpr float DEFAULT_SAMPLER_TEMP    = 0.3f;
+// Near-greedy: classification is extraction, not creative writing. Low
+// temperature keeps JSON keys stable across runs of the same message.
+constexpr float DEFAULT_SAMPLER_TEMP    = 0.15f;
 
 static llama_model                      * g_model;
 static llama_context                    * g_context;
@@ -293,7 +301,8 @@ static std::string chat_add_and_format(const std::string &role, const std::strin
     auto formatted = common_chat_format_single(
             g_chat_templates.get(), chat_msgs, new_msg, role == ROLE_USER, /* use_jinja */ false);
     chat_msgs.push_back(new_msg);
-    LOGi("%s: Formatted and added %s message: \n%s\n", __func__, role.c_str(), formatted.c_str());
+    // PRIVACY: never log message contents — SMS text may contain personal data.
+    LOGi("%s: Formatted and added %s message (%zu chars)", __func__, role.c_str(), formatted.size());
     return formatted;
 }
 
@@ -363,7 +372,8 @@ Java_com_arm_aichat_internal_InferenceEngineImpl_processSystemPrompt(
 
     // Obtain system prompt from JEnv
     const auto *system_prompt = env->GetStringUTFChars(jsystem_prompt, nullptr);
-    LOGd("%s: System prompt received: \n%s", __func__, system_prompt);
+    // PRIVACY: log length only — prompt text derives from user messages.
+    LOGd("%s: System prompt received (%d chars)", __func__, (int) env->GetStringUTFLength(jsystem_prompt));
     std::string formatted_system_prompt(system_prompt);
 
     // Format system prompt if applicable
@@ -376,9 +386,6 @@ Java_com_arm_aichat_internal_InferenceEngineImpl_processSystemPrompt(
     // Tokenize system prompt
     const auto system_tokens = common_tokenize(g_context, formatted_system_prompt,
                                                has_chat_template, has_chat_template);
-    for (auto id: system_tokens) {
-        LOGv("token: `%s`\t -> `%d`", common_token_to_piece(g_context, id).c_str(), id);
-    }
 
     // Handle context overflow
     const int max_batch_size = DEFAULT_CONTEXT_SIZE - OVERFLOW_HEADROOM;
@@ -412,7 +419,8 @@ Java_com_arm_aichat_internal_InferenceEngineImpl_processUserPrompt(
 
     // Obtain and tokenize user prompt
     const auto *const user_prompt = env->GetStringUTFChars(juser_prompt, nullptr);
-    LOGd("%s: User prompt received: \n%s", __func__, user_prompt);
+    // PRIVACY: log length only — the prompt embeds the raw SMS text.
+    LOGd("%s: User prompt received (%d chars)", __func__, (int) env->GetStringUTFLength(juser_prompt));
     std::string formatted_user_prompt(user_prompt);
 
     // Format user prompt if applicable
@@ -424,9 +432,6 @@ Java_com_arm_aichat_internal_InferenceEngineImpl_processUserPrompt(
 
     // Decode formatted user prompts
     auto user_tokens = common_tokenize(g_context, formatted_user_prompt, has_chat_template, has_chat_template);
-    for (auto id: user_tokens) {
-        LOGv("token: `%s`\t -> `%d`", common_token_to_piece(g_context, id).c_str(), id);
-    }
 
     // Ensure user prompt doesn't exceed the context size by truncating if necessary.
     const int user_prompt_size = (int) user_tokens.size();
@@ -531,12 +536,11 @@ Java_com_arm_aichat_internal_InferenceEngineImpl_generateNextToken(
     jstring result = nullptr;
     if (is_valid_utf8(cached_token_chars.c_str())) {
         result = env->NewStringUTF(cached_token_chars.c_str());
-        LOGv("id: %d,\tcached: `%s`,\tnew: `%s`", new_token_id, cached_token_chars.c_str(), new_token_chars.c_str());
+        // PRIVACY: token text is generated JSON about user messages — never log it.
 
         assistant_ss << cached_token_chars;
         cached_token_chars.clear();
     } else {
-        LOGv("id: %d,\tappend to cache", new_token_id);
         result = env->NewStringUTF("");
     }
     return result;

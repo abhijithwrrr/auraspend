@@ -1,10 +1,7 @@
 package com.awbuilds.auraspend.data.classification
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.provider.Telephony
-import androidx.core.content.ContextCompat
 import com.awbuilds.auraspend.domain.model.ParsedBankMessage
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
@@ -31,43 +28,57 @@ object SmsAutoClassifier {
         "INR", "Rs.", "withdrawal", "deposit", "balance"
     )
 
-    // Patterns to filter out OTP and alert messages
+    // Patterns to filter out OTP messages. Structural: an OTP keyword plus a
+    // standalone 4-8 digit code, or an explicit one-time-password phrase.
     private val otpPatterns = listOf(
-        Regex("OTP|one\\s*time\\s*password|password|verify", RegexOption.IGNORE_CASE),
-        Regex("\\d{4,6}\\s+(?:is|was|to)\\s+(?:your|the|a)\\s+(?:OTP|password|code|PIN)", RegexOption.IGNORE_CASE)
+        Regex("(?i)\\b(otp|one\\s*time\\s*(password|code)|security\\s+code)\\b"),
+        Regex("(?i)\\b\\d{4,8}\\b\\s*(?:is|was|to)\\s+(?:your|the|a)\\s+(?:OTP|password|code|PIN)")
     )
 
+    /**
+     * Non-transaction notice patterns. A match only skips the message when the
+     * amount/verb rescue below does not fire (i.e. no completed transaction).
+     */
     private val alertPatterns = listOf(
-        Regex("approved|approval|confirmation", RegexOption.IGNORE_CASE),
-        Regex("alert|notification|notify", RegexOption.IGNORE_CASE),
-        Regex("data\\s+usage|data\\s+plan|gb\\s+data|internet\\s+usage", RegexOption.IGNORE_CASE),
-        Regex("maintenance|system|update|upgrade|server", RegexOption.IGNORE_CASE),
-        Regex("available\\s+balance|balance\\s+amount|current\\s+balance", RegexOption.IGNORE_CASE),
-        Regex("due|deadline|maturity|interest|annual|charge", RegexOption.IGNORE_CASE),
-        Regex("congratulations|success|welcome|thank\\s+you", RegexOption.IGNORE_CASE),
-        Regex("limit|exceed|threshold|invalid|failed", RegexOption.IGNORE_CASE),
-        Regex("application|document|status|pending|submitted", RegexOption.IGNORE_CASE),
-        Regex("have\\s+used|utilization|remaining|offer|promo", RegexOption.IGNORE_CASE)
+        Regex("(?i)\\b(approved|approval|confirmation)\\b(?!.*(?:debited|credited|spent|paid))"),
+        Regex("(?i)\\b(alert|notification|notify)\\b"),
+        Regex("(?i)\\b(data\\s+usage|data\\s+plan|gb\\s+data|internet\\s+usage)\\b"),
+        Regex("(?i)\\b(maintenance|system\\s+update|upgrade|server)\\b"),
+        Regex("(?i)\\b(avail(?:able)?\\s+balance|bal(ance)?\\s+(?:amount|is|of)|current\\s+balance)\\b"),
+        Regex("(?i)\\b(due|deadline|maturity|interest\\s+(?:charged|posted)|annual\\s+fee)\\b"),
+        Regex("(?i)\\b(congratulations|welcome|thank\\s+you)\\b"),
+        Regex("(?i)\\b(limit\\s+(?:exceed|reached)|threshold|invalid|failed|declined)\\b"),
+        Regex("(?i)\\b(application|document|status|pending|submitted)\\b"),
+        Regex("(?i)\\b(have\\s+used|utilization|remaining|offer|promo|%\\s*off|discount|sale|coupon)\\b"),
+        Regex("(?i)\\b(kyc|re-?kyc|block(?:ed)?|unblock|token|de-?register)\\b"),
+        Regex("(?i)\\b(fraud|scam|phishing|report\\s+cyber)\\b"),
+        Regex("(?i)\\b(win|won|lucky\\s+draw|prize|lottery)\\b")
     )
 
-    fun readAndClassify(
-        context: Context,
-        sinceTimestamp: Long = 0L,
-        maxMessages: Int = 50
-    ): List<ClassifiedSms> {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS)
-            != PackageManager.PERMISSION_GRANTED
-        ) return emptyList()
+    /**
+     * Hard vetoes: these prove NO completed transaction regardless of any amount or
+     * debit/credit wording present. They bypass the amount+verb rescue below.
+     *
+     * NOTE: bare "fraud"/"report cyber fraud" is deliberately NOT a hard veto — Canara
+     * appends "Dial 1930 to report cyber fraud" boilerplate to every genuine transaction
+     * SMS. Only conditional/unauthorised framing and advance notices are unconditional.
+     */
+    private val hardVetoPatterns = listOf(
+        // Conditional/unauthorised framing ("Rs.X debited? report cyber fraud if not done by you").
+        Regex("(?i)\\b(if\\s+not\\s+(?:done\\s+)?by\\s+you|if\\s+(?:it['’]?s?\\s+)?not\\s+you|if\\s+you\\s+(?:have\\s+)?not\\s+(?:done|authorised|initiated)|not\\s+authorised\\s+by\\s+you|unauthorised\\s+transaction)\\b"),
+        // Advance mandate registrations: money has NOT moved yet ("will be debited on <date>").
+        Regex("(?i)\\bupcoming\\s+mandate\\b"),
+        Regex("(?i)\\be-?mandate\\b[\\s\\S]{0,120}?(?:has\\s+been\\s+registered|set\\s+at|limit\\s+amount)"),
+        // Payment reminders: "Ignore if paid" proves this SMS is not the payment itself.
+        Regex("(?i)\\bignore\\s+if\\s+paid\\b"),
+        Regex("(?i)\\b(?:installment|emi|bill)\\b[\\s\\S]{0,60}?\\bis\\s+due\\b")
+    )
 
-        val messages = queryBankSms(context, sinceTimestamp, maxMessages)
-        return messages
-            .filter { !isOtpOrAlertMessage(it.body) }
-            .map { sms ->
-                val parsed = TransactionClassifier.classify(sms.body)
-                ClassifiedSms(sms = sms, parsed = parsed)
-            }
-    }
-
+    /**
+     * Converts a parsed message into a savable transaction. All ingestion flows through the
+     * persistent Room queue (SmsIngestor -> sms_messages -> SmsPipelineProcessor), which takes
+     * messages one at a time — never parse the inbox directly.
+     */
     fun toTransaction(classified: ClassifiedSms, categoryId: String? = null): Transaction {
         val parsed = classified.parsed
         val subscriptionCategory = if (classified.isSubscription) "cat_subscription" else null
@@ -130,7 +141,9 @@ object SmsAutoClassifier {
                 val body = if (bodyIdx >= 0) c.getString(bodyIdx) else ""
                 val date = if (dateIdx >= 0) c.getLong(dateIdx) else 0L
 
-                if (bankKeywords.any { body.contains(it, ignoreCase = true) || addr.contains(it, ignoreCase = true) }) {
+                if (looksLikeBankSender(addr) ||
+                    bankKeywords.any { body.contains(it, ignoreCase = true) }
+                ) {
                     messages.add(SmsInfo(id = id, address = addr, body = body, timestamp = date))
                 }
             }
@@ -139,9 +152,26 @@ object SmsAutoClassifier {
         return messages.sortedByDescending { it.timestamp }
     }
 
+    /**
+     * Indian banks send via DLT alphabetic sender IDs, commonly with a
+     * two-letter channel prefix: "AD-HDFCBK", "VM-ICICIB", "JD-SBICRD".
+     */
+    private val bankSenderRegex = Regex(
+        "(?i)(?:^[A-Z]{2}-?)?(hdfc|icici|sbic?|sbin|axisb?|kotak|yesb|pnbn?|canara|barb|" +
+            "idfc|idbi|indusinb?k?|unionbnk|indbnk|federal|rblbnk|aubank|bandhan|paytm|airtel)"
+    )
+
+    internal fun looksLikeBankSender(address: String): Boolean =
+        address.isNotBlank() && bankSenderRegex.containsMatchIn(address.trim())
+
     fun isOtpOrAlertMessage(message: String): Boolean {
-        // Check for OTP patterns
+        // OTPs are always skipped.
         if (otpPatterns.any { it.containsMatchIn(message) }) {
+            return true
+        }
+
+        // Fraud warnings quote amounts and debit verbs to look real — no rescue.
+        if (hardVetoPatterns.any { it.containsMatchIn(message) }) {
             return true
         }
 
