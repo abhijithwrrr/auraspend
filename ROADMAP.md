@@ -1,5 +1,10 @@
 # AuraSpend — Feature Enrichment, UI Redesign & Open Source Readiness Plan
 
+> **⚠️ Superseded (2026-09):** the UI and open-source work described here has been
+> executed as the **Aurora rebuild**. The living documents are
+> `docs/handoffs/0000-master-plan.md` (plan), `docs/handoffs/` (progress) and
+> `docs/design/aurora.md` (design system). Kept for historical context.
+
 Based on thorough analysis of the entire codebase, here's a comprehensive plan organized into three phases.
 
 ---

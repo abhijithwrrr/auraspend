@@ -27,8 +27,12 @@ Repo: `github.com/abhijithwrrr/auraspend`. Branch strategy: one phase per branch
 ## Active work
 | Item | State |
 |------|-------|
-| **P0–P5 rollout** | ✅ Landed + device-verified — `docs/handoffs/0004-savings-goals-and-device-verification.md` |
-| **Remaining** | Classification wizard/triage · Paging/aggregates/baselines · a11y + screenshot tests + i18n |
+| **P0–P6 hardening** | ✅ Landed + device-verified — `docs/handoffs/0005-four-iteration-hardening.md` |
+| **Remaining** | Paging/baselines · full a11y audit · translated locales · Roborazzi verify CI |
+
+## Tooling
+- Screenshot tests: `./gradlew :app:testFreeDebugUnitTest --tests "*AuraScreenshotTest*"` → `app/build/screenshots/`
+- Design system lives in `ui/designsystem/`; legacy shim deleted (`ui/core/` is chrome + permissions only)
 | **Paywall removal** | Done in P0 (PremiumGate, PremiumUpgradeScreen, BillingManager deleted) |
 | **Master plan** | `docs/handoffs/0000-master-plan.md` |
 
