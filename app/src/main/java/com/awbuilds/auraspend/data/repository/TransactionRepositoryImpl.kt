@@ -1,5 +1,9 @@
 package com.awbuilds.auraspend.data.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.awbuilds.auraspend.data.local.toDomain
 import com.awbuilds.auraspend.data.local.toEntity
 import com.awbuilds.auraspend.core.boundaryOrNull
@@ -39,6 +43,25 @@ class TransactionRepositoryImpl(
 
     override fun getRecentTransactions(limit: Int): Flow<List<Transaction>> =
         transactionDao.observeRecent(limit).map { it.map { e -> e.toDomain() } }
+
+    /**
+     * Room-backed paging for the Activity list. Each [PagingConfig] page reads
+     * at most [PAGED_PAGE_SIZE] filtered rows on the Room query executor and is
+     * mapped to domain rows as it is loaded.
+     */
+    override fun pagedTransactions(filter: TransactionFilter): Flow<PagingData<Transaction>> =
+        Pager(
+            config = PagingConfig(pageSize = PAGED_PAGE_SIZE, enablePlaceholders = false),
+            pagingSourceFactory = {
+                transactionDao.pagedTransactions(
+                    query = filter.query.trim().ifBlank { null },
+                    type = filter.type?.name,
+                    categoryId = filter.categoryId
+                )
+            }
+        ).flow.map { pagingData ->
+            pagingData.map { entity -> entity.toDomain() }
+        }
 
     override fun observeSummary(start: Long, end: Long): Flow<TransactionSummary> =
         transactionDao.observeSummary(start, end).map {
@@ -147,5 +170,10 @@ class TransactionRepositoryImpl(
 
     override suspend fun deleteSubscription(id: String, active: Boolean) {
         subscriptionDao.setSubscriptionActive(id, active)
+    }
+
+    private companion object {
+        /** Activity list page size (rows read per Room query). */
+        const val PAGED_PAGE_SIZE = 50
     }
 }

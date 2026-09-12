@@ -8,6 +8,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -86,7 +88,8 @@ fun QuickAddSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = AuraSpacing.gutter)
-                .padding(bottom = AuraSpacing.xxl),
+                .padding(bottom = AuraSpacing.xxl)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AuraSegmentedControl(
@@ -192,7 +195,7 @@ fun QuickAddSheet(
                 enabled = canSave,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .heightIn(min = 52.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text(stringResource(R.string.action_save), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
@@ -242,7 +245,7 @@ private fun KeypadKey(
 
     Box(
         modifier = modifier
-            .height(54.dp)
+            .heightIn(min = 54.dp)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale

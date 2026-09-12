@@ -266,7 +266,7 @@ private fun TransactionDetails(
             onClick = onDuplicate,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
+                .heightIn(min = 48.dp),
             shape = RoundedCornerShape(14.dp)
         ) {
             Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(18.dp))
