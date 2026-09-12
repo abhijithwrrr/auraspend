@@ -12,12 +12,12 @@ Apache-2.0, open source.
 
 ## Current phase
 
-**P0–P6 hardening landed and device-verified** — see
-`docs/handoffs/0005-four-iteration-hardening.md`. Four iterations completed:
-swipe triage inbox, SQL aggregates + bounded loading, i18n (330 resources) +
-accessibility + Roborazzi screenshots, compatibility-shim retirement. Remaining
-(future): Paging/baseline profiles, full a11y audit, translated locales,
-Roborazzi verify-mode CI. Phases: `docs/handoffs/0000-master-plan.md`.
+**Aurora rebuild complete; backlog closed** — see
+`docs/handoffs/0006-backlog-completion.md`. Recent: Paging 3 on Activity,
+baseline profile (8,932 rules, generated on-device) + Macrobenchmark module,
+Hindi locale (344 entries), ADRs 0001–0007, committed screenshot baselines
+with a CI drift gate, Smart Add wizard + swipe triage. Remaining nice-to-haves:
+physical-device benchmark numbers, full 200% font-scale sweep, more locales.
 Do not start new work without reading the latest handoff.
 
 ## Module map

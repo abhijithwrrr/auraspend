@@ -35,3 +35,12 @@ for the phase that introduces them.
 | `app/src/main/java/com/awbuilds/auraspend/core/AuraLog.kt` | Logging + error boundaries |
 | `docs/design/aurora.md` | Design language spec |
 | `docs/handoffs/` | Session handoffs |
+
+## Workflows
+| Task | Command / location |
+|------|--------------------|
+| Screenshot baselines | `./gradlew testFreeDebugUnitTest` → `app/src/test/screenshots/` (committed; CI diffs) |
+| Cold-start benchmark | `./gradlew :benchmark:connectedFreeBenchmarkAndroidTest` |
+| Baseline profile | `:benchmark:connectedFreeBenchmarkAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=…BaselineProfileGenerator` → copy to `app/src/main/baseline-prof.txt` |
+| Localization | `values/strings.xml` + `values-hi/strings.xml`; no literals in screens |
+| Decisions | `docs/adr/` (0001–0007) |

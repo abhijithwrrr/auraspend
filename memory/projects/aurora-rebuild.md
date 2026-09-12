@@ -17,8 +17,8 @@ layer, classification pipeline or business logic.
 | P2 | Home, Activity, Transaction Detail/Edit, Quick Add | ✅ Complete + swipe triage inbox |
 | P3 | Plan hub, Insights, Settings | ✅ Complete (+ savings goals) |
 | P4 | Onboarding/splash, states | ✅ Onboarding/splash landed (state pass partial) |
-| P5 | SQL aggregates, Paging 3, indices, baseline profiles, Macrobenchmarks | 🟡 Aggregates + indices + startup + bounded loading; Paging/baseline remaining |
-| P6 | Accessibility, i18n, screenshot tests, README GIFs, OSS polish | 🟡 330 string resources, semantics, Roborazzi suite, README gallery; audit/translations remaining |
+| P5 | SQL aggregates, Paging 3, indices, baseline profiles, Macrobenchmarks | ✅ Aggregates + indices + Paging 3 + benchmark module; baseline profile generation pending a device run |
+| P6 | Accessibility, i18n, screenshot tests, README GIFs, OSS polish | ✅ 330 strings (+ Hindi), semantics, screenshot baselines + CI gate, README gallery/GIF, ADRs 0001-0007 |
 
 ## Locked decisions
 See `memory/decisions.md`.
