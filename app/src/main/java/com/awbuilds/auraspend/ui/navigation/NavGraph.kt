@@ -14,13 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.awbuilds.auraspend.AuraSpendApp
 import com.awbuilds.auraspend.data.ai.ModelDownloadManager
 import com.awbuilds.auraspend.data.classification.AutoClassificationWorker
@@ -28,6 +29,7 @@ import com.awbuilds.auraspend.data.classification.AutoDetect
 import com.awbuilds.auraspend.data.local.BackupSerializer
 import com.awbuilds.auraspend.data.local.CsvManager
 import com.awbuilds.auraspend.domain.model.Transaction
+import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
 import com.awbuilds.auraspend.domain.usecase.ClassifyMessageUseCase
 import com.awbuilds.auraspend.domain.usecase.SaveTransactionUseCase
@@ -39,7 +41,6 @@ import com.awbuilds.auraspend.ui.classification.ClassificationScreen
 import com.awbuilds.auraspend.ui.classification.ClassificationViewIntent
 import com.awbuilds.auraspend.ui.classification.ClassificationViewModel
 import com.awbuilds.auraspend.ui.core.AuraAppChrome
-import com.awbuilds.auraspend.ui.core.AuraSegmentedAddSheet
 import com.awbuilds.auraspend.ui.core.isNotificationPermissionNeeded
 import com.awbuilds.auraspend.ui.core.rememberNotificationPermissionLauncher
 import com.awbuilds.auraspend.ui.home.DashboardScreen
@@ -50,8 +51,9 @@ import com.awbuilds.auraspend.ui.recurring.RecurringScreen
 import com.awbuilds.auraspend.ui.settings.SettingsScreen
 import com.awbuilds.auraspend.ui.splash.SplashScreen
 import com.awbuilds.auraspend.ui.theme.AppThemeMode
-import com.awbuilds.auraspend.ui.theme.AuraSpendTheme
-import com.awbuilds.auraspend.ui.transaction.AddTransactionScreen
+import com.awbuilds.auraspend.ui.transaction.NewTransactionScreen
+import com.awbuilds.auraspend.ui.transaction.QuickAddSheet
+import com.awbuilds.auraspend.ui.transaction.TransactionDetailScreen
 import com.awbuilds.auraspend.ui.transaction.TransactionListScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -74,6 +76,9 @@ object Routes {
     const val BUDGETS = "budgets"
     const val SUBSCRIPTIONS = "subscriptions"
     const val CATEGORIES = "categories"
+    const val TRANSACTION_DETAIL = "transaction/{transactionId}"
+
+    fun transactionDetail(id: String) = "transaction/$id"
 
     val topLevel = setOf(HOME, ACTIVITY, PLAN, INSIGHTS)
 }
@@ -116,13 +121,18 @@ fun AuraSpendNavHost(
     val currentRoute = backStackEntry?.destination?.route
     val showChrome = currentRoute in Routes.topLevel
 
-    var showAddSheet by remember { mutableStateOf(false) }
+    var showQuickAdd by remember { mutableStateOf(false) }
+    var quickAddType by remember { mutableStateOf(TransactionType.EXPENSE) }
+    val repositoryScope = rememberCoroutineScope()
 
     AuraAppChrome(
         showChrome = showChrome,
         currentRoute = currentRoute,
         onNavigate = { navController.navigateToTab(it) },
-        onAddClick = { showAddSheet = true }
+        onAddClick = {
+            quickAddType = TransactionType.EXPENSE
+            showQuickAdd = true
+        }
     ) {
         NavHost(
             navController = navController,
@@ -161,9 +171,15 @@ fun AuraSpendNavHost(
                 DashboardScreen(
                     viewModel = dashboardViewModel,
                     onNavigateToTransactions = { navController.navigateToTab(Routes.ACTIVITY) },
-                    onNavigateToAdd = { showAddSheet = true },
+                    onQuickAdd = { type ->
+                        quickAddType = type
+                        showQuickAdd = true
+                    },
+                    onOpenSmartAdd = { navController.navigate(Routes.CLASSIFICATION) },
                     onNavigateToAnalytics = { navController.navigateToTab(Routes.INSIGHTS) },
-                    onOpenSettings = { navController.navigate(Routes.SETTINGS) }
+                    onNavigateToPlan = { navController.navigateToTab(Routes.PLAN) },
+                    onOpenSettings = { navController.navigate(Routes.SETTINGS) },
+                    onOpenTransaction = { id -> navController.navigate(Routes.transactionDetail(id)) }
                 )
             }
 
@@ -179,7 +195,8 @@ fun AuraSpendNavHost(
                     onSearch = { },
                     onDelete = { id -> scope.launch { repository.deleteTransaction(id) } },
                     onBack = { navController.navigateToTab(Routes.HOME) },
-                    onRestore = { txn -> scope.launch { repository.saveTransaction(txn) } }
+                    onRestore = { txn -> scope.launch { repository.saveTransaction(txn) } },
+                    onOpenTransaction = { id -> navController.navigate(Routes.transactionDetail(id)) }
                 )
             }
 
@@ -284,27 +301,26 @@ fun AuraSpendNavHost(
                 popEnterTransition = { popEnter },
                 popExitTransition = { popExit }
             ) {
-                val categories by repository.getAllCategories()
-                    .collectAsState(initial = emptyList())
-                val scope = rememberCoroutineScope()
-                AddTransactionScreen(
-                    categories = categories,
-                    onSave = { amount, categoryId, note, merchant, type, date ->
-                        scope.launch {
-                            repository.saveTransaction(
-                                Transaction(
-                                    amount = amount,
-                                    categoryId = categoryId,
-                                    note = note,
-                                    merchant = merchant,
-                                    date = date,
-                                    type = type
-                                )
-                            )
-                            navController.popBackStack()
-                        }
-                    },
+                NewTransactionScreen(
+                    repository = repository,
                     onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = Routes.TRANSACTION_DETAIL,
+                arguments = listOf(navArgument("transactionId") { type = NavType.StringType }),
+                enterTransition = { pushEnter },
+                exitTransition = { pushExit },
+                popEnterTransition = { popEnter },
+                popExitTransition = { popExit }
+            ) { entry ->
+                val transactionId = entry.arguments?.getString("transactionId") ?: return@composable
+                TransactionDetailScreen(
+                    transactionId = transactionId,
+                    repository = repository,
+                    onBack = { navController.popBackStack() },
+                    onOpenTransaction = { id -> navController.navigate(Routes.transactionDetail(id)) }
                 )
             }
 
@@ -332,17 +348,35 @@ fun AuraSpendNavHost(
         }
     }
 
-    if (showAddSheet) {
-        AuraSegmentedAddSheet(
+    if (showQuickAdd) {
+        val categories by repository.getAllCategories().collectAsState(initial = emptyList())
+        QuickAddSheet(
+            categories = categories,
+            initialType = quickAddType,
+            onSave = { amount, categoryId, type, merchant, note ->
+                showQuickAdd = false
+                repositoryScope.launch {
+                    repository.saveTransaction(
+                        Transaction(
+                            amount = amount,
+                            categoryId = categoryId,
+                            note = note,
+                            merchant = merchant,
+                            date = java.time.LocalDateTime.now(),
+                            type = type
+                        )
+                    )
+                }
+            },
             onSmartAdd = {
-                showAddSheet = false
+                showQuickAdd = false
                 navController.navigate(Routes.CLASSIFICATION)
             },
             onManualAdd = {
-                showAddSheet = false
+                showQuickAdd = false
                 navController.navigate(Routes.ADD_TRANSACTION)
             },
-            onDismiss = { showAddSheet = false }
+            onDismiss = { showQuickAdd = false }
         )
     }
 }
