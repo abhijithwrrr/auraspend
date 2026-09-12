@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -19,7 +19,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.awbuilds.auraspend.domain.model.BudgetPeriod
-import androidx.compose.foundation.text.KeyboardOptions
+import com.awbuilds.auraspend.ui.designsystem.AuraCard
+import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
+import com.awbuilds.auraspend.ui.designsystem.AuraEmptyState
+import com.awbuilds.auraspend.ui.designsystem.AuraProgressRing
+import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
+import com.awbuilds.auraspend.ui.designsystem.AuraType
+import com.awbuilds.auraspend.ui.designsystem.formatMoney
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,42 +61,27 @@ fun BudgetScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
-                    .padding(32.dp),
+                    .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        Icons.Default.AccountBalance,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "No budgets set",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Set spending limits for each category.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.handleIntent(BudgetViewIntent.StartAdd) }) {
-                        Text("Add Budget")
-                    }
-                }
+                AuraEmptyState(
+                    icon = Icons.Default.AccountBalance,
+                    title = "No budgets set",
+                    message = "Set spending limits for each category.",
+                    actionLabel = "Add Budget",
+                    onAction = { viewModel.handleIntent(BudgetViewIntent.StartAdd) }
+                )
             }
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = PaddingValues(
+                    horizontal = AuraSpacing.gutter,
+                    vertical = AuraSpacing.lg
+                ),
+                verticalArrangement = Arrangement.spacedBy(AuraSpacing.md)
             ) {
                 // ── Overall budget health ──────────────────────────────────────
                 item {
@@ -99,48 +90,52 @@ fun BudgetScreen(
                     val overall = if (totalLimit > 0) (totalSpent / totalLimit).toFloat() else 0f
                     val today = java.time.LocalDate.now()
                     val daysLeft = today.lengthOfMonth() - today.dayOfMonth + 1
-                    Card(
+                    val overallColor = when {
+                        overall >= 1f -> MaterialTheme.colorScheme.error
+                        overall >= 0.8f -> MaterialTheme.colorScheme.tertiary
+                        else -> MaterialTheme.colorScheme.primary
+                    }
+                    AuraCard(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        ),
-                        shape = MaterialTheme.shapes.medium,
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                        style = AuraCardStyle.Tonal
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("All budgets", style = MaterialTheme.typography.labelMedium)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "All budgets",
+                                    style = AuraType.metricLabel,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(AuraSpacing.xs))
+                                Text(
+                                    "${formatMoney(totalSpent)} of ${formatMoney(totalLimit)}",
+                                    style = AuraType.moneyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(AuraSpacing.xs))
                                 Text(
                                     "$daysLeft day${if (daysLeft == 1) "" else "s"} left this month",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                "₹${String.format("%.0f", totalSpent)} of ₹${String.format("%.0f", totalLimit)}",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            LinearProgressIndicator(
-                                progress = { overall.coerceIn(0f, 1f) },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(8.dp)
-                                    .clip(RoundedCornerShape(4.dp)),
-                                color = when {
-                                    overall >= 1f -> MaterialTheme.colorScheme.error
-                                    overall >= 0.8f -> MaterialTheme.colorScheme.tertiary
-                                    else -> MaterialTheme.colorScheme.primary
-                                },
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
+                            Spacer(modifier = Modifier.width(AuraSpacing.lg))
+                            AuraProgressRing(
+                                progress = overall.coerceIn(0f, 1f),
+                                color = overallColor,
+                                modifier = Modifier.size(72.dp),
+                                stroke = 7.dp
+                            ) {
+                                Text(
+                                    "${(overall.coerceIn(0f, 1f) * 100).toInt()}%",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
                 }
@@ -154,103 +149,117 @@ fun BudgetScreen(
                         progress >= 0.8f -> MaterialTheme.colorScheme.tertiary
                         else -> MaterialTheme.colorScheme.primary
                     }
+                    val categoryColor = category?.let { Color(it.color.toLong()) }
+                        ?: MaterialTheme.colorScheme.onSurfaceVariant
 
-                    Card(
+                    AuraCard(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        shape = MaterialTheme.shapes.small,
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                        style = AuraCardStyle.Outlined
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(10.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(category?.color?.toLong() ?: 0xFF757575))
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        category?.name ?: "Unknown",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                }
-                                IconButton(onClick = { viewModel.handleIntent(BudgetViewIntent.DeleteBudget(budget.id)) }) {
-                                    Icon(
-                                        Icons.Default.Delete,
-                                        contentDescription = "Delete",
-                                        tint = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            LinearProgressIndicator(
-                                progress = { progress },
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(8.dp)
-                                    .clip(RoundedCornerShape(4.dp)),
-                                color = progressColor,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                                    .size(10.dp)
+                                    .clip(CircleShape)
+                                    .background(categoryColor)
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                            Spacer(modifier = Modifier.width(AuraSpacing.sm))
+                            Text(
+                                category?.name ?: "Unknown",
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            IconButton(onClick = { viewModel.handleIntent(BudgetViewIntent.DeleteBudget(budget.id)) }) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(AuraSpacing.md))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            AuraProgressRing(
+                                progress = progress,
+                                color = progressColor,
+                                modifier = Modifier.size(64.dp),
+                                stroke = 6.dp
                             ) {
                                 Text(
-                                    "₹${String.format("%.0f", budget.spentAmount)} spent",
-                                    style = MaterialTheme.typography.labelSmall
+                                    "${(progress * 100).toInt()}%",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
+                            }
+                            Spacer(modifier = Modifier.width(AuraSpacing.lg))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "${formatMoney(budget.spentAmount)} spent",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(AuraSpacing.xs))
                                 if (overBy > 0) {
                                     Text(
-                                        "Over by ₹${String.format("%.0f", overBy)}",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
+                                        "Over by ${formatMoney(overBy)}",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.error
                                     )
                                 } else {
                                     Text(
-                                        "₹${String.format("%.0f", budget.limitAmount)} limit",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.SemiBold
+                                        "${formatMoney(budget.limitAmount)} limit",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    budget.period.name.lowercase().replaceFirstChar { it.uppercase() },
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                if (progress >= 1f) {
+                        }
+                        Spacer(modifier = Modifier.height(AuraSpacing.sm))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                budget.period.name.lowercase().replaceFirstChar { it.uppercase() },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            if (progress >= 1f) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.Warning,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(AuraSpacing.xs))
                                     Text(
-                                        "⚠️ Limit reached",
+                                        "Limit reached",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.error,
                                         fontWeight = FontWeight.SemiBold
                                     )
-                                } else if (progress >= 0.8f) {
-                                    Text(
-                                        "${(progress * 100).toInt()}% used",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.tertiary,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
                                 }
+                            } else if (progress >= 0.8f) {
+                                Text(
+                                    "${(progress * 100).toInt()}% used",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         }
                     }
@@ -269,28 +278,28 @@ fun BudgetScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .padding(bottom = 40.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                    .padding(horizontal = AuraSpacing.xxl)
+                    .padding(bottom = AuraSpacing.xxxl),
+                verticalArrangement = Arrangement.spacedBy(AuraSpacing.xl)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(AuraSpacing.md)
                 ) {
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.size(48.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                Icons.Default.AccountBalance,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
+                        Icon(
+                            Icons.Default.AccountBalance,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                     Column {
                         Text(
@@ -306,7 +315,7 @@ fun BudgetScreen(
                     }
                 }
 
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
                     Text(
                         "Category",
                         style = MaterialTheme.typography.labelLarge,
@@ -327,7 +336,7 @@ fun BudgetScreen(
                                 label = {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
                                     ) {
                                         Box(
                                             modifier = Modifier
@@ -361,7 +370,7 @@ fun BudgetScreen(
                     }
                 )
 
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
                     Text(
                         "Period",
                         style = MaterialTheme.typography.labelLarge,
@@ -369,7 +378,7 @@ fun BudgetScreen(
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
                     ) {
                         BudgetPeriod.entries.forEach { period ->
                             FilterChip(
@@ -389,7 +398,7 @@ fun BudgetScreen(
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(AuraSpacing.md)
                 ) {
                     OutlinedButton(
                         onClick = { viewModel.handleIntent(BudgetViewIntent.CancelEdit) },

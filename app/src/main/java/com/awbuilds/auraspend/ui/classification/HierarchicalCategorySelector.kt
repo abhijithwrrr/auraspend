@@ -14,13 +14,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.hierarchicalCategoryMap
+import com.awbuilds.auraspend.ui.designsystem.AuraCard
+import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
+import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
 
 /**
- * Hierarchical category selector dialog showing parent and subcategories
+ * Hierarchical category selector dialog showing parent and subcategories.
+ *
+ * Aurora pass: the dialog container is an [AuraCard] with the 28dp dialog radius,
+ * spacing comes from [AuraSpacing], and the confirm action is a full-width 52dp
+ * rounded CTA. Selection state and callbacks are unchanged.
  */
 @Composable
 fun HierarchicalCategoryDialog(
@@ -36,24 +44,24 @@ fun HierarchicalCategoryDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Surface(
+        AuraCard(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .fillMaxHeight(0.8f),
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.surface
+            style = AuraCardStyle.Filled,
+            shape = RoundedCornerShape(28.dp),
+            contentPadding = PaddingValues(AuraSpacing.lg)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(AuraSpacing.lg)
             ) {
                 // Header
                 Text(
                     "Select Category",
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 // Show merchant suggestion if available
@@ -63,6 +71,7 @@ fun HierarchicalCategoryDialog(
                         label = {
                             Text("AI suggests: ${merchantSuggestion.first} (${(merchantSuggestion.second * 100).toInt()}% confident)")
                         },
+                        shape = RoundedCornerShape(50),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -70,7 +79,7 @@ fun HierarchicalCategoryDialog(
                 // Category list
                 LazyColumn(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
                 ) {
                     items(hierarchicalCategoryMap.keys.toList()) { parentCategory ->
                         val isExpanded = selectedParent == parentCategory
@@ -79,7 +88,7 @@ fun HierarchicalCategoryDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { selectedParent = if (isExpanded) null else parentCategory }
-                                .padding(8.dp)
+                                .padding(AuraSpacing.sm)
                         ) {
                             // Parent category
                             Row(
@@ -90,11 +99,13 @@ fun HierarchicalCategoryDialog(
                                 Text(
                                     parentCategory,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Icon(
                                     Icons.Default.ChevronRight,
                                     contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.rotate(if (isExpanded) 90f else 0f)
                                 )
                             }
@@ -104,8 +115,8 @@ fun HierarchicalCategoryDialog(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = 16.dp, top = 8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                        .padding(start = AuraSpacing.lg, top = AuraSpacing.sm),
+                                    verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
                                 ) {
                                     hierarchicalCategoryMap[parentCategory]?.forEach { subcategory ->
                                         val localCategoryId = mapHierarchicalToLocalId(parentCategory, subcategory)
@@ -121,7 +132,7 @@ fun HierarchicalCategoryDialog(
                                                     onCategorySelected(localCategoryId)
                                                     onDismiss()
                                                 }
-                                                .padding(8.dp)
+                                                .padding(AuraSpacing.sm)
                                         )
                                     }
                                 }
@@ -135,9 +146,12 @@ fun HierarchicalCategoryDialog(
                 // Close button
                 Button(
                     onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Done")
+                    Text("Done", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -179,12 +193,13 @@ fun DuplicateDetectionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(28.dp),
         title = {
             Text("Possible Duplicate Found")
         },
         text = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(AuraSpacing.md)
             ) {
                 Text(
                     "We found a similar transaction from ${
@@ -194,15 +209,13 @@ fun DuplicateDetectionDialog(
                     style = MaterialTheme.typography.bodyMedium
                 )
 
-                Surface(
+                AuraCard(
                     modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(8.dp)
+                    style = AuraCardStyle.Tonal,
+                    shape = RoundedCornerShape(16.dp),
+                    contentPadding = PaddingValues(AuraSpacing.md)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
                         DialogDetailRow(
                             label = "Merchant",
                             value = transaction.merchant ?: "Unknown"
@@ -226,7 +239,10 @@ fun DuplicateDetectionDialog(
             }
         },
         confirmButton = {
-            Button(onClick = onMarkAsDuplicate) {
+            Button(
+                onClick = onMarkAsDuplicate,
+                shape = RoundedCornerShape(16.dp)
+            ) {
                 Text("Mark as Duplicate")
             }
         },

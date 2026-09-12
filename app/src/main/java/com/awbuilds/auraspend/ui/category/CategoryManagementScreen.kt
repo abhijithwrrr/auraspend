@@ -19,6 +19,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.awbuilds.auraspend.domain.model.Category
+import com.awbuilds.auraspend.ui.designsystem.AuraCard
+import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
+import com.awbuilds.auraspend.ui.designsystem.AuraEmptyState
+import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,24 +58,20 @@ fun CategoryManagementScreen(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        Icons.Default.Category,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("No categories", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Add a category to organize your transactions.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+                AuraEmptyState(
+                    icon = Icons.Default.Category,
+                    title = "No categories",
+                    message = "Add a category to organize your transactions."
+                )
             }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                contentPadding = PaddingValues(
+                    horizontal = AuraSpacing.gutter,
+                    vertical = AuraSpacing.lg
+                ),
+                verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
             ) {
                 items(categories, key = { it.id }) { category ->
                     CategoryCard(
@@ -155,39 +155,45 @@ private fun CategoryCard(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    Card(
+    val categoryColor = Color(category.color.toLong())
+    AuraCard(
         onClick = onEdit,
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.small,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        style = AuraCardStyle.Outlined
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(44.dp)
                     .clip(CircleShape)
-                    .background(Color(category.color.toLong())),
+                    .background(categoryColor.copy(alpha = 0.14f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = categoryIcon(category.icon),
                     contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
+                    tint = categoryColor,
+                    modifier = Modifier.size(22.dp)
                 )
             }
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(AuraSpacing.md))
             Column(modifier = Modifier.weight(1f)) {
-                Text(category.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                Text(
+                    category.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
                 if (category.isDefault) {
-                    Text("Default", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(modifier = Modifier.height(AuraSpacing.xxs))
+                    Text(
+                        "Default",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
             if (!category.isDefault) {

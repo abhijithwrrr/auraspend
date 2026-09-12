@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -19,12 +20,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.awbuilds.auraspend.domain.model.RecurrenceFrequency
 import com.awbuilds.auraspend.domain.model.Subscription
-import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
+import com.awbuilds.auraspend.ui.designsystem.AuraCard
+import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
+import com.awbuilds.auraspend.ui.designsystem.AuraEmptyState
+import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
+import com.awbuilds.auraspend.ui.designsystem.AuraType
+import com.awbuilds.auraspend.ui.designsystem.formatMoney
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import androidx.compose.foundation.text.KeyboardOptions
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
@@ -63,38 +68,25 @@ fun RecurringScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
-                    .padding(32.dp),
+                    .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        Icons.Default.Subscriptions,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "No subscriptions",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Track your recurring payments.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                AuraEmptyState(
+                    icon = Icons.Default.Subscriptions,
+                    title = "No subscriptions",
+                    message = "Track your recurring payments."
+                )
             }
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = PaddingValues(
+                    horizontal = AuraSpacing.gutter,
+                    vertical = AuraSpacing.lg
+                ),
+                verticalArrangement = Arrangement.spacedBy(AuraSpacing.md)
             ) {
                 item {
                     // Monthly-normalised: weekly ×52/12, yearly ÷12, daily ×30 —
@@ -107,44 +99,40 @@ fun RecurringScreen(
                             RecurrenceFrequency.YEARLY -> 1.0 / 12.0
                         }
                     }
-                    Card(
+                    AuraCard(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        ),
-                        shape = MaterialTheme.shapes.medium,
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                        style = AuraCardStyle.Tonal
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     "Recurring monthly",
-                                    style = MaterialTheme.typography.labelMedium
+                                    style = AuraType.metricLabel,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                                Spacer(modifier = Modifier.height(AuraSpacing.xs))
                                 Text(
-                                    "₹${String.format("%.0f", monthlyEquivalent)}/mo",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold
+                                    "${formatMoney(monthlyEquivalent)}/mo",
+                                    style = AuraType.moneyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 if (subscriptions.any { it.billingCycle != RecurrenceFrequency.MONTHLY }) {
+                                    Spacer(modifier = Modifier.height(AuraSpacing.xs))
                                     Text(
                                         "normalised across cycles",
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
                             Icon(
                                 Icons.Default.Subscriptions,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(32.dp)
                             )
                         }
@@ -153,42 +141,39 @@ fun RecurringScreen(
 
                 items(subscriptions) { sub ->
                     val category = categories.find { it.id == sub.categoryId }
-                    Card(
+                    val categoryColor = category?.let { Color(it.color.toLong()) }
+                        ?: MaterialTheme.colorScheme.onSurfaceVariant
+                    AuraCard(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        shape = MaterialTheme.shapes.small,
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                        style = AuraCardStyle.Outlined
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(40.dp)
+                                    .size(44.dp)
                                     .clip(CircleShape)
-                                    .background(Color(category?.color?.toLong() ?: 0xFF757575).copy(alpha = 0.2f)),
+                                    .background(categoryColor.copy(alpha = 0.14f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     Icons.Default.Subscriptions,
                                     contentDescription = null,
-                                    tint = Color(category?.color?.toLong() ?: 0xFF757575),
-                                    modifier = Modifier.size(20.dp)
+                                    tint = categoryColor,
+                                    modifier = Modifier.size(22.dp)
                                 )
                             }
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(AuraSpacing.md))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     sub.name,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
+                                Spacer(modifier = Modifier.height(AuraSpacing.xxs))
                                 Text(
                                     "${category?.name ?: "Other"} · ${sub.billingCycle.name.lowercase().replaceFirstChar { it.uppercase() }}",
                                     style = MaterialTheme.typography.labelSmall,
@@ -197,9 +182,9 @@ fun RecurringScreen(
                             }
                             Column(horizontalAlignment = Alignment.End) {
                                 Text(
-                                    "₹${String.format("%.0f", sub.amount)}",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold
+                                    formatMoney(sub.amount),
+                                    style = AuraType.moneySmall,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 val daysUntil = java.time.temporal.ChronoUnit.DAYS.between(
                                     LocalDateTime.now().toLocalDate(),
@@ -212,6 +197,7 @@ fun RecurringScreen(
                                     else -> "Next: ${sub.nextBillingDate.format(DateTimeFormatter.ofPattern("dd MMM"))}"
                                 }
                                 val urgent = daysUntil <= 3L
+                                Spacer(modifier = Modifier.height(AuraSpacing.xxs))
                                 Text(
                                     dueLabel,
                                     style = MaterialTheme.typography.labelSmall,
@@ -246,28 +232,28 @@ fun RecurringScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .padding(bottom = 40.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                    .padding(horizontal = AuraSpacing.xxl)
+                    .padding(bottom = AuraSpacing.xxxl),
+                verticalArrangement = Arrangement.spacedBy(AuraSpacing.xl)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(AuraSpacing.md)
                 ) {
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.size(48.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                Icons.Default.Subscriptions,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
+                        Icon(
+                            Icons.Default.Subscriptions,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                     Column {
                         Text(
@@ -316,7 +302,7 @@ fun RecurringScreen(
                     }
                 )
 
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
                     Text(
                         "Billing Cycle",
                         style = MaterialTheme.typography.labelLarge,
@@ -324,7 +310,7 @@ fun RecurringScreen(
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
                     ) {
                         RecurrenceFrequency.entries.forEach { cycle ->
                             FilterChip(
@@ -342,7 +328,7 @@ fun RecurringScreen(
                     }
                 }
 
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
                     Text(
                         "Category",
                         style = MaterialTheme.typography.labelLarge,
@@ -357,8 +343,8 @@ fun RecurringScreen(
                     } else {
                         // Wrapping chip flow shows every category without a scroll.
                         androidx.compose.foundation.layout.FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm),
+                            verticalArrangement = Arrangement.spacedBy(AuraSpacing.xs)
                         ) {
                             categories.forEach { cat ->
                                 val catColor = Color(cat.color.toLong())
@@ -368,7 +354,7 @@ fun RecurringScreen(
                                     label = {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                            horizontalArrangement = Arrangement.spacedBy(AuraSpacing.xs + AuraSpacing.xxs)
                                         ) {
                                             Box(
                                                 modifier = Modifier
