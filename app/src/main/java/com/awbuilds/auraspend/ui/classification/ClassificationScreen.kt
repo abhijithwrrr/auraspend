@@ -296,6 +296,13 @@ private fun ClassificationResultCard(
 
             ConfidenceBadge(confidence = parsed.confidence)
 
+            // Live AI status: refining in flight, or refined result applied.
+            if (state.isAiEnriching && !state.aiRefined) {
+                AiStatusBadge(text = "AI refining…", tint = MaterialTheme.colorScheme.tertiary)
+            } else if (state.aiRefined) {
+                AiStatusBadge(text = "AI refined", tint = MaterialTheme.colorScheme.primary)
+            }
+
             // Show merchant confidence if available
             if (state.merchantConfidence > 0) {
                 MerchantConfidenceBadge(
@@ -364,6 +371,21 @@ private fun ClassificationResultCard(
                 ManualEntryFields(state, viewModel)
             }
         }
+    }
+}
+
+@Composable
+private fun AiStatusBadge(text: String, tint: androidx.compose.ui.graphics.Color) {
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        color = tint.copy(alpha = 0.14f)
+    ) {
+        Text(
+            text = "  $text  ",
+            style = MaterialTheme.typography.labelSmall,
+            color = tint,
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+        )
     }
 }
 

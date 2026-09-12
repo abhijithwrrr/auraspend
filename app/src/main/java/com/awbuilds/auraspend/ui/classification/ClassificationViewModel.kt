@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.awbuilds.auraspend.AuraSpendApp
 import com.awbuilds.auraspend.data.ai.LocalLlmProvider
 import com.awbuilds.auraspend.data.ai.ModelDownloadManager
+import com.awbuilds.auraspend.data.ai.SmsAiEnricher
 import com.awbuilds.auraspend.data.classification.AutoClassificationWorker
 import com.awbuilds.auraspend.data.classification.AutoDetect
 import com.awbuilds.auraspend.data.classification.ClassifiedSms
@@ -184,14 +185,14 @@ class ClassificationViewModel(
         if (message.isBlank()) return
 
         val parsed = classifyMessageUseCase(message)
-        
+
         // Get merchant confidence from repository
         var merchantConfidence = 0f
         if (parsed.merchant != null) {
             val merchantSuggestion = MerchantRepository.suggestCategory(parsed.merchant)
             merchantConfidence = merchantSuggestion?.second ?: 0f
         }
-        
+
         _state.update {
             it.copy(
                 parsedMessage = parsed,
@@ -199,8 +200,38 @@ class ClassificationViewModel(
                 manualAmount = parsed.amount?.let { formatAmount(it) } ?: "",
                 manualNote = parsed.note ?: "",
                 manualType = parsed.type ?: TransactionType.EXPENSE,
-                merchantConfidence = merchantConfidence
+                merchantConfidence = merchantConfidence,
+                aiRefined = false,
+                isAiEnriching = true
             )
+        }
+
+        // Async refinement: learned memory first, then the on-device LLM. Regex results are shown
+        // instantly; the AI result is only applied if the user has not moved on to another message.
+        viewModelScope.launch(Dispatchers.IO) {
+            val app = context.applicationContext as? AuraSpendApp
+            val categoriesByName = _state.value.availableCategories.associate { it.id to it.name }
+            val enricher = SmsAiEnricher(context, app?.classificationMemory)
+            val probe = ClassifiedSms(
+                sms = SmsInfo(id = "", address = "", body = message, timestamp = 0L),
+                parsed = parsed
+            )
+            val enriched = runCatching { enricher.enrich(probe, categoriesByName) }.getOrNull()
+                ?: return@launch
+
+            _state.update { current ->
+                // The user may have edited or replaced the message while the model was thinking.
+                if (current.rawMessage != message) return@update current.copy(isAiEnriching = false)
+                val refined = enriched.parsed
+                current.copy(
+                    parsedMessage = refined,
+                    selectedCategoryId = refined.categoryId ?: current.selectedCategoryId,
+                    merchantConfidence = MerchantRepository.suggestCategory(refined.merchant ?: "")?.second
+                        ?: current.merchantConfidence,
+                    aiRefined = true,
+                    isAiEnriching = false
+                )
+            }
         }
     }
 
@@ -248,6 +279,7 @@ class ClassificationViewModel(
 
                 // If user confirmed to ignore or no duplicate found, proceed with save
                 saveTransactionUseCase(transaction)
+                rememberClassification(transaction)
                 _state.update { it.copy(isSaving = false, saveSuccess = true) }
             } catch (e: Exception) {
                 _state.update { it.copy(isSaving = false, error = e.message ?: "Failed to save") }
@@ -300,6 +332,22 @@ class ClassificationViewModel(
         }
     }
 
+    /**
+     * Persists the merchant/note -> category mapping so repeat transactions skip the LLM entirely.
+     * User saves are the strongest signal; failures here must never block a save.
+     */
+    private fun rememberClassification(transaction: Transaction) {
+        val app = context.applicationContext as? AuraSpendApp ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching {
+                app.classificationMemory.learn(
+                    transaction,
+                    com.awbuilds.auraspend.data.local.entities.ClassificationMemoryEntity.SOURCE_USER_SAVE
+                )
+            }
+        }
+    }
+
     private fun SmsMessageEntity.toClassifiedSms(): ClassifiedSms {
         val parsed = if (amount != null && type != null) {
             ParsedBankMessage(
@@ -338,12 +386,20 @@ class ClassificationViewModel(
                 val classified = _state.value.classifiedSmsList.find { it.sms.id == smsId } ?: return@launch
                 if (classified.status == SmsStatus.SAVED) return@launch
 
+                // Never persist a message without an amount and direction — that would
+                // create a meaningless ₹0 expense (OTP / promo / balance alerts).
+                if (classified.parsed.amount == null || classified.parsed.type == null) {
+                    _state.update { it.copy(error = "No transaction detected in this message") }
+                    return@launch
+                }
+
                 val categories = _state.value.availableCategories
                 val categoryId = classified.parsed.categoryId
                 val effectiveCategory = if (categories.any { it.id == categoryId }) categoryId else "cat_other"
 
                 val transaction = SmsAutoClassifier.toTransaction(classified, effectiveCategory)
                 saveTransactionUseCase(transaction)
+                rememberClassification(transaction)
 
                 dao.getById(smsId)?.let { row ->
                     dao.update(
@@ -371,13 +427,20 @@ class ClassificationViewModel(
                 val app = context.applicationContext as? AuraSpendApp ?: return@launch
                 val dao = app.database.smsMessageDao()
                 val categories = _state.value.availableCategories
-                val toSave = _state.value.classifiedSmsList.filter { it.status != SmsStatus.SAVED }
+                // Only persist messages the classifier actually resolved; pending rows are
+                // still being processed and skipped rows were rejected as OTP/promos.
+                val toSave = _state.value.classifiedSmsList.filter {
+                    it.status == SmsStatus.CLASSIFIED &&
+                        it.parsed.amount != null &&
+                        it.parsed.type != null
+                }
 
                 for (classified in toSave) {
                     val categoryId = classified.parsed.categoryId
                     val effectiveCategory = if (categories.any { it.id == categoryId }) categoryId else "cat_other"
                     val transaction = SmsAutoClassifier.toTransaction(classified, effectiveCategory)
                     saveTransactionUseCase(transaction)
+                    rememberClassification(transaction)
                     dao.getById(classified.sms.id)?.let { row ->
                         dao.update(
                             row.copy(

@@ -90,13 +90,85 @@ class QwenMessageCategorizerTest {
     }
 
     @Test
-    fun `categorise keeps raw output when parse fails`() {
-        val fake = FakeLlm("garbage output")
+    fun `unparsable model output returns null instead of a false veto`() {
+        // Regression: garbage generations used to become isTransaction=false, which the
+        // fusion layer treated as a veto and discarded a good regex parse.
+        val fake = FakeLlm("I could not understand that message, sorry!")
         val cat = categorizer(llm = fake)
-        val result = cat.categorise("x", categories)
+        assertNull(cat.categorise("Rs 500 debited", categories))
+    }
+
+    @Test
+    fun `parse infers transaction from type when flag missing`() {
+        val cat = categorizer()
+        val result = cat.parse("""{"type":"expense","category":"Food & Dining","merchant":"Swiggy"}""", categories)
         assertNotNull(result)
-        assertNull(result!!.categoryId)
-        assertEquals("garbage output", result.rawModelOutput)
+        assertTrue(result!!.isTransaction)
+    }
+
+    @Test
+    fun `explicit false still vetoes`() {
+        val cat = categorizer()
+        val result = cat.parse("""{"is_transaction":false,"type":"none","category":"Other","merchant":"none","subscription":false}""", categories)
+        assertNotNull(result)
+        assertFalse(result!!.isTransaction)
+    }
+
+    @Test
+    fun `bank-style type words are understood`() {
+        val cat = categorizer()
+        val credited = cat.parse("""{"is_transaction":true,"type":"credited","category":"Salary","merchant":"Acme"}""", categories)
+        assertEquals(TransactionType.INCOME, credited!!.type)
+
+        val debited = cat.parse("""{"is_transaction":true,"type":"debited","category":"Shopping","merchant":"Amazon"}""", categories)
+        assertEquals(TransactionType.EXPENSE, debited!!.type)
+    }
+
+    @Test
+    fun `camelCase flag variant parses`() {
+        val cat = categorizer()
+        val result = cat.parse("""{"isTransaction":true,"type":"expense","category":"Transport","merchant":"Uber","subscription":false}""", categories)
+        assertNotNull(result)
+        assertTrue(result!!.isTransaction)
+        assertEquals("cat_transport", result.categoryId)
+    }
+
+    @Test
+    fun `prompt carries strict schema rules and stays within context budget`() {
+        val cat = categorizer()
+        val prompt = cat.buildPrompt(
+            "INR 250 debited A/c XX1234 at SWIGGY on 01-07",
+            mapOf(
+                "cat_food" to "Food & Dining",
+                "cat_transport" to "Transport",
+                "cat_subscription" to "Subscriptions",
+                "cat_transfer" to "Transfer",
+                "cat_other" to "Other"
+            )
+        )
+
+        // Schema + critical rules must be present.
+        assertTrue(prompt.contains("\"is_transaction\""))
+        assertTrue(prompt.contains("\"type\":\"income|expense|none\"") || prompt.contains("income|expense|none"))
+        assertTrue(prompt.contains("EXACTLY one of"))
+        assertTrue(prompt.contains("Food & Dining"))
+        assertTrue(prompt.contains("\"Transfer\""))
+        assertTrue(prompt.contains("Refund"))
+        assertTrue(prompt.contains("auto-pay/NACH/e-mandate/auto-debit"))
+        assertTrue(prompt.contains("NEVER copy account numbers"))
+        assertTrue(prompt.contains("No explanations, no markdown"))
+
+        // Failure-mode few-shots must all be covered.
+        assertTrue(prompt.contains("SWIGGY"))
+        assertTrue(prompt.contains("rahim@ybl"))
+        assertTrue(prompt.contains("salary credited"))
+        assertTrue(prompt.contains("refunded"))
+        assertTrue(prompt.contains("AutoPay"))
+        assertTrue(prompt.contains("Your OTP is"))
+        assertTrue(prompt.contains("Avl balance"))
+
+        // The whole prompt must comfortably fit the 2048-token context (~4 chars/token).
+        assertTrue("prompt too long: ${prompt.length} chars", prompt.length < 3200)
     }
 }
 

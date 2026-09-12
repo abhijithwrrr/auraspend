@@ -4,6 +4,7 @@ import android.content.Context
 import com.awbuilds.auraspend.data.local.dao.SmsMessageDao
 import com.awbuilds.auraspend.data.local.entities.SmsMessageEntity
 import com.awbuilds.auraspend.data.local.entities.SmsMessageStatus
+import com.awbuilds.auraspend.data.privacy.SensitiveDataMasker
 
 /**
  * Snapshots bank-like messages from the device inbox into the persistent [SmsMessageEntity] queue.
@@ -12,6 +13,9 @@ import com.awbuilds.auraspend.data.local.entities.SmsMessageStatus
  * so re-scanning is always safe. A lightweight pref watermark keeps repeated scans to the newest
  * messages only; the watermark is set one ms below the newest ingested message so a message sharing
  * the exact boundary timestamp is never permanently missed (re-inserts are ignored).
+ *
+ * PRIVACY: bodies are passed through [SensitiveDataMasker] BEFORE storage, so phone numbers,
+ * reference ids and account fragments never touch the database (or anything derived from it).
  */
 object SmsIngestor {
 
@@ -38,7 +42,7 @@ object SmsIngestor {
             SmsMessageEntity(
                 id = message.id,
                 address = message.address,
-                body = message.body,
+                body = SensitiveDataMasker.mask(message.body),
                 receivedAt = message.timestamp,
                 status = SmsMessageStatus.NEW.name
             )

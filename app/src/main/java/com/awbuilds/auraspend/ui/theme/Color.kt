@@ -2,83 +2,123 @@ package com.awbuilds.auraspend.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Rich Material 3 palette — Teal-based
-val LightPrimary = Color(0xFF006B5E)
+// ─── Cashew-style palette ─────────────────────────────────────────────────────
+// White canvas with soft-shadow cards (light), near-black canvas with
+// elevated dark cards, deep-blue accent, and semantic income/expense colors.
+
+// Default accent — deep blue (Cashew default)
+val AccentBlue = Color(0xFF1B447A)
+
+// Semantic amounts (Cashew tokens)
+val IncomeGreenLight = Color(0xFF59A849)
+val ExpenseRedLight = Color(0xFFCA5A5A)
+val UpcomingBlue = Color(0xFF58A4C2)
+val OverdueIndigo = Color(0xFF6577E0)
+val WarningOrangeLight = Color(0xFFCA995A)
+
+val IncomeGreenDark = Color(0xFF62CA77)
+val ExpenseRedDark = Color(0xFFDA7272)
+val UpcomingBlueDark = Color(0xFF7DB6CC)
+val OverdueIndigoDark = Color(0xFF8395FF)
+val WarningOrangeDark = Color(0xFFDA9C72)
+
+// ─── Light scheme ─────────────────────────────────────────────────────────────
+val LightPrimary = Color(0xFF1B447A)
 val LightOnPrimary = Color(0xFFFFFFFF)
-val LightPrimaryContainer = Color(0xFF7CF8E1)
-val LightOnPrimaryContainer = Color(0xFF00201B)
+val LightPrimaryContainer = Color(0xFFD5E1F6)
+val LightOnPrimaryContainer = Color(0xFF061C36)
 
-val LightSecondary = Color(0xFF4A635C)
+val LightSecondary = Color(0xFF55637B)
 val LightOnSecondary = Color(0xFFFFFFFF)
-val LightSecondaryContainer = Color(0xFFCCE9DF)
-val LightOnSecondaryContainer = Color(0xFF06201A)
+val LightSecondaryContainer = Color(0xFFD9E3F7)
+val LightOnSecondaryContainer = Color(0xFF122036)
 
-val LightTertiary = Color(0xFF426277)
+val LightTertiary = Color(0xFF50656D)
 val LightOnTertiary = Color(0xFFFFFFFF)
-val LightTertiaryContainer = Color(0xFFC8E7FF)
-val LightOnTertiaryContainer = Color(0xFF001E30)
+val LightTertiaryContainer = Color(0xFFD2EAF4)
+val LightOnTertiaryContainer = Color(0xFF0B1F26)
 
-val LightBackground = Color(0xFFFBFDF9)
-val LightOnBackground = Color(0xFF191C1B)
-val LightSurface = Color(0xFFFBFDF9)
-val LightOnSurface = Color(0xFF191C1B)
-val LightSurfaceVariant = Color(0xFFDBE5E0)
-val LightOnSurfaceVariant = Color(0xFF3F4945)
-val LightOutline = Color(0xFF6F7975)
-val LightOutlineVariant = Color(0xFFBFC9C4)
+val LightBackground = Color(0xFFFFFFFF)
+val LightOnBackground = Color(0xFF191B1E)
+val LightSurface = Color(0xFFFFFFFF)
+val LightOnSurface = Color(0xFF191B1E)
+val LightSurfaceVariant = Color(0xFFF7F7F7)
+val LightOnSurfaceVariant = Color(0xFF888888)
+val LightOutline = Color(0xFFCCCCCC)
+val LightOutlineVariant = Color(0xFFF0F0F0)
 val LightError = Color(0xFFBA1A1A)
 val LightOnError = Color(0xFFFFFFFF)
 
-// Dark Palette
-val DarkPrimary = Color(0xFF5DDBBF)
-val DarkOnPrimary = Color(0xFF003830)
-val DarkPrimaryContainer = Color(0xFF005046)
-val DarkOnPrimaryContainer = Color(0xFF7CF8E1)
+// Surface container roles (light) — subtle grays for chips/sheets/nav
+val LightSurfContainerLowest = Color(0xFFFFFFFF)
+val LightSurfContainerLow = Color(0xFFFAFAFA)
+val LightSurfContainer = Color(0xFFF7F7F7)
+val LightSurfContainerHigh = Color(0xFFF0F0F0)
+val LightSurfContainerHighest = Color(0xFFEBEBEB)
 
-val DarkSecondary = Color(0xFFB1CCC3)
-val DarkOnSecondary = Color(0xFF1C352E)
-val DarkSecondaryContainer = Color(0xFF324B44)
-val DarkOnSecondaryContainer = Color(0xFFCCE9DF)
+// ─── Dark scheme ──────────────────────────────────────────────────────────────
+val DarkPrimary = Color(0xFFA8C5F0)
+val DarkOnPrimary = Color(0xFF0E3055)
+val DarkPrimaryContainer = Color(0xFF294771)
+val DarkOnPrimaryContainer = Color(0xFFD3E2FB)
 
-val DarkTertiary = Color(0xFFAACBFF)
-val DarkOnTertiary = Color(0xFF0A3348)
-val DarkTertiaryContainer = Color(0xFF284A5F)
-val DarkOnTertiaryContainer = Color(0xFFC8E7FF)
+val DarkSecondary = Color(0xFFBCC7DD)
+val DarkOnSecondary = Color(0xFF263141)
+val DarkSecondaryContainer = Color(0xFF3C4858)
+val DarkOnSecondaryContainer = Color(0xFFD9E3F7)
 
-val DarkBackground = Color(0xFF191C1B)
-val DarkOnBackground = Color(0xFFE1E3E0)
-val DarkSurface = Color(0xFF191C1B)
-val DarkOnSurface = Color(0xFFE1E3E0)
-val DarkSurfaceVariant = Color(0xFF3F4945)
-val DarkOnSurfaceVariant = Color(0xFFBFC9C4)
-val DarkOutline = Color(0xFF89938E)
-val DarkOutlineVariant = Color(0xFF3F4945)
+val DarkTertiary = Color(0xFFB6CED8)
+val DarkOnTertiary = Color(0xFF21353C)
+val DarkTertiaryContainer = Color(0xFF374B53)
+val DarkOnTertiaryContainer = Color(0xFFD2EAF4)
+
+val DarkBackground = Color(0xFF000000)
+val DarkOnBackground = Color(0xFFE3E3E3)
+val DarkSurface = Color(0xFF242424)
+val DarkOnSurface = Color(0xFFE3E3E3)
+val DarkSurfaceVariant = Color(0xFF161616)
+val DarkOnSurfaceVariant = Color(0xFF9E9E9E)
+val DarkOutline = Color(0xFF757575)
+val DarkOutlineVariant = Color(0xFF363636)
 val DarkError = Color(0xFFFFB4AB)
 val DarkOnError = Color(0xFF690005)
 
-// AMOLED (true black)
-val AmoledPrimary = Color(0xFF5DDBBF)
-val AmoledOnPrimary = Color(0xFF003830)
-val AmoledPrimaryContainer = Color(0xFF005046)
-val AmoledOnPrimaryContainer = Color(0xFF7CF8E1)
+// Surface container roles (dark)
+val DarkSurfContainerLowest = Color(0xFF0F0F0F)
+val DarkSurfContainerLow = Color(0xFF161616)
+val DarkSurfContainer = Color(0xFF1D1D1D)
+val DarkSurfContainerHigh = Color(0xFF242424)
+val DarkSurfContainerHighest = Color(0xFF303030)
 
-val AmoledSecondary = Color(0xFFB1CCC3)
-val AmoledOnSecondary = Color(0xFF1C352E)
-val AmoledSecondaryContainer = Color(0xFF324B44)
-val AmoledOnSecondaryContainer = Color(0xFFCCE9DF)
+// ─── AMOLED (true black) ──────────────────────────────────────────────────────
+val AmoledPrimary = DarkPrimary
+val AmoledOnPrimary = DarkOnPrimary
+val AmoledPrimaryContainer = DarkPrimaryContainer
+val AmoledOnPrimaryContainer = DarkOnPrimaryContainer
 
-val AmoledTertiary = Color(0xFFAACBFF)
-val AmoledOnTertiary = Color(0xFF0A3348)
-val AmoledTertiaryContainer = Color(0xFF284A5F)
-val AmoledOnTertiaryContainer = Color(0xFFC8E7FF)
+val AmoledSecondary = DarkSecondary
+val AmoledOnSecondary = DarkOnSecondary
+val AmoledSecondaryContainer = DarkSecondaryContainer
+val AmoledOnSecondaryContainer = DarkOnSecondaryContainer
+
+val AmoledTertiary = DarkTertiary
+val AmoledOnTertiary = DarkOnTertiary
+val AmoledTertiaryContainer = DarkTertiaryContainer
+val AmoledOnTertiaryContainer = DarkOnTertiaryContainer
 
 val AmoledBackground = Color(0xFF000000)
-val AmoledOnBackground = Color(0xFFE1E3E0)
-val AmoledSurface = Color(0xFF000000)
-val AmoledOnSurface = Color(0xFFE1E3E0)
-val AmoledSurfaceVariant = Color(0xFF1C1E1D)
-val AmoledOnSurfaceVariant = Color(0xFFBFC9C4)
-val AmoledOutline = Color(0xFF89938E)
-val AmoledOutlineVariant = Color(0xFF2C3328)
+val AmoledOnBackground = Color(0xFFE3E3E3)
+val AmoledSurface = Color(0xFF161616)
+val AmoledOnSurface = Color(0xFFE3E3E3)
+val AmoledSurfaceVariant = Color(0xFF101010)
+val AmoledOnSurfaceVariant = Color(0xFF9E9E9E)
+val AmoledOutline = Color(0xFF757575)
+val AmoledOutlineVariant = Color(0xFF262626)
 val AmoledError = Color(0xFFFFB4AB)
 val AmoledOnError = Color(0xFF690005)
+
+val AmoledSurfContainerLowest = Color(0xFF000000)
+val AmoledSurfContainerLow = Color(0xFF0A0A0A)
+val AmoledSurfContainer = Color(0xFF121212)
+val AmoledSurfContainerHigh = Color(0xFF1C1C1C)
+val AmoledSurfContainerHighest = Color(0xFF262626)

@@ -6,9 +6,11 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Process
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
@@ -19,6 +21,8 @@ import androidx.work.WorkerParameters
 import com.awbuilds.auraspend.AuraSpendApp
 import com.awbuilds.auraspend.data.ai.SmsAiEnricher
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import java.util.concurrent.TimeUnit
@@ -47,10 +51,23 @@ class AutoClassificationWorker(
         // Only run when the user opted in to automatic classification.
         if (!AutoDetect.isEnabled(applicationContext)) return Result.success()
 
-        // SMS query + LLM enrichment are heavy (each AI pass reads a 400 MB model), so run on IO
-        // rather than WorkManager's Default dispatcher to keep the shared CPU pool responsive.
-        return withContext(Dispatchers.IO) {
-            doProcess().let { if (it) Result.success() else Result.retry() }
+        // The periodic schedule and consent-triggered one-shot runs use different WorkManager
+        // names, so they CAN overlap. A shared mutex guarantees a single pipeline pass at a
+        // time: no double LLM batches, no CPU contention, no jank.
+        return pipelineMutex.withLock {
+            // SMS query + LLM enrichment are heavy (each AI pass reads a 400 MB model), so run
+            // on IO rather than WorkManager's Default dispatcher. The inference engine itself
+            // runs on a dedicated background-priority thread; this priority bump keeps the
+            // orchestration work (DB, regex) equally polite.
+            val oldPriority = Process.getThreadPriority(Process.myTid())
+            Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)
+            try {
+                withContext(Dispatchers.IO) {
+                    doProcess().let { if (it) Result.success() else Result.retry() }
+                }
+            } finally {
+                Process.setThreadPriority(oldPriority)
+            }
         }
     }
 
@@ -61,14 +78,24 @@ class AutoClassificationWorker(
         // 1. Snapshot new device messages into the queue (idempotent).
         SmsIngestor.ingest(context = applicationContext, dao = dao)
 
-        // 2. Process pending rows one at a time.
-        val enricher = SmsAiEnricher(applicationContext)
+        // 2. Process pending rows one at a time with AI enrichment + learned-memory fast path.
+        val enricher = SmsAiEnricher(applicationContext, app.classificationMemory)
         val processor = SmsPipelineProcessor(
             dao = dao,
             transactionRepository = app.transactionRepository,
-            enrich = { classified, categories -> enricher.enrich(classified, categories) }
+            enrich = { classified, categories -> enricher.enrich(classified, categories) },
+            onSaved = { transaction ->
+                runCatching {
+                    app.classificationMemory.learn(
+                        transaction,
+                        com.awbuilds.auraspend.data.local.entities.ClassificationMemoryEntity.SOURCE_AUTO_SAVE
+                    )
+                }
+            },
+            // Breathing room between LLM generations keeps the UI at full frame rate.
+            interMessageDelayMs = INTER_MESSAGE_DELAY_MS
         )
-        val result = processor.processPending(maxMessages = 10)
+        val result = processor.processPending(maxMessages = MAX_BATCH)
 
         if (result.saved > 0) {
             showNotification(result.saved)
@@ -117,14 +144,29 @@ class AutoClassificationWorker(
     companion object {
         private const val WORK_NAME = "auto_classification"
 
+        /** App-wide gate: only one classification pass runs at any moment (worker or
+         *  [BackgroundClassificationCoordinator]). */
+        internal val pipelineMutex = Mutex()
+
+        /** Messages classified per worker run. Each LLM call takes ~1-4s on-device.
+         *  Kept small so a run finishes quickly and never hogs the CPU for minutes;
+         *  remaining rows drain on the next periodic pass. */
+        private const val MAX_BATCH = 12
+
+        /** Pause between processed messages to keep the device responsive. */
+        private const val INTER_MESSAGE_DELAY_MS = 750L
+
         fun schedule(context: Context) {
             val request = PeriodicWorkRequestBuilder<AutoClassificationWorker>(
                 6, TimeUnit.HOURS
+            ).setConstraints(
+                // Never burn CPU while the battery is running low.
+                Constraints.Builder().setRequiresBatteryNotLow(true).build()
             ).build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.UPDATE,
                 request
             )
         }
@@ -134,12 +176,21 @@ class AutoClassificationWorker(
          * never queue duplicates). Used right after consent / SMS permission / turning the toggle on.
          */
         fun runNow(context: Context) {
-            val request = OneTimeWorkRequestBuilder<AutoClassificationWorker>().build()
+            val request = OneTimeWorkRequestBuilder<AutoClassificationWorker>()
+                .setConstraints(
+                    Constraints.Builder().setRequiresBatteryNotLow(true).build()
+                )
+                .build()
             WorkManager.getInstance(context).enqueueUniqueWork(
                 WORK_NAME_ONESHOT,
                 ExistingWorkPolicy.REPLACE,
                 request
             )
+        }
+
+        /** Cancels a not-yet-started one-shot pass (used when the toggle goes off). */
+        fun cancelPendingWork(context: Context) {
+            WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME_ONESHOT)
         }
 
         private const val WORK_NAME_ONESHOT = "auto_classification_now"

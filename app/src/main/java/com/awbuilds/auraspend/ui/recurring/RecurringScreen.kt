@@ -26,7 +26,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import androidx.compose.foundation.text.KeyboardOptions
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun RecurringScreen(
     repository: TransactionRepository,
@@ -97,6 +97,16 @@ fun RecurringScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
+                    // Monthly-normalised: weekly ×52/12, yearly ÷12, daily ×30 —
+                    // the old card summed raw amounts and mislabeled them "/mo".
+                    val monthlyEquivalent = subscriptions.sumOf { sub ->
+                        sub.amount * when (sub.billingCycle) {
+                            RecurrenceFrequency.DAILY -> 30.0
+                            RecurrenceFrequency.WEEKLY -> 52.0 / 12.0
+                            RecurrenceFrequency.MONTHLY -> 1.0
+                            RecurrenceFrequency.YEARLY -> 1.0 / 12.0
+                        }
+                    }
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
@@ -115,14 +125,21 @@ fun RecurringScreen(
                         ) {
                             Column {
                                 Text(
-                                    "Monthly Total",
+                                    "Recurring monthly",
                                     style = MaterialTheme.typography.labelMedium
                                 )
                                 Text(
-                                    "₹${String.format("%.0f", subscriptions.sumOf { it.amount })}/mo",
+                                    "₹${String.format("%.0f", monthlyEquivalent)}/mo",
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold
                                 )
+                                if (subscriptions.any { it.billingCycle != RecurrenceFrequency.MONTHLY }) {
+                                    Text(
+                                        "normalised across cycles",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                                    )
+                                }
                             }
                             Icon(
                                 Icons.Default.Subscriptions,
@@ -184,10 +201,24 @@ fun RecurringScreen(
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold
                                 )
+                                val daysUntil = java.time.temporal.ChronoUnit.DAYS.between(
+                                    LocalDateTime.now().toLocalDate(),
+                                    sub.nextBillingDate.toLocalDate()
+                                )
+                                val dueLabel = when {
+                                    daysUntil < 0L -> "Overdue"
+                                    daysUntil == 0L -> "Due today"
+                                    daysUntil == 1L -> "Tomorrow"
+                                    else -> "Next: ${sub.nextBillingDate.format(DateTimeFormatter.ofPattern("dd MMM"))}"
+                                }
+                                val urgent = daysUntil <= 3L
                                 Text(
-                                    "Next: ${sub.nextBillingDate.format(DateTimeFormatter.ofPattern("dd MMM"))}",
+                                    dueLabel,
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    fontWeight = if (urgent) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (daysUntil < 0L) MaterialTheme.colorScheme.error
+                                    else if (urgent) MaterialTheme.colorScheme.tertiary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                             IconButton(onClick = {
@@ -324,30 +355,32 @@ fun RecurringScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     } else {
-                        categories.take(6).forEach { cat ->
-                            val catColor = Color(cat.color.toLong())
-                            FilterChip(
-                                selected = subscriptionCategory == cat.id,
-                                onClick = { subscriptionCategory = cat.id },
-                                label = {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(8.dp)
-                                                .clip(CircleShape)
-                                                .background(catColor)
-                                        )
-                                        Text(
-                                            cat.name,
-                                            style = MaterialTheme.typography.labelSmall
-                                        )
+                        // Wrapping chip flow shows every category without a scroll.
+                        androidx.compose.foundation.layout.FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            categories.forEach { cat ->
+                                val catColor = Color(cat.color.toLong())
+                                FilterChip(
+                                    selected = subscriptionCategory == cat.id,
+                                    onClick = { subscriptionCategory = cat.id },
+                                    label = {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(8.dp)
+                                                    .clip(CircleShape)
+                                                    .background(catColor)
+                                            )
+                                            Text(cat.name, style = MaterialTheme.typography.labelSmall)
+                                        }
                                     }
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -356,14 +389,22 @@ fun RecurringScreen(
                     onClick = {
                         val amt = subscriptionAmount.toDoubleOrNull() ?: return@Button
                         if (subscriptionName.isBlank() || subscriptionCategory.isBlank()) return@Button
+                        // Next billing follows the chosen cycle instead of a hardcoded month.
+                        val now = LocalDateTime.now()
+                        val next = when (subscriptionCycle) {
+                            RecurrenceFrequency.DAILY -> now.plusDays(1)
+                            RecurrenceFrequency.WEEKLY -> now.plusWeeks(1)
+                            RecurrenceFrequency.MONTHLY -> now.plusMonths(1)
+                            RecurrenceFrequency.YEARLY -> now.plusYears(1)
+                        }
                         scope.launch {
                             repository.saveSubscription(
                                 Subscription(
-                                    name = subscriptionName,
+                                    name = subscriptionName.trim(),
                                     amount = amt,
                                     categoryId = subscriptionCategory,
                                     billingCycle = subscriptionCycle,
-                                    nextBillingDate = LocalDateTime.now().plusMonths(1)
+                                    nextBillingDate = next
                                 )
                             )
                         }

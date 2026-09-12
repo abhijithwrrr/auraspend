@@ -106,6 +106,11 @@ object ModelDownloadManager {
                     _state.value = AiModelState.Failed
                     publishDownloadFailed(context)
                 }
+            } catch (_: CancelledDownloadException) {
+                // User cancelled - not a failure. Keep the partial file so a later start() resumes.
+                cancelRequested.set(false)
+                cancelDownloadNotification(context)
+                _state.value = if (hasModel(context)) AiModelState.Ready else AiModelState.NotDownloaded
             } catch (e: Exception) {
                 Log.e(TAG, "Download failed", e)
                 _state.value = AiModelState.Failed
@@ -134,6 +139,7 @@ object ModelDownloadManager {
         val partial = File(target.parentFile, target.name + ".part")
 
         var downloadedBytes = partial.length()
+        var lastPublishedProgress = 0f
         val request = Request.Builder()
             .url(ModelConstants.MODEL_URL)
             .header("Range", "bytes=$downloadedBytes-")
@@ -175,8 +181,10 @@ object ModelDownloadManager {
                     if (sourceLength > 0) {
                         val progress = (downloadedBytes.toDouble() / sourceLength).toFloat().coerceIn(0f, 1f)
                         _state.value = AiModelState.Downloading(progress)
+                        // Throttle the notification: publish at most every ~2% of progress.
                         // Don't show "Downloading 100%" - let the final success notification handle it.
-                        if (progress < 1f) {
+                        if (progress < 1f && progress - lastPublishedProgress >= PROGRESS_STEP) {
+                            lastPublishedProgress = progress
                             publishDownloadProgress(context, progress)
                         }
                     }
@@ -186,21 +194,19 @@ object ModelDownloadManager {
             stream.close()
 
             if (cancelRequested.get()) {
-                cancelRequested.set(false)
                 throw CancelledDownloadException()
             }
         }
 
-        // Finalise the download: move the part file into place.
-        if (!target.exists() || partial.length() >= ModelConstants.MIN_SIZE_BYTES) {
-            if (target.exists()) target.delete()
-            if (!partial.renameTo(target)) {
-                // Cross-filesystem fallback: stream the file instead of loading 400 MB into RAM.
-                partial.inputStream().use { input -> target.outputStream().use { out -> input.copyTo(out) } }
-                partial.delete()
-            }
-        } else if (partial.length() < ModelConstants.MIN_SIZE_BYTES) {
+        // Finalise the download: validate, then move the part file into place.
+        if (partial.length() < ModelConstants.MIN_SIZE_BYTES) {
             throw IOException("Downloaded file is too small: ${partial.length()} bytes")
+        }
+        if (target.exists()) target.delete()
+        if (!partial.renameTo(target)) {
+            // Cross-filesystem fallback: stream the file instead of loading 400 MB into RAM.
+            partial.inputStream().use { input -> target.outputStream().use { out -> input.copyTo(out) } }
+            partial.delete()
         }
     }
 
@@ -289,4 +295,7 @@ object ModelDownloadManager {
     }
 
     private class CancelledDownloadException : Exception()
+
+    /** Publish a progress notification at most every 2% of the download. */
+    private const val PROGRESS_STEP = 0.02f
 }

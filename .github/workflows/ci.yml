@@ -3,6 +3,8 @@ name: CI
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,7 +24,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Cache Gradle distributions
         uses: actions/cache@v4
@@ -34,8 +36,19 @@ jobs:
             ${{ runner.os }}-gradle-wrapper-
             ${{ runner.os }}-
 
-      - name: Build free flavor
+      - name: Accept SDK licenses & install platform 37
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37" "build-tools;36.0.0" > /dev/null
+
+      - name: Unit tests
+        run: ./gradlew testFreeDebugUnitTest
+
+      - name: Build free flavor (debug)
         run: ./gradlew assembleFreeDebug
 
-      - name: Build play flavor
+      - name: Build play flavor (debug)
         run: ./gradlew assemblePlayDebug
+
+      - name: Build free release (full R8)
+        run: ./gradlew assembleFreeRelease

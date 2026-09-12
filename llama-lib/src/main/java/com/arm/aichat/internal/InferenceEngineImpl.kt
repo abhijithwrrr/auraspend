@@ -8,9 +8,8 @@ import com.arm.aichat.internal.InferenceEngineImpl.Companion.getInstance
 import dalvik.annotation.optimization.FastNative
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -118,10 +117,19 @@ internal class InferenceEngineImpl private constructor(
     private var _cancelGeneration = false
 
     /**
-     * Single-threaded coroutine dispatcher & scope for LLama asynchronous operations
+     * Dedicated background-priority thread for ALL llama.cpp work.
+     *
+     * Running inference on a normal-priority IO thread makes ggml's worker pool
+     * compete with the UI/Render threads and causes device-wide jank. A
+     * HandlerThread created with THREAD_PRIORITY_BACKGROUND passes its scheduling
+     * class to the native pthreads ggml spawns during decode, so the OS keeps the
+     * foreground responsive even while a generation is in flight.
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val llamaDispatcher = Dispatchers.IO.limitedParallelism(1)
+    private val llamaHandlerThread =
+        android.os.HandlerThread("llama-inference", android.os.Process.THREAD_PRIORITY_BACKGROUND)
+            .apply { start() }
+    private val llamaDispatcher =
+        android.os.Handler(llamaHandlerThread.looper).asCoroutineDispatcher()
     private val llamaScope = CoroutineScope(llamaDispatcher + SupervisorJob())
 
     init {

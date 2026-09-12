@@ -28,7 +28,10 @@ object ModelConstants {
     const val PREF_CONSENT_GIVEN = "ai_model_consent_given"
 
     /** Maximum number of tokens each classification call may generate. */
-    const val MAX_OUTPUT_TOKENS = 96
+    const val MAX_OUTPUT_TOKENS = 128
+
+    /** Wall-clock budget for a single classification generation. */
+    const val GENERATION_TIMEOUT_MS: Long = 90_000L
 
     fun baseModelsDir(context: android.content.Context): File =
         File(context.filesDir, "models").apply { mkdirs() }

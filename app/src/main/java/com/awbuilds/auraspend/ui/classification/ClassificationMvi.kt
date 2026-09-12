@@ -32,6 +32,8 @@ data class ClassificationViewState(
     val consentRequired: Boolean = false,
     val aiModelState: AiModelState = AiModelState.NotDownloaded,
     val isAiEnriching: Boolean = false,
+    /** True once the async LLM/memory pass has refined the current classification. */
+    val aiRefined: Boolean = false,
     val aiProgressCurrent: Int = 0,
     val aiProgressTotal: Int = 0,
 

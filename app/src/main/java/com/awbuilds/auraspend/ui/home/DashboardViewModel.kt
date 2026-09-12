@@ -2,6 +2,7 @@ package com.awbuilds.auraspend.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.awbuilds.auraspend.domain.model.BudgetSpending
 import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.*
@@ -53,6 +54,15 @@ class DashboardViewModel(
                     .filter { it.type == TransactionType.EXPENSE }
                     .sumOf { it.amount }
 
+                val incomeCount = monthlyTransactions.count { it.type == TransactionType.INCOME }
+                val expenseCount = monthlyTransactions.count { it.type == TransactionType.EXPENSE }
+
+                val categoryTotals = monthlyTransactions
+                    .filter { it.type == TransactionType.EXPENSE }
+                    .groupBy { it.categoryId }
+                    .map { (categoryId, list) -> categoryId to list.sumOf { t -> t.amount } }
+                    .sortedByDescending { it.second }
+
                 val balance = transactions
                     .sumOf { if (it.type == TransactionType.INCOME) it.amount else -it.amount }
 
@@ -71,7 +81,10 @@ class DashboardViewModel(
                 }
 
                 val categories = repository.getAllCategories().first()
-                val budgets = repository.getAllBudgets().first()
+                val budgets = BudgetSpending.withFreshSpent(
+                    repository.getAllBudgets().first(),
+                    transactions
+                )
                 val subscriptions = repository.getActiveSubscriptions().first()
                 val totalSubscriptionCost = subscriptions.sumOf { it.amount }
 
@@ -80,12 +93,15 @@ class DashboardViewModel(
                         totalBalance = balance,
                         monthlyIncome = income,
                         monthlyExpense = expense,
+                        monthlyIncomeCount = incomeCount,
+                        monthlyExpenseCount = expenseCount,
                         recentTransactions = transactions.take(20),
                         categories = categories,
                         budgets = budgets,
                         activeSubscriptions = subscriptions,
                         totalSubscriptionCost = totalSubscriptionCost,
                         dailySpending = dailySpending,
+                        categoryMonthTotals = categoryTotals,
                         isLoading = false,
                         error = null
                     )

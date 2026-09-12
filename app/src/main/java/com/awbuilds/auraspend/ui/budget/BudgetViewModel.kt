@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.awbuilds.auraspend.domain.model.Budget
 import com.awbuilds.auraspend.domain.model.BudgetPeriod
+import com.awbuilds.auraspend.domain.model.BudgetSpending
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -34,7 +35,15 @@ class BudgetViewModel(
         viewModelScope.launch {
             val budgets = repository.getAllBudgets().first()
             val categories = repository.getAllCategories().first()
-            _state.update { it.copy(budgets = budgets, categories = categories) }
+            // Recompute spent from live transactions so budgets reflect auto-saved
+            // SMS expenses and deletions without requiring a manual re-save.
+            val transactions = repository.getAllTransactions().first()
+            _state.update {
+                it.copy(
+                    budgets = BudgetSpending.withFreshSpent(budgets, transactions),
+                    categories = categories
+                )
+            }
         }
     }
 
@@ -43,35 +52,16 @@ class BudgetViewModel(
             try {
                 val s = _state.value
                 val amount = s.limitAmount.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid amount")
+                val transactions = repository.getAllTransactions().first()
+                val budget = Budget(
+                    id = s.editingBudget?.id ?: java.util.UUID.randomUUID().toString(),
+                    categoryId = s.selectedCategoryId,
+                    limitAmount = amount,
+                    spentAmount = 0.0, // recomputed on load from live transactions
+                    period = s.selectedPeriod
+                )
                 repository.saveBudget(
-                    Budget(
-                        id = s.editingBudget?.id ?: java.util.UUID.randomUUID().toString(),
-                        categoryId = s.selectedCategoryId,
-                        limitAmount = amount,
-                        // Calculate spent amount based on transactions in the selected period
-                        spentAmount = run {
-                            // Determine period start and end timestamps
-                            val now = java.time.LocalDateTime.now()
-                            val periodStart = when (s.selectedPeriod) {
-                                BudgetPeriod.WEEKLY -> now.with(java.time.DayOfWeek.MONDAY).with(java.time.LocalTime.MIN)
-                                BudgetPeriod.MONTHLY -> now.withDayOfMonth(1).with(java.time.LocalTime.MIN)
-                                BudgetPeriod.YEARLY -> now.withDayOfYear(1).with(java.time.LocalTime.MIN)
-                            }
-                            val periodEnd = when (s.selectedPeriod) {
-                                BudgetPeriod.WEEKLY -> now.with(java.time.DayOfWeek.SUNDAY).with(java.time.LocalTime.MAX)
-                                BudgetPeriod.MONTHLY -> now.with(java.time.temporal.TemporalAdjusters.lastDayOfMonth()).with(java.time.LocalTime.MAX)
-                                BudgetPeriod.YEARLY -> now.with(java.time.temporal.TemporalAdjusters.lastDayOfYear()).with(java.time.LocalTime.MAX)
-                            }
-                            val startEpoch = periodStart.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-                            val endEpoch = periodEnd.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-                            // Sum expenses for the selected category within period
-                            repository.getTransactionsInRange(startEpoch, endEpoch)
-                                .first()
-                                .filter { it.categoryId == s.selectedCategoryId && it.type == com.awbuilds.auraspend.domain.model.TransactionType.EXPENSE }
-                                .sumOf { it.amount }
-                        },
-                        period = s.selectedPeriod
-                    )
+                    budget.copy(spentAmount = BudgetSpending.spentFor(budget, transactions))
                 )
                 _state.update { it.copy(editingBudget = null, selectedCategoryId = "", limitAmount = "", isAdding = false, isSaving = false) }
                 loadBudgets()

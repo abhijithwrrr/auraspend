@@ -5,15 +5,22 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -38,6 +45,8 @@ import com.awbuilds.auraspend.ui.classification.ClassificationViewModel
 import com.awbuilds.auraspend.ui.core.AuraSpendScaffold
 import com.awbuilds.auraspend.ui.core.isNotificationPermissionNeeded
 import com.awbuilds.auraspend.ui.core.rememberNotificationPermissionLauncher
+import com.awbuilds.auraspend.ui.core.softShadow
+import com.awbuilds.auraspend.ui.theme.extendedColors
 import com.awbuilds.auraspend.ui.home.DashboardScreen
 import com.awbuilds.auraspend.ui.home.DashboardViewModel
 import com.awbuilds.auraspend.ui.onboarding.OnboardingScreen
@@ -47,6 +56,7 @@ import com.awbuilds.auraspend.ui.splash.SplashScreen
 import com.awbuilds.auraspend.ui.theme.AppThemeMode
 import com.awbuilds.auraspend.ui.transaction.AddTransactionScreen
 import com.awbuilds.auraspend.ui.transaction.TransactionListScreen
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object Screen {
@@ -308,7 +318,9 @@ private fun MainScreen(
                 categories = categories,
                 onSearch = { },
                 onDelete = { id -> scope.launch { repository.deleteTransaction(id) } },
-                onBack = { currentTab = Screen.HOME }
+                onBack = { currentTab = Screen.HOME },
+                // UNDO from the delete snackbar re-inserts the original row.
+                onRestore = { txn -> scope.launch { repository.saveTransaction(txn) } }
             )
             Screen.ANALYTICS -> AnalyticsScreen(
                 transactions = transactions,
@@ -339,12 +351,21 @@ private fun MainScreen(
                 onDeleteModel = { ModelDownloadManager.deleteModel(context) },
                 autoDetectEnabled = AutoDetect.isEnabled(context),
                 onAutoDetectChanged = { enabled ->
+                    // apply() is async — the pref write never blocks the tap.
                     AutoDetect.setEnabled(context, enabled)
                     if (enabled) {
                         if (isNotificationPermissionNeeded(context)) {
                             notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                         }
-                        AutoClassificationWorker.runNow(context)
+                        // WorkManager init + enqueue off the main thread: the toggle must
+                        // feel instant. The background coordinator takes over on onStop.
+                        scope.launch(Dispatchers.IO) {
+                            AutoClassificationWorker.runNow(context)
+                        }
+                    } else {
+                        scope.launch(Dispatchers.IO) {
+                            AutoClassificationWorker.cancelPendingWork(context)
+                        }
                     }
                 }
             )
@@ -375,69 +396,76 @@ private fun AddTransactionSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp
+        containerColor = MaterialTheme.colorScheme.background,
+        tonalElevation = 0.dp
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 40.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 "Add Transaction",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 24.dp)
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 20.dp)
             )
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                Card(
-                    onClick = onSmartAdd,
+                SheetOptionCard(
                     modifier = Modifier.weight(1f),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-                    shape = MaterialTheme.shapes.medium,
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                ) {
-                    SheetOptionContent(
-                        icon = Icons.Default.AutoAwesome,
-                        title = "Smart Add",
-                        subtitle = "SMS / Paste",
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-                Card(
-                    onClick = onManualAdd,
+                    icon = Icons.Default.AutoAwesome,
+                    title = "Smart Add",
+                    subtitle = "SMS / Paste",
+                    tint = MaterialTheme.colorScheme.primary,
+                    onClick = onSmartAdd
+                )
+                SheetOptionCard(
                     modifier = Modifier.weight(1f),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                    shape = MaterialTheme.shapes.medium,
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                ) {
-                    SheetOptionContent(
-                        icon = Icons.Default.EditNote,
-                        title = "Manual",
-                        subtitle = "Enter details",
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                    icon = Icons.Default.EditNote,
+                    title = "Manual",
+                    subtitle = "Enter details",
+                    tint = MaterialTheme.colorScheme.secondary,
+                    onClick = onManualAdd
+                )
             }
         }
     }
 }
 
 @Composable
-private fun SheetOptionContent(
+private fun SheetOptionCard(
+    modifier: Modifier = Modifier,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
     subtitle: String,
-    contentColor: androidx.compose.ui.graphics.Color
+    tint: androidx.compose.ui.graphics.Color,
+    onClick: () -> Unit
 ) {
+    val shape = RoundedCornerShape(20.dp)
     Column(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+        modifier = modifier
+            .softShadow(shape)
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(onClick = onClick)
+            .padding(vertical = 26.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(36.dp), tint = contentColor)
+        Box(
+            modifier = Modifier
+                .size(52.dp)
+                .clip(CircleShape)
+                .background(tint.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(26.dp))
+        }
         Spacer(modifier = Modifier.height(12.dp))
-        Text(title, style = MaterialTheme.typography.labelLarge, color = contentColor)
-        Text(subtitle, style = MaterialTheme.typography.labelSmall, color = contentColor.copy(alpha = 0.7f))
+        Text(title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(subtitle, fontSize = 13.sp, color = MaterialTheme.extendedColors.textLight)
     }
 }

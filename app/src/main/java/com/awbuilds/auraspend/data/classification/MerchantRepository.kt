@@ -9,52 +9,55 @@ object MerchantRepository {
 
     fun initialize(context: Context) {
         if (merchantDatabase.isNotEmpty()) return
+        synchronized(this) {
+            if (merchantDatabase.isNotEmpty()) return
 
-        val merchants = mutableMapOf<String, MerchantInfo>()
-        val keywords = mutableMapOf<String, MerchantInfo>()
+            val merchants = mutableMapOf<String, MerchantInfo>()
+            val keywords = mutableMapOf<String, MerchantInfo>()
 
-        try {
-            val inputStream = context.assets.open("merchant_database.csv")
-            inputStream.bufferedReader().use { reader ->
-                reader.readLine() // Skip header
-                reader.forEachLine { line ->
-                    val parts = line.split(",")
-                    if (parts.size >= 6) {
-                        val merchantName = parts[0].trim()
-                        val merchantAlias = parts[1].trim()
-                        val category = parts[2].trim()
-                        val subcategory = parts[3].trim()
-                        val keywordString = parts[4].trim()
-                        val confidence = parts[5].trim().toFloatOrNull() ?: 0.8f
+            try {
+                val inputStream = context.assets.open("merchant_database.csv")
+                inputStream.bufferedReader().use { reader ->
+                    reader.readLine() // Skip header
+                    reader.forEachLine { line ->
+                        val parts = line.split(",")
+                        if (parts.size >= 6) {
+                            val merchantName = parts[0].trim()
+                            val merchantAlias = parts[1].trim()
+                            val category = parts[2].trim()
+                            val subcategory = parts[3].trim()
+                            val keywordString = parts[4].trim()
+                            val confidence = parts[5].trim().toFloatOrNull() ?: 0.8f
 
-                        val info = MerchantInfo(
-                            merchantName = merchantName,
-                            merchantAlias = merchantAlias,
-                            category = category,
-                            subcategory = subcategory,
-                            keywords = keywordString,
-                            confidence = confidence
-                        )
+                            val info = MerchantInfo(
+                                merchantName = merchantName,
+                                merchantAlias = merchantAlias,
+                                category = category,
+                                subcategory = subcategory,
+                                keywords = keywordString,
+                                confidence = confidence
+                            )
 
-                        // Index by merchant name
-                        merchants[merchantName.lowercase()] = info
-                        merchants[merchantAlias.lowercase()] = info
+                            // Index by merchant name
+                            merchants[merchantName.lowercase()] = info
+                            merchants[merchantAlias.lowercase()] = info
 
-                        // Index by keywords
-                        keywordString.lowercase().split("|").forEach { keyword ->
-                            if (keyword.isNotBlank()) {
-                                keywords[keyword.trim()] = info
+                            // Index by keywords
+                            keywordString.lowercase().split("|").forEach { keyword ->
+                                if (keyword.isNotBlank()) {
+                                    keywords[keyword.trim()] = info
+                                }
                             }
                         }
                     }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
 
-        merchantDatabase = merchants
-        merchantKeywordMap = keywords
+            merchantDatabase = merchants
+            merchantKeywordMap = keywords
+        }
     }
 
     /**
