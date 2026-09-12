@@ -427,7 +427,7 @@ private fun GoalEditorSheet(
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .heightIn(min = 52.dp)
             ) {
                 Text(
                     if (goal == null) stringResource(R.string.savings_create_goal)

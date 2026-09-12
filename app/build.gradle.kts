@@ -115,6 +115,9 @@ dependencies {
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    // Room PagingSource integration + collectAsLazyPagingItems (Activity list).
+    implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.paging.compose)
     ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)

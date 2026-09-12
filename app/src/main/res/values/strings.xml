@@ -32,6 +32,13 @@
 
     <!-- States -->
     <string name="state_offline">You\'re offline — changes are saved on device</string>
+
+    <!-- Smart Add wizard -->
+    <string name="classification_step_message">Message</string>
+    <string name="classification_step_analyzing">Analyzing</string>
+    <string name="classification_step_review">Review</string>
+    <string name="classification_analyzing_title">Analyzing message…</string>
+    <string name="classification_analyzing_message">Extracting amount, merchant and category on-device.</string>
     <string name="state_hidden_amount">•••</string>
 
     <!-- Home dashboard -->
@@ -89,6 +96,9 @@
     <string name="activity_empty_message">Your auto-categorised activity will appear here.</string>
     <string name="activity_other_category">Other</string>
     <string name="activity_load_earlier">Load earlier transactions</string>
+    <string name="activity_loading_more">Loading more transactions</string>
+    <string name="activity_load_error">Couldn\'t load transactions</string>
+    <string name="activity_retry">Retry</string>
     <string name="activity_group_today">Today</string>
     <string name="activity_group_yesterday">Yesterday</string>
     <string name="activity_group_this_week">This Week</string>

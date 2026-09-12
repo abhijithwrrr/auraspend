@@ -186,7 +186,7 @@ fun TransactionEditor(
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .heightIn(min = 52.dp)
         ) {
             Text(
                 if (isNew) stringResource(R.string.txn_editor_save_new)

@@ -135,7 +135,7 @@ private fun AuraBottomBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .height(72.dp),
+                    .heightIn(min = 72.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 NavItem(

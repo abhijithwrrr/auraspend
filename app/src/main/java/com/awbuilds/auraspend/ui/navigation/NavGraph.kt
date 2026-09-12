@@ -29,7 +29,6 @@ import com.awbuilds.auraspend.data.classification.AutoDetect
 import com.awbuilds.auraspend.data.local.BackupSerializer
 import com.awbuilds.auraspend.data.local.CsvManager
 import com.awbuilds.auraspend.domain.model.Transaction
-import com.awbuilds.auraspend.domain.model.TransactionSummary
 import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
 import com.awbuilds.auraspend.domain.usecase.ClassifyMessageUseCase
@@ -56,6 +55,7 @@ import com.awbuilds.auraspend.ui.transaction.NewTransactionScreen
 import com.awbuilds.auraspend.ui.transaction.QuickAddSheet
 import com.awbuilds.auraspend.ui.transaction.TransactionDetailScreen
 import com.awbuilds.auraspend.ui.transaction.TransactionListScreen
+import com.awbuilds.auraspend.ui.transaction.TransactionListViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -87,9 +87,6 @@ object Routes {
 
 /** Premium-feeling screen transition: subtle horizontal push + fade. */
 private const val TRANSITION_MS = 260
-
-/** Activity loads this many transactions per page (bounded initial load). */
-private const val ACTIVITY_PAGE_SIZE = 200
 
 private val pushEnter: EnterTransition =
     fadeIn(tween(TRANSITION_MS)) + slideInHorizontally(tween(TRANSITION_MS)) { it / 8 }
@@ -189,37 +186,15 @@ fun AuraSpendNavHost(
             }
 
             composable(Routes.ACTIVITY) {
-                var pageSize by remember { mutableStateOf(ACTIVITY_PAGE_SIZE) }
-                val transactions by repository.getRecentTransactions(pageSize)
-                    .collectAsState(initial = emptyList())
+                val viewModel = remember { TransactionListViewModel(repository) }
                 val categories by repository.getAllCategories()
                     .collectAsState(initial = emptyList())
-                val scope = rememberCoroutineScope()
-
-                // Month totals from a SQL aggregate so the strip stays correct
-                // even when only the first page of rows is loaded.
-                val monthSummary by produceState<TransactionSummary?>(initialValue = null) {
-                    val zone = java.time.ZoneId.systemDefault()
-                    val now = java.time.LocalDateTime.now()
-                    val start = now.withDayOfMonth(1).with(java.time.LocalTime.MIN)
-                        .atZone(zone).toInstant().toEpochMilli()
-                    val end = now.with(java.time.temporal.TemporalAdjusters.lastDayOfMonth())
-                        .with(java.time.LocalTime.MAX).atZone(zone).toInstant().toEpochMilli()
-                    repository.observeSummary(start, end).collect { value = it }
-                }
 
                 TransactionListScreen(
-                    transactions = transactions,
+                    viewModel = viewModel,
                     categories = categories,
-                    onSearch = { },
-                    onDelete = { id -> scope.launch { repository.deleteTransaction(id) } },
-                    onBack = { navController.navigateToTab(Routes.HOME) },
-                    onRestore = { txn -> scope.launch { repository.saveTransaction(txn) } },
                     onOpenTransaction = { id -> navController.navigate(Routes.transactionDetail(id)) },
-                    onOpenSettings = { navController.navigate(Routes.SETTINGS) },
-                    monthTotalsOverride = monthSummary?.let { it.income to it.expense },
-                    hasMore = transactions.size >= pageSize,
-                    onLoadMore = { pageSize += ACTIVITY_PAGE_SIZE }
+                    onOpenSettings = { navController.navigate(Routes.SETTINGS) }
                 )
             }
 

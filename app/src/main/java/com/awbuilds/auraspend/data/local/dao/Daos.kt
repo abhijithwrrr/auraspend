@@ -1,5 +1,6 @@
 package com.awbuilds.auraspend.data.local.dao
 
+import androidx.paging.PagingSource
 import androidx.room.*
 import com.awbuilds.auraspend.data.local.entities.*
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +16,30 @@ interface TransactionDao {
 
     @Query("SELECT * FROM transactions ORDER BY dateTimestamp DESC LIMIT :limit")
     fun observeRecent(limit: Int): Flow<List<TransactionEntity>>
+
+    /**
+     * Paged Activity list. Filtering happens in SQL so no filter combination
+     * ever loads more than a page of rows; every ORDER BY is newest-first.
+     * NULL parameters mean "no constraint" ([query] may also be blank).
+     */
+    @Query(
+        """
+        SELECT * FROM transactions
+        WHERE (:type IS NULL OR type = :type)
+          AND (:categoryId IS NULL OR categoryId = :categoryId)
+          AND (
+              :query IS NULL OR :query = ''
+              OR note LIKE '%' || :query || '%'
+              OR merchant LIKE '%' || :query || '%'
+          )
+        ORDER BY dateTimestamp DESC
+        """
+    )
+    fun pagedTransactions(
+        query: String?,
+        type: String?,
+        categoryId: String?
+    ): PagingSource<Int, TransactionEntity>
 
     @Query("SELECT * FROM transactions WHERE isRecurring = 1")
     fun getRecurringTransactions(): Flow<List<TransactionEntity>>

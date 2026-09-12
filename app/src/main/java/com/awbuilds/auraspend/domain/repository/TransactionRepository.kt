@@ -1,12 +1,28 @@
 package com.awbuilds.auraspend.domain.repository
 
+import androidx.paging.PagingData
 import com.awbuilds.auraspend.domain.model.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 interface TransactionRepository {
     fun getAllTransactions(): Flow<List<Transaction>>
     /** Bounded load: newest [limit] transactions (Activity list). */
     fun getRecentTransactions(limit: Int): Flow<List<Transaction>>
+
+    /**
+     * SQL-backed page stream for the Activity list. Query/type/category
+     * filtering happens in Room, so each database page is bounded and mapped
+     * to domain rows lazily.
+     *
+     * Default implementation pages an in-memory list (used by test fakes);
+     * production overrides it with Room's `PagingSource`.
+     */
+    fun pagedTransactions(filter: TransactionFilter): Flow<PagingData<Transaction>> =
+        getAllTransactions().map { transactions ->
+            PagingData.from(transactions.filter(filter::matches))
+        }
+
     fun getTransactionsInRange(start: Long, end: Long): Flow<List<Transaction>>
     fun searchTransactions(query: String): Flow<List<Transaction>>
     fun getTransactionsByCategory(categoryId: String): Flow<List<Transaction>>

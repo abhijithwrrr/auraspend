@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hindi (hi) translation. Community-maintained. -->
+<resources>
+    <string name="app_name">AuraSpend</string>
+
+    <!-- Shared actions -->
+    <string name="action_add">जोड़ें</string>
+    <string name="action_cancel">रद्द करें</string>
+    <string name="action_save">सहेजें</string>
+    <string name="action_delete">हटाएँ</string>
+    <string name="action_undo">पूर्ववत करें</string>
+    <string name="action_retry">फिर से प्रयास करें</string>
+    <string name="action_close">बंद करें</string>
+    <string name="action_back">वापस</string>
+    <string name="action_edit">संपादित करें</string>
+    <string name="action_search">खोजें</string>
+    <string name="action_clear">साफ़ करें</string>
+    <string name="action_done">हो गया</string>
+    <string name="action_ok">ठीक है</string>
+    <string name="action_skip">छोड़ें</string>
+    <string name="action_continue">जारी रखें</string>
+    <string name="action_get_started">शुरू करें</string>
+    <string name="action_download">डाउनलोड</string>
+    <string name="action_not_now">अभी नहीं</string>
+    <string name="action_remove">हटाएँ</string>
+    <string name="action_dismiss">खारिज करें</string>
+    <string name="action_duplicate">प्रतिलिपि बनाएँ</string>
+
+    <!-- Shared formats -->
+    <string name="common_percent">%1$d%%</string>
+    <string name="common_amount_plus">+%1$s</string>
+    <string name="common_amount_minus">-%1$s</string>
+
+    <!-- States -->
+    <string name="state_offline">आप ऑफ़लाइन हैं — बदलाव डिवाइस पर सहेजे गए हैं</string>
+
+    <!-- Smart Add wizard -->
+    <string name="classification_step_message">संदेश</string>
+    <string name="classification_step_analyzing">विश्लेषण</string>
+    <string name="classification_step_review">समीक्षा</string>
+    <string name="classification_analyzing_title">संदेश का विश्लेषण हो रहा है…</string>
+    <string name="classification_analyzing_message">डिवाइस पर ही राशि, व्यापारी और श्रेणी निकाली जा रही है।</string>
+    <string name="state_hidden_amount">•••</string>
+
+    <!-- Home dashboard -->
+    <string name="home_greeting_morning">सुप्रभात</string>
+    <string name="home_greeting_afternoon">नमस्कार</string>
+    <string name="home_greeting_evening">शुभ संध्या</string>
+    <string name="home_total_balance">कुल शेष</string>
+    <string name="home_in_this_month">इस महीने की आय</string>
+    <string name="home_out_this_month">इस महीने का खर्च</string>
+    <string name="home_quick_expense">खर्च</string>
+    <string name="home_quick_income">आय</string>
+    <string name="home_quick_smart_add">स्मार्ट ऐड</string>
+    <string name="home_quick_stats">आंकड़े</string>
+    <string name="home_cash_flow">नकदी प्रवाह</string>
+    <string name="home_spending_this_week">इस हफ़्ते का खर्च</string>
+    <string name="home_budgets">बजट</string>
+    <string name="home_manage">प्रबंधित करें</string>
+    <string name="home_unknown_category">अज्ञात</string>
+    <string name="home_budget_percent_used">%1$s बजट %2$d प्रतिशत उपयोग</string>
+    <string name="home_budget_of">%1$s में से</string>
+    <string name="home_subscriptions">सदस्यताएँ</string>
+    <plurals name="home_subscriptions_active">
+        <item quantity="one">%1$d सक्रिय</item>
+        <item quantity="other">%1$d सक्रिय</item>
+    </plurals>
+    <string name="home_subscription_monthly">%1$s/माह</string>
+    <string name="home_recent">हाल के</string>
+    <string name="home_view_all">सभी देखें</string>
+    <string name="home_empty_title">अभी कोई लेन-देन नहीं</string>
+    <string name="home_empty_message">अपना पहला लेन-देन जोड़ें और AuraSpend आपकी तस्वीर बनाना शुरू कर देगा।</string>
+    <string name="home_add_transaction">लेन-देन जोड़ें</string>
+    <string name="home_other_category">अन्य</string>
+
+    <!-- Activity (transaction list) -->
+    <string name="activity_title">गतिविधि</string>
+    <string name="activity_filter_all">सभी</string>
+    <string name="activity_filter_outgoing">जावक</string>
+    <string name="activity_filter_incoming">आवक</string>
+    <string name="activity_search_hint">व्यापारी या नोट खोजें</string>
+    <string name="activity_transaction_deleted">लेन-देन हटाया गया</string>
+    <plurals name="activity_records">
+        <item quantity="one">%1$d रिकॉर्ड</item>
+        <item quantity="other">%1$d रिकॉर्ड</item>
+    </plurals>
+    <plurals name="activity_records_more">
+        <item quantity="one">%1$d+ रिकॉर्ड</item>
+        <item quantity="other">%1$d+ रिकॉर्ड</item>
+    </plurals>
+    <string name="activity_summary_in">अंदर</string>
+    <string name="activity_summary_out">बाहर</string>
+    <string name="activity_summary_net">शुद्ध</string>
+    <string name="activity_empty_title">अभी कोई लेन-देन नहीं</string>
+    <string name="activity_empty_title_filtered">कोई मेल खाता लेन-देन नहीं</string>
+    <string name="activity_empty_message_filtered">अपनी खोज या फ़िल्टर बदलकर देखें।</string>
+    <string name="activity_empty_message">आपकी स्वतः-वर्गीकृत गतिविधि यहाँ दिखाई देगी।</string>
+    <string name="activity_other_category">अन्य</string>
+    <string name="activity_load_earlier">पुराने लेन-देन लोड करें</string>
+    <string name="activity_group_today">आज</string>
+    <string name="activity_group_yesterday">कल</string>
+    <string name="activity_group_this_week">इस हफ़्ते</string>
+    <string name="activity_group_this_month">इस महीने</string>
+    <string name="activity_group_older">पुराने</string>
+
+    <!-- Transaction detail -->
+    <string name="txn_detail_title">लेन-देन</string>
+    <string name="txn_detail_edit_title">लेन-देन संपादित करें</string>
+    <string name="txn_detail_not_found_title">लेन-देन नहीं मिला</string>
+    <string name="txn_detail_not_found_message">हो सकता है यह किसी अन्य स्क्रीन पर हटा दिया गया हो।</string>
+    <string name="txn_detail_go_back">वापस जाएँ</string>
+    <string name="txn_detail_updated">लेन-देन अपडेट किया गया</string>
+    <string name="txn_detail_duplicated">प्रतिलिपि बनाई गई</string>
+    <string name="txn_detail_delete_title">लेन-देन हटाएँ?</string>
+    <string name="txn_detail_delete_message">%1$s · %2$s</string>
+    <string name="txn_detail_this_transaction">यह लेन-देन</string>
+    <string name="txn_detail_delete_fallback">इसे पूर्ववत नहीं किया जा सकता।</string>
+    <string name="txn_detail_uncategorized">अवर्गीकृत</string>
+    <string name="txn_detail_type_expense">खर्च</string>
+    <string name="txn_detail_type_income">आय</string>
+    <string name="txn_detail_merchant">व्यापारी</string>
+    <string name="txn_detail_note">नोट</string>
+    <string name="txn_detail_bank">बैंक</string>
+    <string name="txn_detail_recurring">आवर्ती</string>
+    <string name="txn_detail_yes">हाँ</string>
+    <string name="txn_detail_source">स्रोत</string>
+    <string name="txn_detail_source_sms">SMS से स्वतः पहचाना गया</string>
+    <string name="txn_detail_dash">—</string>
+
+    <!-- Quick add sheet -->
+    <string name="quick_add_type_expense">खर्च</string>
+    <string name="quick_add_type_income">आय</string>
+    <string name="quick_add_merchant_hint">व्यापारी (वैकल्पिक)</string>
+    <string name="quick_add_smart_add">स्मार्ट ऐड</string>
+    <string name="quick_add_manual">मैनुअल</string>
+    <string name="quick_add_backspace">बैकस्पेस</string>
+
+    <!-- Transaction editor -->
+    <string name="txn_editor_type_expense">खर्च</string>
+    <string name="txn_editor_type_income">आय</string>
+    <string name="txn_editor_amount">राशि</string>
+    <string name="txn_editor_amount_invalid">मान्य राशि दर्ज करें</string>
+    <string name="txn_editor_merchant">व्यापारी / प्राप्तकर्ता</string>
+    <string name="txn_editor_note">नोट (वैकल्पिक)</string>
+    <string name="txn_editor_category">श्रेणी</string>
+    <string name="txn_editor_save_new">लेन-देन सहेजें</string>
+    <string name="txn_editor_save_changes">बदलाव सहेजें</string>
+
+    <!-- New transaction screen -->
+    <string name="new_txn_title">लेन-देन जोड़ें</string>
+
+    <!-- Settings -->
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="settings_appearance">रूप-रंग</string>
+    <string name="settings_theme">थीम</string>
+    <string name="settings_theme_light">लाइट</string>
+    <string name="settings_theme_dark">डार्क</string>
+    <string name="settings_theme_amoled">AMOLED</string>
+    <string name="settings_dynamic_color">डायनामिक रंग</string>
+    <string name="settings_dynamic_color_subtitle">अपने वॉलपेपर से मिलाएँ (Android 12+)</string>
+    <string name="settings_intelligent_features">बुद्धिमान सुविधाएँ</string>
+    <string name="settings_data">डेटा</string>
+    <string name="settings_export_csv">CSV में निर्यात करें</string>
+    <string name="settings_export_csv_subtitle">लेन-देन को CSV फ़ाइल में सहेजें</string>
+    <string name="settings_import_csv">CSV से आयात करें</string>
+    <string name="settings_import_csv_subtitle">CSV फ़ाइल से लेन-देन पुनर्स्थापित करें</string>
+    <string name="settings_finance">वित्त</string>
+    <string name="settings_categories">श्रेणियाँ</string>
+    <string name="settings_categories_subtitle">श्रेणियाँ जोड़ें, संपादित करें या व्यवस्थित करें</string>
+    <string name="settings_subscriptions">सदस्यताएँ</string>
+    <string name="settings_subscriptions_subtitle">आवर्ती भुगतान ट्रैक करें</string>
+    <string name="settings_budgets">बजट</string>
+    <string name="settings_budgets_subtitle">प्रत्येक श्रेणी के लिए खर्च सीमा तय करें</string>
+    <string name="settings_about">परिचय</string>
+    <string name="settings_about_version">संस्करण 0.1.0 · Apache-2.0</string>
+    <string name="settings_about_made_by">AW Builds द्वारा ❤️ से निर्मित</string>
+    <string name="settings_view_github">GitHub पर देखें</string>
+    <string name="settings_ai_delete_title">AI मॉडल हटाएँ?</string>
+    <string name="settings_ai_delete_message">इससे स्थानीय मॉडल (~380 MB) हट जाएगा। आप इसे कभी भी फिर से डाउनलोड कर सकते हैं; आपके लेन-देन पर कोई असर नहीं पड़ेगा।</string>
+    <string name="settings_ai_ready">स्थानीय AI तैयार</string>
+    <string name="settings_ai_ready_subtitle">संदेश डिवाइस पर ही स्वतः वर्गीकृत होते हैं।</string>
+    <string name="settings_ai_downloading">स्थानीय AI डाउनलोड हो रहा है</string>
+    <string name="settings_ai_downloading_progress">%1$d%% पूर्ण…</string>
+    <string name="settings_ai_failed">डाउनलोड विफल</string>
+    <string name="settings_ai_failed_subtitle">अपना कनेक्शन जाँचें और फिर से प्रयास करें।</string>
+    <string name="settings_ai_missing">स्थानीय AI डाउनलोड नहीं है</string>
+    <string name="settings_ai_missing_subtitle">संदेशों को श्रेणियों, आय या खर्च में स्वतः वर्गीकृत करने के लिए ~380 MB डाउनलोड करें।</string>
+    <string name="settings_ai_delete_action">मॉडल हटाएँ</string>
+    <string name="settings_ai_download_action">मॉडल डाउनलोड करें</string>
+    <string name="settings_auto_detect">संदेश स्वतः वर्गीकृत करें</string>
+    <string name="settings_auto_detect_subtitle">डिवाइस के नए SMS पढ़ें और उन्हें स्वतः सहेजें।</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">विश्लेषण</string>
+    <string name="analytics_period_this_month">इस महीने</string>
+    <string name="analytics_period_last_30">30 दिन</string>
+    <string name="analytics_period_all_time">अब तक</string>
+    <string name="analytics_expense">खर्च</string>
+    <string name="analytics_income">आय</string>
+    <string name="analytics_net_period">शुद्ध %1$s</string>
+    <string name="analytics_saving_percent">बचत %1$d%%</string>
+    <string name="analytics_delta_up">↑ पिछले महीने से %1$d%% अधिक</string>
+    <string name="analytics_delta_down">↓ पिछले महीने से %1$d%% कम</string>
+    <string name="analytics_spending_by_category">श्रेणी अनुसार खर्च</string>
+    <string name="analytics_spending_by_category_desc">श्रेणी अनुसार खर्च, कुल %1$s</string>
+    <string name="analytics_total">कुल</string>
+    <string name="analytics_top_merchants">शीर्ष व्यापारी</string>
+    <string name="analytics_unlabelled">बिना लेबल</string>
+    <plurals name="analytics_txn_count">
+        <item quantity="one">%1$d लेन-देन</item>
+        <item quantity="other">%1$d लेन-देन</item>
+    </plurals>
+    <string name="analytics_empty_title_all_time">अभी कोई विश्लेषण नहीं</string>
+    <string name="analytics_empty_title_period">इस अवधि में कुछ नहीं</string>
+    <string name="analytics_empty_message">लेन-देन जोड़ें और विश्लेषण यहाँ दिखाई देगा।</string>
+
+    <!-- Plan hub -->
+    <string name="plan_title">योजना</string>
+    <string name="plan_budgets_month">इस महीने के बजट</string>
+    <string name="plan_budget_of">%1$s / %2$s</string>
+    <string name="plan_budget_percent_used">%1$d%% उपयोग</string>
+    <string name="plan_no_budgets">अभी कोई बजट नहीं</string>
+    <string name="plan_recurring_monthly">मासिक आवर्ती</string>
+    <string name="plan_monthly_recurring">%1$s/माह</string>
+    <plurals name="plan_active_subscriptions">
+        <item quantity="one">%1$d सक्रिय सदस्यता</item>
+        <item quantity="other">%1$d सक्रिय सदस्यताएँ</item>
+    </plurals>
+    <string name="plan_budgets">बजट</string>
+    <string name="plan_budgets_subtitle">प्रत्येक श्रेणी के लिए खर्च सीमा</string>
+    <string name="plan_subscriptions">सदस्यताएँ</string>
+    <string name="plan_subscriptions_subtitle">आवर्ती शुल्क और नवीनीकरण</string>
+    <string name="plan_savings_goals">बचत लक्ष्य</string>
+    <string name="plan_savings_goals_empty_subtitle">लक्ष्य तय करें और उन्हें पूरा होते देखें</string>
+    <plurals name="plan_goals_saved">
+        <item quantity="one">%1$d लक्ष्य · %2$s बचाया</item>
+        <item quantity="other">%1$d लक्ष्य · %2$s बचाया</item>
+    </plurals>
+    <string name="plan_categories">श्रेणियाँ</string>
+    <string name="plan_categories_subtitle">पैसे के वर्गीकरण को व्यवस्थित करें</string>
+
+    <!-- Savings goals -->
+    <string name="savings_title">बचत लक्ष्य</string>
+    <string name="savings_add_goal">लक्ष्य जोड़ें</string>
+    <string name="savings_empty_title">अभी कोई बचत लक्ष्य नहीं</string>
+    <string name="savings_empty_message">कोई लक्ष्य तय करें — यात्रा, कोई गैजेट, आपातकालीन कोष — और उसे पूरा होते देखें।</string>
+    <string name="savings_create_goal">लक्ष्य बनाएँ</string>
+    <string name="savings_total_saved">कुल बचत</string>
+    <string name="savings_of">%1$s में से</string>
+    <string name="savings_total_desc">कुल बचत %1$d प्रतिशत</string>
+    <string name="savings_reached">पूरा हुआ</string>
+    <string name="savings_progress_of">%1$s / %2$s</string>
+    <string name="savings_goal_desc">%1$s %2$d प्रतिशत</string>
+    <string name="savings_target_date">लक्ष्य %1$s</string>
+    <string name="savings_add_funds">राशि जोड़ें</string>
+    <string name="savings_edit_goal">लक्ष्य संपादित करें</string>
+    <string name="savings_delete_goal">लक्ष्य हटाएँ</string>
+    <string name="savings_delete_title">“%1$s” हटाएँ?</string>
+    <string name="savings_delete_message">लक्ष्य और उसकी प्रगति हटा दी जाएगी। इसे पूर्ववत नहीं किया जा सकता।</string>
+    <string name="savings_new_goal_title">नया लक्ष्य</string>
+    <string name="savings_goal_name">लक्ष्य का नाम</string>
+    <string name="savings_target_amount">लक्ष्य राशि</string>
+    <string name="savings_target_date_hint">लक्ष्य तिथि जोड़ें (वैकल्पिक)</string>
+    <string name="savings_remove_date">तिथि हटाएँ</string>
+    <string name="savings_save_changes">बदलाव सहेजें</string>
+    <string name="savings_add_funds_title">“%1$s” में जोड़ें</string>
+    <string name="savings_amount">राशि</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_page1_title">हर रुपये का हिसाब रखें</string>
+    <string name="onboarding_page1_description">आय, खर्च और शेष — हमेशा अद्यतन, हमेशा आपके डिवाइस पर।</string>
+    <string name="onboarding_page2_title">डिफ़ॉल्ट रूप से स्मार्ट</string>
+    <string name="onboarding_page2_description">बैंक SMS को डिवाइस पर ही स्थानीय AI द्वारा स्वतः वर्गीकृत किया जाता है, जो आपका डेटा कभी अपलोड नहीं करता।</string>
+    <string name="onboarding_page3_title">पहले से योजना बनाएँ</string>
+    <string name="onboarding_page3_description">बजट, सदस्यताएँ और लक्ष्य एक जगह, साथ में वाकई उपयोगी विश्लेषण।</string>
+    <string name="onboarding_restore_title">Google Drive से पुनर्स्थापित करें</string>
+    <string name="onboarding_restore_subtitle">पिछला बैकअप वापस लाएँ</string>
+    <string name="onboarding_restoring">आपका बैकअप पुनर्स्थापित हो रहा है…</string>
+
+    <!-- Budget -->
+    <string name="budget_title">बजट</string>
+    <string name="budget_add">बजट जोड़ें</string>
+    <string name="budget_empty_title">कोई बजट सेट नहीं</string>
+    <string name="budget_empty_message">प्रत्येक श्रेणी के लिए खर्च सीमा तय करें।</string>
+    <string name="budget_all">सभी बजट</string>
+    <string name="budget_spent_of">%1$s / %2$s</string>
+    <plurals name="budget_days_left">
+        <item quantity="one">इस महीने %1$d दिन बाकी</item>
+        <item quantity="other">इस महीने %1$d दिन बाकी</item>
+    </plurals>
+    <string name="budget_unknown_category">अज्ञात</string>
+    <string name="budget_spent">%1$s खर्च</string>
+    <string name="budget_over_by">%1$s अधिक</string>
+    <string name="budget_limit">%1$s सीमा</string>
+    <string name="budget_limit_reached">सीमा पूरी</string>
+    <string name="budget_percent_used">%1$d%% उपयोग</string>
+    <string name="budget_edit_title">बजट संपादित करें</string>
+    <string name="budget_new_title">नया बजट</string>
+    <string name="budget_editor_subtitle">किसी श्रेणी के लिए खर्च सीमा तय करें</string>
+    <string name="budget_category">श्रेणी</string>
+    <string name="budget_no_categories">कोई श्रेणी उपलब्ध नहीं</string>
+    <string name="budget_monthly_limit">मासिक सीमा</string>
+    <string name="budget_period">अवधि</string>
+    <string name="budget_save">बजट सहेजें</string>
+
+    <!-- Recurring subscriptions -->
+    <string name="recurring_title">सदस्यताएँ</string>
+    <string name="recurring_add">सदस्यता जोड़ें</string>
+    <string name="recurring_empty_title">कोई सदस्यता नहीं</string>
+    <string name="recurring_empty_message">अपने आवर्ती भुगतान ट्रैक करें।</string>
+    <string name="recurring_monthly">मासिक आवर्ती</string>
+    <string name="recurring_monthly_amount">%1$s/माह</string>
+    <string name="recurring_normalised">सभी चक्रों के अनुसार</string>
+    <string name="recurring_category_cycle">%1$s · %2$s</string>
+    <string name="recurring_other_category">अन्य</string>
+    <string name="recurring_overdue">विलंबित</string>
+    <string name="recurring_due_today">आज देय</string>
+    <string name="recurring_tomorrow">कल</string>
+    <string name="recurring_next">अगला: %1$s</string>
+    <string name="recurring_add_subtitle">आवर्ती भुगतान ट्रैक करें</string>
+    <string name="recurring_name">नाम</string>
+    <string name="recurring_name_hint">Netflix, Spotify, किराया...</string>
+    <string name="recurring_amount">राशि</string>
+    <string name="recurring_billing_cycle">बिलिंग चक्र</string>
+    <string name="recurring_category">श्रेणी</string>
+    <string name="recurring_no_categories">कोई श्रेणी उपलब्ध नहीं</string>
+
+    <!-- Category management -->
+    <string name="categories_title">श्रेणियाँ प्रबंधित करें</string>
+    <string name="categories_add">श्रेणी जोड़ें</string>
+    <string name="categories_empty_title">कोई श्रेणी नहीं</string>
+    <string name="categories_empty_message">अपने लेन-देन व्यवस्थित करने के लिए श्रेणी जोड़ें।</string>
+    <string name="categories_edit">श्रेणी संपादित करें</string>
+    <string name="categories_delete_title">श्रेणी हटाएँ</string>
+    <string name="categories_default_locked">यह एक डिफ़ॉल्ट श्रेणी है और इसे हटाया नहीं जा सकता।</string>
+    <string name="categories_delete_message">"%1$s" हटाएँ? इस श्रेणी वाले लेन-देन प्रभावित होंगे।</string>
+    <string name="categories_default_badge">डिफ़ॉल्ट</string>
+    <string name="categories_name">श्रेणी का नाम</string>
+
+    <!-- Classification (smart add) -->
+    <string name="classification_title">स्मार्ट ऐड</string>
+    <string name="classification_tab_paste">पेस्ट करें</string>
+    <string name="classification_tab_sms">SMS से</string>
+    <string name="classification_tab_auto">स्वतः पहचान</string>
+    <string name="classification_unknown_merchant">अज्ञात</string>
+    <string name="classification_paste_label">बैंक SMS संदेश पेस्ट करें</string>
+    <string name="classification_paste_hint">अपना बैंक SMS यहाँ पेस्ट करें...\nजैसे: INR 500.00, HDFC Bank से Swiggy ऑर्डर के लिए डेबिट</string>
+    <string name="classification_classify">संदेश वर्गीकृत करें</string>
+    <string name="classification_save_transaction">लेन-देन सहेजें</string>
+    <string name="classification_detected_details">पहचाने गए विवरण</string>
+    <string name="classification_ai_refining">AI परिष्कृत कर रहा है…</string>
+    <string name="classification_ai_refined">AI द्वारा परिष्कृत</string>
+    <string name="classification_merchant_confidence">व्यापारी: %1$s (%2$d%%)</string>
+    <string name="classification_confidence_high">उच्च विश्वास</string>
+    <string name="classification_confidence_medium">मध्यम विश्वास</string>
+    <string name="classification_confidence_low">कम विश्वास - कृपया जाँचें</string>
+    <string name="classification_amount">राशि</string>
+    <string name="classification_not_detected">नहीं पहचाना गया</string>
+    <string name="classification_type">प्रकार</string>
+    <string name="classification_merchant">व्यापारी</string>
+    <string name="classification_bank">बैंक</string>
+    <string name="classification_category">श्रेणी</string>
+    <string name="classification_use_detected">पहचाने गए मान उपयोग करें</string>
+    <string name="classification_edit_manually">मैन्युअल रूप से संपादित करें</string>
+    <string name="classification_manual_expense">खर्च</string>
+    <string name="classification_manual_income">आय</string>
+    <string name="classification_manual_merchant">व्यापारी / प्राप्तकर्ता</string>
+    <string name="classification_manual_note">नोट</string>
+    <string name="classification_no_categories">कोई श्रेणी उपलब्ध नहीं</string>
+    <string name="classification_permission_title">SMS अनुमति आवश्यक</string>
+    <string name="classification_permission_message">स्वतः वर्गीकरण के लिए बैंक SMS संदेश पढ़ने की अनुमति दें।</string>
+    <string name="classification_grant_permission">अनुमति दें</string>
+    <string name="classification_no_sms_title">कोई बैंक SMS संदेश नहीं मिला</string>
+    <string name="classification_no_sms_message">पहचाने जाने पर नए बैंक संदेश यहाँ दिखाई देंगे।</string>
+    <string name="classification_ai_progress">AI वर्गीकृत कर रहा है: %1$d / %2$d</string>
+    <string name="classification_local_ai_title">स्थानीय AI आवश्यक</string>
+    <string name="classification_local_ai_message">ऑफ़लाइन अपने बैंक संदेशों को स्वतः पहचानने और वर्गीकृत करने के लिए ऑन-डिवाइस AI मॉडल डाउनलोड करें।</string>
+    <string name="classification_downloading">डाउनलोड हो रहा है…</string>
+    <string name="classification_download_model">AI मॉडल डाउनलोड करें (~380 MB)</string>
+    <string name="classification_ai_categorizing">AI संदेशों को वर्गीकृत कर रहा है...</string>
+    <string name="classification_reading_sms">बैंक संदेश पढ़े जा रहे हैं...</string>
+    <string name="classification_scan_message">बैंक संदेशों को पहचानने और वर्गीकृत करने के लिए अपना इनबॉक्स स्कैन करें।</string>
+    <string name="classification_scan_sms">SMS स्कैन करें</string>
+    <plurals name="classification_messages_found">
+        <item quantity="one">%1$d संदेश मिला</item>
+        <item quantity="other">%1$d संदेश मिले</item>
+    </plurals>
+    <string name="classification_save_all">सभी सहेजें</string>
+    <string name="classification_swipe_hint">सहेजने के लिए दाएँ स्वाइप करें · खारिज करने के लिए बाएँ</string>
+    <string name="classification_save_desc">लेन-देन सहेजें</string>
+    <string name="classification_dismiss_desc">संदेश खारिज करें</string>
+    <string name="classification_saved">सहेजा गया</string>
+    <string name="classification_download_progress">ऑन-डिवाइस AI डाउनलोड हो रहा है… %1$d%%</string>
+    <string name="classification_download_message">तैयार होने पर संदेश स्वतः सदस्यताओं, श्रेणियों, आय, खर्च और अन्य में वर्गीकृत हो जाएँगे।</string>
+
+    <!-- Model consent dialog -->
+    <string name="consent_title">स्थानीय AI मॉडल डाउनलोड करें?</string>
+    <string name="consent_message">अपने संदेशों को सदस्यताओं, श्रेणियों, आय, खर्च और अन्य में स्वतः वर्गीकृत करने के लिए यह ऑन-डिवाइस AI उपयोग करें। डाउनलोड के बाद यह पूरी तरह ऑफ़लाइन काम करता है।</string>
+    <string name="consent_model_size">~%1$d MB</string>
+    <string name="consent_footnote">डाउनलोड आपके डिवाइस पर पृष्ठभूमि में होता है। कोई डेटा आपके फ़ोन से बाहर नहीं जाता।</string>
+
+    <!-- Category selector + duplicate detection -->
+    <string name="category_selector_title">श्रेणी चुनें</string>
+    <string name="category_selector_ai_suggestion">AI सुझाव: %1$s (%2$d%% विश्वास)</string>
+    <string name="duplicate_title">संभावित प्रतिलिपि मिली</string>
+    <string name="duplicate_message">%1$s से मिलता-जुलता लेन-देन मिला</string>
+    <string name="duplicate_merchant">व्यापारी</string>
+    <string name="duplicate_amount">राशि</string>
+    <string name="duplicate_similarity">समानता</string>
+    <string name="duplicate_unknown_merchant">अज्ञात</string>
+    <string name="duplicate_question">क्या यह प्रतिलिपि लेन-देन है?</string>
+    <string name="duplicate_mark">प्रतिलिपि के रूप में चिह्नित करें</string>
+    <string name="duplicate_save_anyway">फिर भी सहेजें</string>
+</resources>

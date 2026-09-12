@@ -3,10 +3,12 @@ package com.awbuilds.auraspend.ui.classification
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -41,6 +43,7 @@ import com.awbuilds.auraspend.ui.designsystem.AuraCard
 import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
 import com.awbuilds.auraspend.ui.designsystem.AuraEmptyState
 import com.awbuilds.auraspend.ui.designsystem.AuraSegmentedControl
+import com.awbuilds.auraspend.ui.designsystem.AuraSkeleton
 import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
 import com.awbuilds.auraspend.ui.designsystem.AuraType
 import com.awbuilds.auraspend.ui.designsystem.CategoryAvatar
@@ -194,6 +197,13 @@ private fun PasteMessageTab(
 ) {
     var showCategoryDialog by remember { mutableStateOf(false) }
 
+    // Wizard position: input → analyzing → review.
+    val step = when {
+        state.parsedMessage == null -> 0
+        state.isAiEnriching && !state.aiRefined -> 1
+        else -> 2
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
@@ -202,6 +212,10 @@ private fun PasteMessageTab(
         ),
         verticalArrangement = Arrangement.spacedBy(AuraSpacing.lg)
     ) {
+        item {
+            ClassificationStepIndicator(currentStep = step)
+        }
+
         item {
             OutlinedTextField(
                 value = state.rawMessage,
@@ -219,20 +233,26 @@ private fun PasteMessageTab(
             )
         }
 
-        item {
-            Button(
-                onClick = { viewModel.handleIntent(ClassificationViewIntent.ClassifyMessage) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                enabled = state.rawMessage.isNotBlank(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(stringResource(R.string.classification_classify), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        if (step == 0) {
+            item {
+                Button(
+                    onClick = { viewModel.handleIntent(ClassificationViewIntent.ClassifyMessage) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 52.dp),
+                    enabled = state.rawMessage.isNotBlank(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(stringResource(R.string.classification_classify), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                }
             }
         }
 
-        if (state.parsedMessage != null) {
+        if (step == 1) {
+            item { AnalyzingCard() }
+        }
+
+        if (step == 2) {
             item {
                 ClassificationResultCard(
                     state = state,
@@ -246,7 +266,7 @@ private fun PasteMessageTab(
                     onClick = { viewModel.handleIntent(ClassificationViewIntent.SaveTransaction) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
+                        .heightIn(min = 52.dp),
                     enabled = !state.isSaving,
                     shape = RoundedCornerShape(16.dp)
                 ) {
@@ -286,6 +306,97 @@ private fun PasteMessageTab(
                 Pair(state.parsedMessage?.merchant ?: stringResource(R.string.classification_unknown_merchant), state.merchantConfidence)
             } else null
         )
+    }
+}
+
+@Composable
+private fun ClassificationStepIndicator(currentStep: Int) {
+    val steps = listOf(
+        R.string.classification_step_message,
+        R.string.classification_step_analyzing,
+        R.string.classification_step_review
+    )
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
+    ) {
+        steps.forEachIndexed { index, labelRes ->
+            val reached = index <= currentStep
+            val activeColor by animateColorAsState(
+                targetValue = if (reached) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.surfaceContainerHighest,
+                label = "stepColor"
+            )
+            val contentColor = if (reached) MaterialTheme.colorScheme.onPrimary
+            else MaterialTheme.colorScheme.onSurfaceVariant
+
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape)
+                        .background(activeColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (index < currentStep) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = null,
+                            tint = contentColor,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    } else {
+                        Text(
+                            "${index + 1}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = contentColor
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(AuraSpacing.xs))
+                Text(
+                    stringResource(labelRes),
+                    fontSize = 12.sp,
+                    fontWeight = if (index == currentStep) FontWeight.SemiBold else FontWeight.Medium,
+                    color = if (index == currentStep) MaterialTheme.colorScheme.onSurface
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+/** Step 2 of the wizard: an on-device analysis in progress. */
+@Composable
+private fun AnalyzingCard() {
+    AuraCard(style = AuraCardStyle.Tonal, modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+            Spacer(modifier = Modifier.width(AuraSpacing.md))
+            Column {
+                Text(
+                    stringResource(R.string.classification_analyzing_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    stringResource(R.string.classification_analyzing_message),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(AuraSpacing.lg))
+        AuraSkeleton(modifier = Modifier.fillMaxWidth().height(14.dp))
+        Spacer(modifier = Modifier.height(AuraSpacing.sm))
+        AuraSkeleton(modifier = Modifier.fillMaxWidth(0.7f).height(14.dp))
+        Spacer(modifier = Modifier.height(AuraSpacing.sm))
+        AuraSkeleton(modifier = Modifier.fillMaxWidth(0.45f).height(14.dp))
     }
 }
 
@@ -847,7 +958,7 @@ private fun AutoDetectTab(
                                     },
                                     enabled = !state.isSavingAll,
                                     shape = RoundedCornerShape(16.dp),
-                                    modifier = Modifier.height(44.dp)
+                                    modifier = Modifier.heightIn(min = 44.dp)
                                 ) {
                                     if (state.isSavingAll) {
                                         CircularProgressIndicator(

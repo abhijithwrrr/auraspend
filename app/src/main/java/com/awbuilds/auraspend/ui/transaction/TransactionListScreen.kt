@@ -5,15 +5,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.*
@@ -27,11 +26,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.awbuilds.auraspend.R
+import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.ui.designsystem.AuraEmptyState
 import com.awbuilds.auraspend.ui.designsystem.AuraSegmentedControl
+import com.awbuilds.auraspend.ui.designsystem.AuraSkeleton
 import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
 import com.awbuilds.auraspend.ui.designsystem.SettingsAvatarButton
 import com.awbuilds.auraspend.ui.designsystem.TransactionEntryRow
@@ -41,83 +46,59 @@ import com.awbuilds.auraspend.ui.designsystem.formatMoney
 import com.awbuilds.auraspend.ui.theme.extendedColors
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import kotlin.math.abs
 import kotlinx.coroutines.launch
 
-private enum class TxnFilter(val labelRes: Int) {
-    ALL(R.string.activity_filter_all),
-    OUTGOING(R.string.activity_filter_outgoing),
-    INCOMING(R.string.activity_filter_incoming)
+private enum class TxnFilter(val labelRes: Int, val type: TransactionType?) {
+    ALL(R.string.activity_filter_all, null),
+    OUTGOING(R.string.activity_filter_outgoing, TransactionType.EXPENSE),
+    INCOMING(R.string.activity_filter_incoming, TransactionType.INCOME)
 }
 
+/**
+ * Activity feed. Rows come from a Room-backed Paging 3 stream, so filters are
+ * applied in SQL and only a bounded page is in memory. Day headers stay sticky
+ * by comparing each row's local date with the previous row's date.
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun TransactionListScreen(
-    transactions: List<Transaction>,
-    categories: List<com.awbuilds.auraspend.domain.model.Category>,
-    onSearch: (String) -> Unit,
-    onDelete: (String) -> Unit,
-    onBack: () -> Unit,
-    onRestore: (Transaction) -> Unit = {},
+    viewModel: TransactionListViewModel,
+    categories: List<Category>,
     onOpenTransaction: (String) -> Unit = {},
-    onOpenSettings: () -> Unit = {},
-    /** Aggregate-provided month totals; falls back to the loaded page when null. */
-    monthTotalsOverride: Pair<Double, Double>? = null,
-    hasMore: Boolean = false,
-    onLoadMore: () -> Unit = {}
+    onOpenSettings: () -> Unit = {}
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var filter by remember { mutableStateOf(TxnFilter.ALL) }
+    val filter by viewModel.filter.collectAsStateWithLifecycle()
+    val monthSummary by viewModel.monthSummary.collectAsStateWithLifecycle()
+    val transactions = viewModel.transactions.collectAsLazyPagingItems()
+    val loadState = transactions.loadState
+
     var showSearch by remember { mutableStateOf(false) }
-    var selectedCategoryId by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val extended = MaterialTheme.extendedColors
     val transactionDeletedMessage = stringResource(R.string.activity_transaction_deleted)
     val undoLabel = stringResource(R.string.action_undo)
 
-    val filteredTransactions = remember(transactions, filter, searchQuery, selectedCategoryId) {
-        transactions
-            .filter {
-                when (filter) {
-                    TxnFilter.OUTGOING -> it.type == TransactionType.EXPENSE
-                    TxnFilter.INCOMING -> it.type == TransactionType.INCOME
-                    TxnFilter.ALL -> true
-                }
-            }
-            .filter { selectedCategoryId == null || it.categoryId == selectedCategoryId }
-            .filter {
-                searchQuery.isBlank() ||
-                        it.note.contains(searchQuery, ignoreCase = true) ||
-                        (it.merchant?.contains(searchQuery, ignoreCase = true) == true)
-            }
-    }
-
-    val grouped = remember(filteredTransactions) { groupTransactionsByDate(filteredTransactions) }
-
-    // Month-to-date flow context: SQL aggregate when provided, else the loaded page.
-    val computedMonthTotals = remember(transactions) {
-        val zone = ZoneId.systemDefault()
-        val monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay(zone).toInstant().toEpochMilli()
-        var incoming = 0.0
-        var outgoing = 0.0
-        transactions.forEach { txn ->
-            if (txn.date.atZone(zone).toInstant().toEpochMilli() >= monthStart) {
-                if (txn.type == TransactionType.INCOME) incoming += txn.amount else outgoing += txn.amount
-            }
-        }
-        incoming to outgoing
-    }
-    val (monthIn, monthOut) = monthTotalsOverride ?: computedMonthTotals
+    val itemCount = transactions.itemCount
+    val isInitialLoading = itemCount == 0 && loadState.refresh is LoadState.Loading
+    // Paging 3.5 removed CombinedLoadStates.endOfPaginationReached; the append
+    // source state still carries it.
+    val appendEndReached =
+        (loadState.append as? LoadState.NotLoading)?.endOfPaginationReached == true
+    val hasMore = !appendEndReached && loadState.refresh is LoadState.NotLoading
 
     fun deleteWithUndo(transaction: Transaction) {
-        onDelete(transaction.id)
+        viewModel.deleteTransaction(transaction.id)
         scope.launch {
             val result = snackbarHostState.showSnackbar(
                 message = transactionDeletedMessage,
                 actionLabel = undoLabel,
                 duration = SnackbarDuration.Short
             )
-            if (result == SnackbarResult.ActionPerformed) onRestore(transaction)
+            if (result == SnackbarResult.ActionPerformed) viewModel.restoreTransaction(transaction)
         }
     }
 
@@ -131,22 +112,27 @@ fun TransactionListScreen(
             // ── Header
             if (showSearch) {
                 OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it; onSearch(it) },
+                    value = filter.query,
+                    onValueChange = { viewModel.onQueryChange(it) },
                     placeholder = { Text(stringResource(R.string.activity_search_hint)) },
                     leadingIcon = {
                         IconButton(onClick = {
                             showSearch = false
-                            searchQuery = ""
-                            onSearch("")
+                            viewModel.onQueryChange("")
                         }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.action_back)
+                            )
                         }
                     },
                     trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { searchQuery = ""; onSearch("") }) {
-                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_clear))
+                        if (filter.query.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.onQueryChange("") }) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.action_clear)
+                                )
                             }
                         }
                     },
@@ -177,8 +163,15 @@ fun TransactionListScreen(
                             color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
-                            if (hasMore) pluralStringResource(R.plurals.activity_records_more, transactions.size, transactions.size)
-                            else pluralStringResource(R.plurals.activity_records, transactions.size, transactions.size),
+                            if (hasMore) {
+                                pluralStringResource(
+                                    R.plurals.activity_records_more, itemCount, itemCount
+                                )
+                            } else {
+                                pluralStringResource(
+                                    R.plurals.activity_records, itemCount, itemCount
+                                )
+                            },
                             fontSize = 13.sp,
                             color = extended.textLight
                         )
@@ -194,7 +187,7 @@ fun TransactionListScreen(
                 }
             }
 
-            // ── Month-to-date summary strip
+            // ── Month-to-date summary strip (SQL aggregate, paging-independent)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -203,19 +196,25 @@ fun TransactionListScreen(
             ) {
                 SummaryPill(
                     label = stringResource(R.string.activity_summary_in),
-                    value = stringResource(R.string.common_amount_plus, formatMoney(monthIn)),
+                    value = stringResource(
+                        R.string.common_amount_plus,
+                        formatMoney(monthSummary.income)
+                    ),
                     valueColor = extended.incomeAmount,
                     modifier = Modifier.weight(1f)
                 )
                 SummaryPill(
                     label = stringResource(R.string.activity_summary_out),
-                    value = stringResource(R.string.common_amount_minus, formatMoney(monthOut)),
+                    value = stringResource(
+                        R.string.common_amount_minus,
+                        formatMoney(monthSummary.expense)
+                    ),
                     valueColor = extended.expenseAmount,
                     modifier = Modifier.weight(1f)
                 )
                 SummaryPill(
                     label = stringResource(R.string.activity_summary_net),
-                    value = formatMoney(monthIn - monthOut),
+                    value = formatMoney(monthSummary.income - monthSummary.expense),
                     valueColor = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
@@ -224,8 +223,9 @@ fun TransactionListScreen(
             // ── Type filter
             AuraSegmentedControl(
                 options = TxnFilter.entries.map { stringResource(it.labelRes) },
-                selectedIndex = filter.ordinal,
-                onSelect = { filter = TxnFilter.entries[it] },
+                selectedIndex = TxnFilter.entries.indexOfFirst { it.type == filter.type }
+                    .coerceAtLeast(0),
+                onSelect = { viewModel.onTypeSelected(TxnFilter.entries[it].type) },
                 modifier = Modifier.padding(horizontal = AuraSpacing.gutter)
             )
 
@@ -238,16 +238,17 @@ fun TransactionListScreen(
                 horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
             ) {
                 FilterChip(
-                    selected = selectedCategoryId == null,
-                    onClick = { selectedCategoryId = null },
+                    selected = filter.categoryId == null,
+                    onClick = { viewModel.onCategorySelected(null) },
                     label = { Text(stringResource(R.string.activity_filter_all)) }
                 )
                 categories.forEach { category ->
                     FilterChip(
-                        selected = selectedCategoryId == category.id,
+                        selected = filter.categoryId == category.id,
                         onClick = {
-                            selectedCategoryId =
-                                if (selectedCategoryId == category.id) null else category.id
+                            viewModel.onCategorySelected(
+                                if (filter.categoryId == category.id) null else category.id
+                            )
                         },
                         leadingIcon = {
                             com.awbuilds.auraspend.ui.designsystem.CategoryAvatar(
@@ -263,20 +264,38 @@ fun TransactionListScreen(
                 }
             }
 
-            // ── List
-            if (grouped.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            // ── Paged list
+            when {
+                isInitialLoading -> TransactionListSkeleton()
+
+                itemCount == 0 && loadState.refresh is LoadState.Error -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadErrorRow(onRetry = { transactions.retry() })
+                }
+
+                itemCount == 0 -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
                     AuraEmptyState(
-                        icon = if (transactions.isEmpty()) Icons.Default.ReceiptLong else Icons.Default.SearchOff,
-                        title = if (transactions.isEmpty()) stringResource(R.string.activity_empty_title)
-                        else stringResource(R.string.activity_empty_title_filtered),
-                        message = if (searchQuery.isNotBlank() || filter != TxnFilter.ALL || selectedCategoryId != null)
+                        icon = if (filter.isActive) Icons.Default.SearchOff
+                        else Icons.AutoMirrored.Filled.ReceiptLong,
+                        title = if (filter.isActive) {
+                            stringResource(R.string.activity_empty_title_filtered)
+                        } else {
+                            stringResource(R.string.activity_empty_title)
+                        },
+                        message = if (filter.isActive) {
                             stringResource(R.string.activity_empty_message_filtered)
-                        else stringResource(R.string.activity_empty_message)
+                        } else {
+                            stringResource(R.string.activity_empty_message)
+                        }
                     )
                 }
-            } else {
-                LazyColumn(
+
+                else -> LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
                         start = AuraSpacing.gutter,
@@ -284,15 +303,26 @@ fun TransactionListScreen(
                         bottom = AuraSpacing.xxl
                     )
                 ) {
-                    grouped.forEach { group ->
-                        stickyHeader(key = "header_${group.label}") {
-                            StickyGroupHeader(labelRes = group.labelRes, netAmount = group.netAmount)
+                    repeat(itemCount) { index ->
+                        val transaction = transactions.peek(index) ?: return@repeat
+                        val day = transaction.date.toLocalDate()
+                        if (index == 0 ||
+                            transactions.peek(index - 1)?.date?.toLocalDate() != day
+                        ) {
+                            stickyHeader(
+                                key = "header_${day.toEpochDay()}",
+                                contentType = "header"
+                            ) {
+                                val dayNet = remember(day, itemCount) {
+                                    loadedDayNet(transactions, index)
+                                }
+                                StickyGroupHeader(
+                                    label = dayHeaderLabel(day),
+                                    netAmount = dayNet
+                                )
+                            }
                         }
-                        items(
-                            items = group.transactions,
-                            key = { it.id },
-                            contentType = { "transaction" }
-                        ) { transaction ->
+                        item(key = transaction.id, contentType = "transaction") {
                             val category = categories.find { it.id == transaction.categoryId }
                             val dismissState = rememberSwipeToDismissBoxState(
                                 confirmValueChange = {
@@ -325,7 +355,8 @@ fun TransactionListScreen(
                             ) {
                                 TransactionEntryRow(
                                     transaction = transaction,
-                                    categoryName = category?.name ?: stringResource(R.string.activity_other_category),
+                                    categoryName = category?.name
+                                        ?: stringResource(R.string.activity_other_category),
                                     categoryColor = categoryColor(category?.color),
                                     categoryEmoji = categoryIconGlyph(category?.icon),
                                     onClick = { onOpenTransaction(transaction.id) }
@@ -333,17 +364,16 @@ fun TransactionListScreen(
                             }
                         }
                     }
-                    if (hasMore) {
-                        item(key = "load_more") {
-                            OutlinedButton(
-                                onClick = onLoadMore,
-                                shape = RoundedCornerShape(16.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = AuraSpacing.md)
-                            ) {
-                                Text(stringResource(R.string.activity_load_earlier))
-                            }
+                    if (loadState.append is LoadState.Loading) {
+                        item(key = "append_loading", contentType = "footer") {
+                            AppendLoadingRow()
+                        }
+                    }
+                    if (loadState.append is LoadState.Error ||
+                        loadState.refresh is LoadState.Error
+                    ) {
+                        item(key = "load_error", contentType = "footer") {
+                            LoadErrorRow(onRetry = { transactions.retry() })
                         }
                     }
                 }
@@ -360,8 +390,39 @@ fun TransactionListScreen(
     }
 }
 
+/**
+ * Net amount for the loaded rows of one local day, starting at [startIndex].
+ * Paging keeps a day's rows contiguous; rows whose page has not arrived yet
+ * (peek returns null) simply contribute once their page loads.
+ */
+private fun loadedDayNet(transactions: LazyPagingItems<Transaction>, startIndex: Int): Double {
+    val day = transactions.peek(startIndex)?.date?.toLocalDate() ?: return 0.0
+    var net = 0.0
+    var index = startIndex
+    while (index < transactions.itemCount) {
+        val row = transactions.peek(index) ?: break
+        if (row.date.toLocalDate() != day) break
+        net += if (row.type == TransactionType.EXPENSE) -row.amount else row.amount
+        index++
+    }
+    return net
+}
+
+/** "Today" / "Yesterday" for recent days, a localised date otherwise. */
 @Composable
-private fun StickyGroupHeader(labelRes: Int, netAmount: Double) {
+private fun dayHeaderLabel(date: LocalDate): String {
+    val today = remember { LocalDate.now() }
+    return when (date) {
+        today -> stringResource(R.string.activity_group_today)
+        today.minusDays(1) -> stringResource(R.string.activity_group_yesterday)
+        else -> remember(date) {
+            date.format(DateTimeFormatter.ofPattern("EEE, d MMM", Locale.getDefault()))
+        }
+    }
+}
+
+@Composable
+private fun StickyGroupHeader(label: String, netAmount: Double) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -370,7 +431,7 @@ private fun StickyGroupHeader(labelRes: Int, netAmount: Double) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            stringResource(labelRes),
+            label,
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.extendedColors.textLight,
@@ -378,12 +439,94 @@ private fun StickyGroupHeader(labelRes: Int, netAmount: Double) {
         )
         val sign = if (netAmount >= 0) "+" else "-"
         Text(
-            "$sign${formatMoney(kotlin.math.abs(netAmount))}",
+            "$sign${formatMoney(abs(netAmount))}",
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
             color = if (netAmount >= 0) MaterialTheme.extendedColors.incomeAmount
             else MaterialTheme.extendedColors.expenseAmount
         )
+    }
+}
+
+/** Initial-load skeleton: row shapes that match the final list. */
+@Composable
+private fun TransactionListSkeleton(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.sm)
+    ) {
+        repeat(7) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = AuraSpacing.sm),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AuraSkeleton(modifier = Modifier.size(46.dp), shape = CircleShape)
+                Spacer(modifier = Modifier.width(AuraSpacing.md))
+                Column(modifier = Modifier.weight(1f)) {
+                    AuraSkeleton(
+                        modifier = Modifier
+                            .fillMaxWidth(0.55f)
+                            .height(AuraSpacing.lg)
+                    )
+                    Spacer(modifier = Modifier.height(AuraSpacing.sm))
+                    AuraSkeleton(
+                        modifier = Modifier
+                            .fillMaxWidth(0.35f)
+                            .height(AuraSpacing.md)
+                    )
+                }
+                Spacer(modifier = Modifier.width(AuraSpacing.sm))
+                AuraSkeleton(
+                    modifier = Modifier
+                        .width(56.dp)
+                        .height(AuraSpacing.lg)
+                )
+            }
+        }
+    }
+}
+
+/** Small row shown while the next page loads. */
+@Composable
+private fun AppendLoadingRow(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = AuraSpacing.lg),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+        Spacer(modifier = Modifier.width(AuraSpacing.sm))
+        Text(
+            stringResource(R.string.activity_loading_more),
+            fontSize = 13.sp,
+            color = MaterialTheme.extendedColors.textLight
+        )
+    }
+}
+
+/** Retry affordance for a failed refresh or append. */
+@Composable
+private fun LoadErrorRow(onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = AuraSpacing.xl),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            stringResource(R.string.activity_load_error),
+            fontSize = 13.sp,
+            color = MaterialTheme.extendedColors.textLight
+        )
+        Spacer(modifier = Modifier.height(AuraSpacing.sm))
+        OutlinedButton(onClick = onRetry, shape = RoundedCornerShape(16.dp)) {
+            Text(stringResource(R.string.activity_retry))
+        }
     }
 }
 

@@ -156,7 +156,7 @@ fun HierarchicalCategoryDialog(
                     onClick = onDismiss,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
+                        .heightIn(min = 52.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(stringResource(R.string.action_done), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
