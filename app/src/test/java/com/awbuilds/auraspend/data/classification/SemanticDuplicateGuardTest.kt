@@ -39,7 +39,7 @@ class SemanticDuplicateGuardTest {
         override suspend fun getMaxReceivedAt(): Long = rows.values.maxOfOrNull { it.receivedAt } ?: 0L
     }
 
-    private class FakeTransactionRepository : TransactionRepository {
+    private class FakeTransactionRepository : com.awbuilds.auraspend.TestTransactionRepositoryDefaults {
         val saved = mutableListOf<Transaction>()
         val existing = mutableListOf<Transaction>()
         private val categories = listOf(

@@ -68,3 +68,23 @@ data class ParsedBankMessage(
     val confidence: Float = 0f,
     val rawMessage: String = ""
 )
+
+/** Aggregate totals for a date range (dashboard/activity summaries). */
+data class TransactionSummary(
+    val income: Double,
+    val expense: Double,
+    val incomeCount: Int,
+    val expenseCount: Int
+)
+
+/** Total expense for one category in a range. */
+data class CategoryTotal(
+    val categoryId: String,
+    val amount: Double
+)
+
+/** Total expense for one local calendar day. */
+data class DayTotal(
+    val date: java.time.LocalDate,
+    val amount: Double
+)

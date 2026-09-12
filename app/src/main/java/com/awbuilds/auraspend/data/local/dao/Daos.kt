@@ -13,6 +13,9 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions ORDER BY dateTimestamp DESC")
     fun getAllTransactions(): Flow<List<TransactionEntity>>
 
+    @Query("SELECT * FROM transactions ORDER BY dateTimestamp DESC LIMIT :limit")
+    fun observeRecent(limit: Int): Flow<List<TransactionEntity>>
+
     @Query("SELECT * FROM transactions WHERE isRecurring = 1")
     fun getRecurringTransactions(): Flow<List<TransactionEntity>>
 
@@ -31,6 +34,43 @@ interface TransactionDao {
     @Query("SELECT SUM(amount) FROM transactions WHERE type = :type AND dateTimestamp BETWEEN :start AND :end")
     fun getTotalByTypeInRange(type: String, start: Long, end: Long): Flow<Double?>
 
+    // ─── SQL aggregates (dashboard / activity summaries) ─────────────────────
+
+    @Query(
+        """
+        SELECT COALESCE(SUM(CASE WHEN type = 'INCOME' THEN amount ELSE 0 END), 0) AS income,
+               COALESCE(SUM(CASE WHEN type = 'EXPENSE' THEN amount ELSE 0 END), 0) AS expense,
+               SUM(CASE WHEN type = 'INCOME' THEN 1 ELSE 0 END) AS incomeCount,
+               SUM(CASE WHEN type = 'EXPENSE' THEN 1 ELSE 0 END) AS expenseCount
+        FROM transactions
+        WHERE dateTimestamp BETWEEN :start AND :end
+        """
+    )
+    fun observeSummary(start: Long, end: Long): Flow<TransactionSummaryRow>
+
+    @Query("SELECT COALESCE(SUM(CASE WHEN type = 'INCOME' THEN amount ELSE -amount END), 0) FROM transactions")
+    fun observeBalance(): Flow<Double>
+
+    @Query(
+        """
+        SELECT categoryId, SUM(amount) AS total
+        FROM transactions
+        WHERE type = 'EXPENSE' AND dateTimestamp BETWEEN :start AND :end
+        GROUP BY categoryId
+        """
+    )
+    fun observeExpenseByCategory(start: Long, end: Long): Flow<List<CategoryTotalRow>>
+
+    @Query(
+        """
+        SELECT date(dateTimestamp / 1000, 'unixepoch', 'localtime') AS day, SUM(amount) AS total
+        FROM transactions
+        WHERE type = 'EXPENSE' AND dateTimestamp BETWEEN :start AND :end
+        GROUP BY day
+        """
+    )
+    fun observeDailyExpense(start: Long, end: Long): Flow<List<DayTotalRow>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTransaction(transaction: TransactionEntity)
 
@@ -43,6 +83,26 @@ interface TransactionDao {
     @Query("DELETE FROM transactions WHERE id = :id")
     suspend fun deleteTransactionById(id: String)
 }
+
+/** Aggregate row for a date range: totals plus counts per type. */
+data class TransactionSummaryRow(
+    val income: Double,
+    val expense: Double,
+    val incomeCount: Int,
+    val expenseCount: Int
+)
+
+/** Aggregate row: total expense for one category. */
+data class CategoryTotalRow(
+    val categoryId: String,
+    val total: Double
+)
+
+/** Aggregate row: total expense for one local calendar day ("YYYY-MM-DD"). */
+data class DayTotalRow(
+    val day: String,
+    val total: Double
+)
 
 @Dao
 interface CategoryDao {

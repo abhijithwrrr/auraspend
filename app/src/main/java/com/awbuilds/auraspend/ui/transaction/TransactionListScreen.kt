@@ -52,7 +52,11 @@ fun TransactionListScreen(
     onBack: () -> Unit,
     onRestore: (Transaction) -> Unit = {},
     onOpenTransaction: (String) -> Unit = {},
-    onOpenSettings: () -> Unit = {}
+    onOpenSettings: () -> Unit = {},
+    /** Aggregate-provided month totals; falls back to the loaded page when null. */
+    monthTotalsOverride: Pair<Double, Double>? = null,
+    hasMore: Boolean = false,
+    onLoadMore: () -> Unit = {}
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var filter by remember { mutableStateOf(TxnFilter.ALL) }
@@ -81,8 +85,8 @@ fun TransactionListScreen(
 
     val grouped = remember(filteredTransactions) { groupTransactionsByDate(filteredTransactions) }
 
-    // Month-to-date flow context (always from the full list, independent of filters).
-    val monthTotals = remember(transactions) {
+    // Month-to-date flow context: SQL aggregate when provided, else the loaded page.
+    val computedMonthTotals = remember(transactions) {
         val zone = ZoneId.systemDefault()
         val monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay(zone).toInstant().toEpochMilli()
         var incoming = 0.0
@@ -94,7 +98,7 @@ fun TransactionListScreen(
         }
         incoming to outgoing
     }
-    val (monthIn, monthOut) = monthTotals
+    val (monthIn, monthOut) = monthTotalsOverride ?: computedMonthTotals
 
     fun deleteWithUndo(transaction: Transaction) {
         onDelete(transaction.id)
@@ -164,7 +168,7 @@ fun TransactionListScreen(
                             color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
-                            "${transactions.size} records",
+                            "${transactions.size}${if (hasMore) "+" else ""} records",
                             fontSize = 13.sp,
                             color = extended.textLight
                         )
@@ -316,6 +320,19 @@ fun TransactionListScreen(
                                     categoryEmoji = categoryIconEmoji(category?.icon),
                                     onClick = { onOpenTransaction(transaction.id) }
                                 )
+                            }
+                        }
+                    }
+                    if (hasMore) {
+                        item(key = "load_more") {
+                            OutlinedButton(
+                                onClick = onLoadMore,
+                                shape = RoundedCornerShape(16.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = AuraSpacing.md)
+                            ) {
+                                Text("Load earlier transactions")
                             }
                         }
                     }
