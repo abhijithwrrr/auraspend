@@ -22,9 +22,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.ui.core.TransactionEntryRow
@@ -40,7 +43,11 @@ import java.time.LocalDate
 import java.time.ZoneId
 import kotlinx.coroutines.launch
 
-private enum class TxnFilter(val label: String) { ALL("All"), OUTGOING("Outgoing"), INCOMING("Incoming") }
+private enum class TxnFilter(val labelRes: Int) {
+    ALL(R.string.activity_filter_all),
+    OUTGOING(R.string.activity_filter_outgoing),
+    INCOMING(R.string.activity_filter_incoming)
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -65,6 +72,8 @@ fun TransactionListScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val extended = MaterialTheme.extendedColors
+    val transactionDeletedMessage = stringResource(R.string.activity_transaction_deleted)
+    val undoLabel = stringResource(R.string.action_undo)
 
     val filteredTransactions = remember(transactions, filter, searchQuery, selectedCategoryId) {
         transactions
@@ -104,8 +113,8 @@ fun TransactionListScreen(
         onDelete(transaction.id)
         scope.launch {
             val result = snackbarHostState.showSnackbar(
-                message = "Transaction deleted",
-                actionLabel = "UNDO",
+                message = transactionDeletedMessage,
+                actionLabel = undoLabel,
                 duration = SnackbarDuration.Short
             )
             if (result == SnackbarResult.ActionPerformed) onRestore(transaction)
@@ -124,20 +133,20 @@ fun TransactionListScreen(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it; onSearch(it) },
-                    placeholder = { Text("Search merchant or note") },
+                    placeholder = { Text(stringResource(R.string.activity_search_hint)) },
                     leadingIcon = {
                         IconButton(onClick = {
                             showSearch = false
                             searchQuery = ""
                             onSearch("")
                         }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                         }
                     },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { searchQuery = ""; onSearch("") }) {
-                                Icon(Icons.Default.Close, contentDescription = "Clear")
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_clear))
                             }
                         }
                     },
@@ -162,13 +171,14 @@ fun TransactionListScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Activity",
+                            stringResource(R.string.activity_title),
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
-                            "${transactions.size}${if (hasMore) "+" else ""} records",
+                            if (hasMore) pluralStringResource(R.plurals.activity_records_more, transactions.size, transactions.size)
+                            else pluralStringResource(R.plurals.activity_records, transactions.size, transactions.size),
                             fontSize = 13.sp,
                             color = extended.textLight
                         )
@@ -176,7 +186,7 @@ fun TransactionListScreen(
                     IconButton(onClick = { showSearch = true }) {
                         Icon(
                             Icons.Default.Search,
-                            contentDescription = "Search",
+                            contentDescription = stringResource(R.string.action_search),
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -192,19 +202,19 @@ fun TransactionListScreen(
                 horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
             ) {
                 SummaryPill(
-                    label = "In",
-                    value = "+${formatMoney(monthIn)}",
+                    label = stringResource(R.string.activity_summary_in),
+                    value = stringResource(R.string.common_amount_plus, formatMoney(monthIn)),
                     valueColor = extended.incomeAmount,
                     modifier = Modifier.weight(1f)
                 )
                 SummaryPill(
-                    label = "Out",
-                    value = "-${formatMoney(monthOut)}",
+                    label = stringResource(R.string.activity_summary_out),
+                    value = stringResource(R.string.common_amount_minus, formatMoney(monthOut)),
                     valueColor = extended.expenseAmount,
                     modifier = Modifier.weight(1f)
                 )
                 SummaryPill(
-                    label = "Net",
+                    label = stringResource(R.string.activity_summary_net),
                     value = formatMoney(monthIn - monthOut),
                     valueColor = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
@@ -213,7 +223,7 @@ fun TransactionListScreen(
 
             // ── Type filter
             AuraSegmentedControl(
-                options = TxnFilter.entries.map { it.label },
+                options = TxnFilter.entries.map { stringResource(it.labelRes) },
                 selectedIndex = filter.ordinal,
                 onSelect = { filter = TxnFilter.entries[it] },
                 modifier = Modifier.padding(horizontal = AuraSpacing.gutter)
@@ -230,7 +240,7 @@ fun TransactionListScreen(
                 FilterChip(
                     selected = selectedCategoryId == null,
                     onClick = { selectedCategoryId = null },
-                    label = { Text("All") }
+                    label = { Text(stringResource(R.string.activity_filter_all)) }
                 )
                 categories.forEach { category ->
                     FilterChip(
@@ -258,11 +268,11 @@ fun TransactionListScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     AuraEmptyState(
                         icon = if (transactions.isEmpty()) Icons.Default.ReceiptLong else Icons.Default.SearchOff,
-                        title = if (transactions.isEmpty()) "No transactions yet"
-                        else "No matching transactions",
+                        title = if (transactions.isEmpty()) stringResource(R.string.activity_empty_title)
+                        else stringResource(R.string.activity_empty_title_filtered),
                         message = if (searchQuery.isNotBlank() || filter != TxnFilter.ALL || selectedCategoryId != null)
-                            "Try adjusting your search or filters."
-                        else "Your auto-categorised activity will appear here."
+                            stringResource(R.string.activity_empty_message_filtered)
+                        else stringResource(R.string.activity_empty_message)
                     )
                 }
             } else {
@@ -276,7 +286,7 @@ fun TransactionListScreen(
                 ) {
                     grouped.forEach { group ->
                         stickyHeader(key = "header_${group.label}") {
-                            StickyGroupHeader(label = group.label, netAmount = group.netAmount)
+                            StickyGroupHeader(labelRes = group.labelRes, netAmount = group.netAmount)
                         }
                         items(
                             items = group.transactions,
@@ -304,7 +314,7 @@ fun TransactionListScreen(
                                     ) {
                                         Icon(
                                             Icons.Default.Delete,
-                                            contentDescription = "Delete",
+                                            contentDescription = stringResource(R.string.action_delete),
                                             tint = MaterialTheme.colorScheme.onErrorContainer,
                                             modifier = Modifier.padding(horizontal = AuraSpacing.xxl)
                                         )
@@ -315,7 +325,7 @@ fun TransactionListScreen(
                             ) {
                                 TransactionEntryRow(
                                     transaction = transaction,
-                                    categoryName = category?.name ?: "Other",
+                                    categoryName = category?.name ?: stringResource(R.string.activity_other_category),
                                     categoryColor = categoryColor(category?.color),
                                     categoryEmoji = categoryIconEmoji(category?.icon),
                                     onClick = { onOpenTransaction(transaction.id) }
@@ -332,7 +342,7 @@ fun TransactionListScreen(
                                     .fillMaxWidth()
                                     .padding(vertical = AuraSpacing.md)
                             ) {
-                                Text("Load earlier transactions")
+                                Text(stringResource(R.string.activity_load_earlier))
                             }
                         }
                     }
@@ -351,7 +361,7 @@ fun TransactionListScreen(
 }
 
 @Composable
-private fun StickyGroupHeader(label: String, netAmount: Double) {
+private fun StickyGroupHeader(labelRes: Int, netAmount: Double) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -360,7 +370,7 @@ private fun StickyGroupHeader(label: String, netAmount: Double) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            label,
+            stringResource(labelRes),
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.extendedColors.textLight,
@@ -403,23 +413,33 @@ private fun SummaryPill(
 
 // ─── Grouping (local-calendar aware) ────────────────────────────────────────────
 
-data class DateGroup(val label: String, val netAmount: Double, val transactions: List<Transaction>)
+data class DateGroup(
+    val label: String,
+    val labelRes: Int,
+    val netAmount: Double,
+    val transactions: List<Transaction>
+)
 
 internal fun groupTransactionsByDate(
     transactions: List<Transaction>,
     today: LocalDate = LocalDate.now()
 ): List<DateGroup> {
-    data class Bucket(val label: String, val start: LocalDate?, val list: MutableList<Transaction> = mutableListOf())
+    data class Bucket(
+        val label: String,
+        val labelRes: Int,
+        val start: LocalDate?,
+        val list: MutableList<Transaction> = mutableListOf()
+    )
 
     val weekStart = today.minusDays((today.dayOfWeek.value - 1).toLong())
     val monthStart = today.withDayOfMonth(1)
 
     val buckets = listOf(
-        Bucket("Today", today),
-        Bucket("Yesterday", today.minusDays(1)),
-        Bucket("This Week", weekStart),
-        Bucket("This Month", monthStart),
-        Bucket("Older", null)
+        Bucket("Today", R.string.activity_group_today, today),
+        Bucket("Yesterday", R.string.activity_group_yesterday, today.minusDays(1)),
+        Bucket("This Week", R.string.activity_group_this_week, weekStart),
+        Bucket("This Month", R.string.activity_group_this_month, monthStart),
+        Bucket("Older", R.string.activity_group_older, null)
     )
 
     transactions.forEach { t ->
@@ -432,6 +452,6 @@ internal fun groupTransactionsByDate(
         val net = b.list.sumOf {
             if (it.type == TransactionType.EXPENSE) -it.amount else it.amount
         }
-        DateGroup(b.label, net, b.list)
+        DateGroup(b.label, b.labelRes, net, b.list)
     }
 }

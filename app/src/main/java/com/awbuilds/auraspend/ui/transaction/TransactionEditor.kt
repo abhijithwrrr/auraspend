@@ -11,10 +11,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
@@ -64,7 +66,10 @@ fun TransactionEditor(
         Spacer(modifier = Modifier.height(AuraSpacing.md))
 
         AuraSegmentedControl(
-            options = listOf("Expense", "Income"),
+            options = listOf(
+                stringResource(R.string.txn_editor_type_expense),
+                stringResource(R.string.txn_editor_type_income)
+            ),
             selectedIndex = if (type == TransactionType.EXPENSE) 0 else 1,
             onSelect = { type = if (it == 0) TransactionType.EXPENSE else TransactionType.INCOME }
         )
@@ -74,12 +79,12 @@ fun TransactionEditor(
         OutlinedTextField(
             value = amount,
             onValueChange = { amount = it },
-            label = { Text("Amount") },
+            label = { Text(stringResource(R.string.txn_editor_amount)) },
             prefix = { Text("₹") },
             singleLine = true,
             isError = amount.isNotBlank() && parsedAmount == null,
             supportingText = if (amount.isNotBlank() && parsedAmount == null) {
-                { Text("Enter a valid amount") }
+                { Text(stringResource(R.string.txn_editor_amount_invalid)) }
             } else null,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             shape = RoundedCornerShape(14.dp),
@@ -91,7 +96,7 @@ fun TransactionEditor(
         OutlinedTextField(
             value = merchant,
             onValueChange = { merchant = it },
-            label = { Text("Merchant / Payee") },
+            label = { Text(stringResource(R.string.txn_editor_merchant)) },
             singleLine = true,
             shape = RoundedCornerShape(14.dp),
             modifier = Modifier.fillMaxWidth()
@@ -102,7 +107,7 @@ fun TransactionEditor(
         OutlinedTextField(
             value = note,
             onValueChange = { note = it },
-            label = { Text("Note (optional)") },
+            label = { Text(stringResource(R.string.txn_editor_note)) },
             minLines = 2,
             maxLines = 4,
             shape = RoundedCornerShape(14.dp),
@@ -124,7 +129,7 @@ fun TransactionEditor(
         Spacer(modifier = Modifier.height(AuraSpacing.lg))
 
         Text(
-            "Category",
+            stringResource(R.string.txn_editor_category),
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
@@ -183,13 +188,18 @@ fun TransactionEditor(
                 .fillMaxWidth()
                 .height(52.dp)
         ) {
-            Text(if (isNew) "Save transaction" else "Save changes", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                if (isNew) stringResource(R.string.txn_editor_save_new)
+                else stringResource(R.string.txn_editor_save_changes),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold
+            )
         }
 
         Spacer(modifier = Modifier.height(AuraSpacing.sm))
 
         TextButton(onClick = onCancel, modifier = Modifier.fillMaxWidth()) {
-            Text("Cancel")
+            Text(stringResource(R.string.action_cancel))
         }
     }
 
@@ -211,10 +221,10 @@ fun TransactionEditor(
                         }
                         showDatePicker = false
                     }
-                ) { Text("Done") }
+                ) { Text(stringResource(R.string.action_done)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.action_cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)

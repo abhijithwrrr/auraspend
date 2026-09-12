@@ -15,9 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.BudgetPeriod
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
 import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
@@ -43,15 +46,15 @@ fun BudgetScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Budgets") },
+                title = { Text(stringResource(R.string.budget_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.handleIntent(BudgetViewIntent.StartAdd) }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Budget")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.budget_add))
                     }
                 }
             )
@@ -66,9 +69,9 @@ fun BudgetScreen(
             ) {
                 AuraEmptyState(
                     icon = Icons.Default.AccountBalance,
-                    title = "No budgets set",
-                    message = "Set spending limits for each category.",
-                    actionLabel = "Add Budget",
+                    title = stringResource(R.string.budget_empty_title),
+                    message = stringResource(R.string.budget_empty_message),
+                    actionLabel = stringResource(R.string.budget_add),
                     onAction = { viewModel.handleIntent(BudgetViewIntent.StartAdd) }
                 )
             }
@@ -105,19 +108,19 @@ fun BudgetScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    "All budgets",
+                                    stringResource(R.string.budget_all),
                                     style = AuraType.metricLabel,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Spacer(modifier = Modifier.height(AuraSpacing.xs))
                                 Text(
-                                    "${formatMoney(totalSpent)} of ${formatMoney(totalLimit)}",
+                                    stringResource(R.string.budget_spent_of, formatMoney(totalSpent), formatMoney(totalLimit)),
                                     style = AuraType.moneyMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(AuraSpacing.xs))
                                 Text(
-                                    "$daysLeft day${if (daysLeft == 1) "" else "s"} left this month",
+                                    pluralStringResource(R.plurals.budget_days_left, daysLeft, daysLeft),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -130,7 +133,7 @@ fun BudgetScreen(
                                 stroke = 7.dp
                             ) {
                                 Text(
-                                    "${(overall.coerceIn(0f, 1f) * 100).toInt()}%",
+                                    stringResource(R.string.common_percent, (overall.coerceIn(0f, 1f) * 100).toInt()),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -168,7 +171,7 @@ fun BudgetScreen(
                             )
                             Spacer(modifier = Modifier.width(AuraSpacing.sm))
                             Text(
-                                category?.name ?: "Unknown",
+                                category?.name ?: stringResource(R.string.budget_unknown_category),
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold,
@@ -177,7 +180,7 @@ fun BudgetScreen(
                             IconButton(onClick = { viewModel.handleIntent(BudgetViewIntent.DeleteBudget(budget.id)) }) {
                                 Icon(
                                     Icons.Default.Delete,
-                                    contentDescription = "Delete",
+                                    contentDescription = stringResource(R.string.action_delete),
                                     tint = MaterialTheme.colorScheme.error,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -195,7 +198,7 @@ fun BudgetScreen(
                                 stroke = 6.dp
                             ) {
                                 Text(
-                                    "${(progress * 100).toInt()}%",
+                                    stringResource(R.string.common_percent, (progress * 100).toInt()),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -204,21 +207,21 @@ fun BudgetScreen(
                             Spacer(modifier = Modifier.width(AuraSpacing.lg))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    "${formatMoney(budget.spentAmount)} spent",
+                                    stringResource(R.string.budget_spent, formatMoney(budget.spentAmount)),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(AuraSpacing.xs))
                                 if (overBy > 0) {
                                     Text(
-                                        "Over by ${formatMoney(overBy)}",
+                                        stringResource(R.string.budget_over_by, formatMoney(overBy)),
                                         style = MaterialTheme.typography.labelMedium,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.error
                                     )
                                 } else {
                                     Text(
-                                        "${formatMoney(budget.limitAmount)} limit",
+                                        stringResource(R.string.budget_limit, formatMoney(budget.limitAmount)),
                                         style = MaterialTheme.typography.labelMedium,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -247,7 +250,7 @@ fun BudgetScreen(
                                     )
                                     Spacer(modifier = Modifier.width(AuraSpacing.xs))
                                     Text(
-                                        "Limit reached",
+                                        stringResource(R.string.budget_limit_reached),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.error,
                                         fontWeight = FontWeight.SemiBold
@@ -255,7 +258,7 @@ fun BudgetScreen(
                                 }
                             } else if (progress >= 0.8f) {
                                 Text(
-                                    "${(progress * 100).toInt()}% used",
+                                    stringResource(R.string.budget_percent_used, (progress * 100).toInt()),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.tertiary,
                                     fontWeight = FontWeight.SemiBold
@@ -303,12 +306,13 @@ fun BudgetScreen(
                     }
                     Column {
                         Text(
-                            if (state.editingBudget != null) "Edit Budget" else "New Budget",
+                            if (state.editingBudget != null) stringResource(R.string.budget_edit_title)
+                            else stringResource(R.string.budget_new_title),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "Set a spending limit for a category",
+                            stringResource(R.string.budget_editor_subtitle),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -317,13 +321,13 @@ fun BudgetScreen(
 
                 Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
                     Text(
-                        "Category",
+                        stringResource(R.string.budget_category),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     if (state.categories.isEmpty()) {
                         Text(
-                            "No categories available",
+                            stringResource(R.string.budget_no_categories),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -356,7 +360,7 @@ fun BudgetScreen(
                 OutlinedTextField(
                     value = state.limitAmount,
                     onValueChange = { viewModel.handleIntent(BudgetViewIntent.AmountChanged(it)) },
-                    label = { Text("Monthly Limit") },
+                    label = { Text(stringResource(R.string.budget_monthly_limit)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     prefix = { Text("₹") },
@@ -372,7 +376,7 @@ fun BudgetScreen(
 
                 Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
                     Text(
-                        "Period",
+                        stringResource(R.string.budget_period),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -404,14 +408,14 @@ fun BudgetScreen(
                         onClick = { viewModel.handleIntent(BudgetViewIntent.CancelEdit) },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                     Button(
                         onClick = { viewModel.handleIntent(BudgetViewIntent.SaveBudget) },
                         modifier = Modifier.weight(1f),
                         enabled = state.selectedCategoryId.isNotBlank() && state.limitAmount.toDoubleOrNull() != null
                     ) {
-                        Text("Save Budget")
+                        Text(stringResource(R.string.budget_save))
                     }
                 }
             }

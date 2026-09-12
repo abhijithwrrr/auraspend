@@ -23,11 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.data.ai.AiModelState
 import com.awbuilds.auraspend.data.classification.ClassifiedSms
 import com.awbuilds.auraspend.domain.model.TransactionType
@@ -87,9 +90,9 @@ fun ClassificationScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Smart Add") },
+                title = { Text(stringResource(R.string.classification_title)) },
                 navigationIcon = {
-                    TextButton(onClick = onBack) { Text("Cancel") }
+                    TextButton(onClick = onBack) { Text(stringResource(R.string.action_cancel)) }
                 }
             )
         }
@@ -100,7 +103,11 @@ fun ClassificationScreen(
                 .fillMaxSize()
         ) {
             AuraSegmentedControl(
-                options = listOf("Paste", "From SMS", "Auto Detect"),
+                options = listOf(
+                    stringResource(R.string.classification_tab_paste),
+                    stringResource(R.string.classification_tab_sms),
+                    stringResource(R.string.classification_tab_auto)
+                ),
                 selectedIndex = selectedTab,
                 onSelect = { index ->
                     selectedTab = index
@@ -157,7 +164,7 @@ fun ClassificationScreen(
             },
             onDismiss = { showCategoryDialog = false },
             merchantSuggestion = if (state.merchantConfidence > 0) {
-                Pair(state.parsedMessage?.merchant ?: "Unknown", state.merchantConfidence)
+                Pair(state.parsedMessage?.merchant ?: stringResource(R.string.classification_unknown_merchant), state.merchantConfidence)
             } else null
         )
     }
@@ -201,8 +208,8 @@ private fun PasteMessageTab(
                 onValueChange = {
                     viewModel.handleIntent(ClassificationViewIntent.MessageChanged(it))
                 },
-                label = { Text("Paste bank SMS message") },
-                placeholder = { Text("Paste your bank SMS here...\ne.g. INR 500.00 debited from HDFC Bank for Swiggy order") },
+                label = { Text(stringResource(R.string.classification_paste_label)) },
+                placeholder = { Text(stringResource(R.string.classification_paste_hint)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 150.dp),
@@ -221,7 +228,7 @@ private fun PasteMessageTab(
                 enabled = state.rawMessage.isNotBlank(),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Classify Message", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.classification_classify), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
         }
 
@@ -250,7 +257,7 @@ private fun PasteMessageTab(
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                     } else {
-                        Text("Save Transaction", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.classification_save_transaction), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -276,7 +283,7 @@ private fun PasteMessageTab(
             },
             onDismiss = { showCategoryDialog = false },
             merchantSuggestion = if (state.merchantConfidence > 0) {
-                Pair(state.parsedMessage?.merchant ?: "Unknown", state.merchantConfidence)
+                Pair(state.parsedMessage?.merchant ?: stringResource(R.string.classification_unknown_merchant), state.merchantConfidence)
             } else null
         )
     }
@@ -299,7 +306,7 @@ private fun ClassificationResultCard(
             verticalArrangement = Arrangement.spacedBy(AuraSpacing.md)
         ) {
             Text(
-                "Detected Details",
+                stringResource(R.string.classification_detected_details),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -308,15 +315,15 @@ private fun ClassificationResultCard(
 
             // Live AI status: refining in flight, or refined result applied.
             if (state.isAiEnriching && !state.aiRefined) {
-                AiStatusBadge(text = "AI refining…", tint = MaterialTheme.colorScheme.tertiary)
+                AiStatusBadge(text = stringResource(R.string.classification_ai_refining), tint = MaterialTheme.colorScheme.tertiary)
             } else if (state.aiRefined) {
-                AiStatusBadge(text = "AI refined", tint = MaterialTheme.colorScheme.primary)
+                AiStatusBadge(text = stringResource(R.string.classification_ai_refined), tint = MaterialTheme.colorScheme.primary)
             }
 
             // Show merchant confidence if available
             if (state.merchantConfidence > 0) {
                 MerchantConfidenceBadge(
-                    merchant = parsed.merchant ?: "Unknown",
+                    merchant = parsed.merchant ?: stringResource(R.string.classification_unknown_merchant),
                     confidence = state.merchantConfidence
                 )
             }
@@ -324,22 +331,22 @@ private fun ClassificationResultCard(
             AmountDetailRow(amount = parsed.amount)
 
             DetailRow(
-                label = "Type",
-                value = parsed.type?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: "Not detected"
+                label = stringResource(R.string.classification_type),
+                value = parsed.type?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: stringResource(R.string.classification_not_detected)
             )
 
             DetailRow(
-                label = "Merchant",
-                value = parsed.merchant ?: "Not detected"
+                label = stringResource(R.string.classification_merchant),
+                value = parsed.merchant ?: stringResource(R.string.classification_not_detected)
             )
 
             DetailRow(
-                label = "Bank",
-                value = parsed.bankName ?: "Not detected"
+                label = stringResource(R.string.classification_bank),
+                value = parsed.bankName ?: stringResource(R.string.classification_not_detected)
             )
 
             Text(
-                "Category",
+                stringResource(R.string.classification_category),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -371,7 +378,10 @@ private fun ClassificationResultCard(
             TextButton(
                 onClick = { viewModel.handleIntent(ClassificationViewIntent.ToggleManualEntry) }
             ) {
-                Text(if (state.useManualEntry) "Use detected values" else "Edit manually")
+                Text(
+                    if (state.useManualEntry) stringResource(R.string.classification_use_detected)
+                    else stringResource(R.string.classification_edit_manually)
+                )
             }
 
             if (state.useManualEntry) {
@@ -413,7 +423,7 @@ private fun MerchantConfidenceBadge(merchant: String, confidence: Float) {
     }
 
     TintBadge(
-        text = "Merchant: $merchant (${(confidence * 100).toInt()}%)",
+        text = stringResource(R.string.classification_merchant_confidence, merchant, (confidence * 100).toInt()),
         tint = color
     )
 }
@@ -426,9 +436,9 @@ private fun ConfidenceBadge(confidence: Float) {
         else -> MaterialTheme.colorScheme.error
     }
     val label = when {
-        confidence >= 0.8f -> "High confidence"
-        confidence >= 0.5f -> "Medium confidence"
-        else -> "Low confidence - please verify"
+        confidence >= 0.8f -> stringResource(R.string.classification_confidence_high)
+        confidence >= 0.5f -> stringResource(R.string.classification_confidence_medium)
+        else -> stringResource(R.string.classification_confidence_low)
     }
 
     TintBadge(text = label, tint = color)
@@ -442,7 +452,7 @@ private fun AmountDetailRow(amount: Double?) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Amount",
+            text = stringResource(R.string.classification_amount),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -454,7 +464,7 @@ private fun AmountDetailRow(amount: Double?) {
             )
         } else {
             Text(
-                text = "Not detected",
+                text = stringResource(R.string.classification_not_detected),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
@@ -494,7 +504,7 @@ private fun CategorySelector(
     modifier: Modifier = Modifier
 ) {
     if (categories.isEmpty()) {
-        Text("No categories available", style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.classification_no_categories), style = MaterialTheme.typography.bodySmall)
         return
     }
 
@@ -536,7 +546,7 @@ private fun ManualEntryFields(
         OutlinedTextField(
             value = state.manualAmount,
             onValueChange = { viewModel.handleIntent(ClassificationViewIntent.AmountChanged(it)) },
-            label = { Text("Amount") },
+            label = { Text(stringResource(R.string.classification_amount)) },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             singleLine = true,
@@ -551,14 +561,14 @@ private fun ManualEntryFields(
             FilterChip(
                 selected = state.manualType == TransactionType.EXPENSE,
                 onClick = { viewModel.handleIntent(ClassificationViewIntent.TypeChanged(TransactionType.EXPENSE)) },
-                label = { Text("Expense") },
+                label = { Text(stringResource(R.string.classification_manual_expense)) },
                 shape = RoundedCornerShape(50),
                 modifier = Modifier.weight(1f)
             )
             FilterChip(
                 selected = state.manualType == TransactionType.INCOME,
                 onClick = { viewModel.handleIntent(ClassificationViewIntent.TypeChanged(TransactionType.INCOME)) },
-                label = { Text("Income") },
+                label = { Text(stringResource(R.string.classification_manual_income)) },
                 shape = RoundedCornerShape(50),
                 modifier = Modifier.weight(1f)
             )
@@ -567,7 +577,7 @@ private fun ManualEntryFields(
         OutlinedTextField(
             value = state.manualMerchant,
             onValueChange = { viewModel.handleIntent(ClassificationViewIntent.MerchantChanged(it)) },
-            label = { Text("Merchant / Payee") },
+            label = { Text(stringResource(R.string.classification_manual_merchant)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             shape = RoundedCornerShape(14.dp)
@@ -576,7 +586,7 @@ private fun ManualEntryFields(
         OutlinedTextField(
             value = state.manualNote,
             onValueChange = { viewModel.handleIntent(ClassificationViewIntent.NoteChanged(it)) },
-            label = { Text("Note") },
+            label = { Text(stringResource(R.string.classification_manual_note)) },
             modifier = Modifier.fillMaxWidth(),
             minLines = 2,
             maxLines = 4,
@@ -593,9 +603,9 @@ private fun SmsPermissionRequired(onGrant: () -> Unit) {
     ) {
         AuraEmptyState(
             icon = Icons.Default.Lock,
-            title = "SMS Permission Required",
-            message = "Allow access to read bank SMS messages for auto-classification.",
-            actionLabel = "Grant Permission",
+            title = stringResource(R.string.classification_permission_title),
+            message = stringResource(R.string.classification_permission_message),
+            actionLabel = stringResource(R.string.classification_grant_permission),
             onAction = onGrant
         )
     }
@@ -616,8 +626,8 @@ private fun SmsListTab(
         ) {
             AuraEmptyState(
                 icon = Icons.Default.Sms,
-                title = "No bank SMS messages found",
-                message = "New bank messages will appear here once detected."
+                title = stringResource(R.string.classification_no_sms_title),
+                message = stringResource(R.string.classification_no_sms_message)
             )
         }
     } else {
@@ -630,7 +640,11 @@ private fun SmsListTab(
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
                 Text(
-                    "AI is categorizing: ${state.aiProgressCurrent} of ${state.aiProgressTotal}",
+                    stringResource(
+                        R.string.classification_ai_progress,
+                        state.aiProgressCurrent,
+                        state.aiProgressTotal
+                    ),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.xs)
@@ -720,8 +734,8 @@ private fun AutoDetectTab(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 AuraEmptyState(
                     icon = Icons.Default.AutoAwesome,
-                    title = "Local AI Required",
-                    message = "Download the on-device AI model to automatically detect and categorize your bank messages offline."
+                    title = stringResource(R.string.classification_local_ai_title),
+                    message = stringResource(R.string.classification_local_ai_message)
                 )
                 Button(
                     onClick = { viewModel.handleIntent(ClassificationViewIntent.StartModelDownload) },
@@ -739,9 +753,9 @@ private fun AutoDetectTab(
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                         Spacer(modifier = Modifier.width(AuraSpacing.sm))
-                        Text("Downloading…")
+                        Text(stringResource(R.string.classification_downloading))
                     } else {
-                        Text("Download AI Model (~380 MB)", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.classification_download_model), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -758,7 +772,8 @@ private fun AutoDetectTab(
                 CircularProgressIndicator()
                 Spacer(modifier = Modifier.height(AuraSpacing.lg))
                 Text(
-                    if (state.isAiEnriching) "AI is categorizing messages..." else "Reading bank messages...",
+                    if (state.isAiEnriching) stringResource(R.string.classification_ai_categorizing)
+                    else stringResource(R.string.classification_reading_sms),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -771,9 +786,9 @@ private fun AutoDetectTab(
         ) {
             AuraEmptyState(
                 icon = Icons.Default.Sms,
-                title = "No bank SMS messages found",
-                message = "Scan your inbox to detect and categorize bank messages.",
-                actionLabel = "Scan SMS",
+                title = stringResource(R.string.classification_no_sms_title),
+                message = stringResource(R.string.classification_scan_message),
+                actionLabel = stringResource(R.string.classification_scan_sms),
                 onAction = {
                     viewModel.handleIntent(ClassificationViewIntent.LoadAndClassifyAll)
                 }
@@ -789,7 +804,11 @@ private fun AutoDetectTab(
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
                 Text(
-                    "AI is categorizing: ${state.aiProgressCurrent} of ${state.aiProgressTotal}",
+                    stringResource(
+                        R.string.classification_ai_progress,
+                        state.aiProgressCurrent,
+                        state.aiProgressTotal
+                    ),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.xs)
@@ -813,7 +832,11 @@ private fun AutoDetectTab(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            "${state.classifiedSmsList.size} message${if (state.classifiedSmsList.size != 1) "s" else ""} found",
+                            pluralStringResource(
+                                R.plurals.classification_messages_found,
+                                state.classifiedSmsList.size,
+                                state.classifiedSmsList.size
+                            ),
                             style = MaterialTheme.typography.titleSmall
                         )
                         if (state.classifiedSmsList.any { !it.isSaved }) {
@@ -833,12 +856,12 @@ private fun AutoDetectTab(
                                             color = MaterialTheme.colorScheme.onPrimary
                                         )
                                     } else {
-                                        Text("Save All", fontWeight = FontWeight.SemiBold)
+                                        Text(stringResource(R.string.classification_save_all), fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(AuraSpacing.xs))
                                 Text(
-                                    "Swipe right to save · left to dismiss",
+                                    stringResource(R.string.classification_swipe_hint),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -924,7 +947,8 @@ private fun TriageSwipeBackground(direction: SwipeToDismissBoxValue) {
         if (direction != SwipeToDismissBoxValue.Settled) {
             Icon(
                 imageVector = if (isSave) Icons.Default.Check else Icons.Default.Close,
-                contentDescription = if (isSave) "Save transaction" else "Dismiss message",
+                contentDescription = if (isSave) stringResource(R.string.classification_save_desc)
+                else stringResource(R.string.classification_dismiss_desc),
                 tint = contentColor,
                 modifier = Modifier.padding(horizontal = AuraSpacing.xxl)
             )
@@ -1020,7 +1044,7 @@ private fun ClassifiedSmsItem(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Done,
-                            contentDescription = "Save",
+                            contentDescription = stringResource(R.string.action_save),
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -1031,14 +1055,14 @@ private fun ClassifiedSmsItem(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Dismiss",
+                            contentDescription = stringResource(R.string.action_dismiss),
                             modifier = Modifier.size(18.dp)
                         )
                     }
                 }
             } else {
                 TintBadge(
-                    text = "Saved",
+                    text = stringResource(R.string.classification_saved),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -1058,7 +1082,7 @@ private fun AiDownloadStatusBanner(progress: Float) {
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
             Text(
-                "Downloading on-device AI… ${(progress * 100).toInt()}%",
+                stringResource(R.string.classification_download_progress, (progress * 100).toInt()),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -1067,11 +1091,10 @@ private fun AiDownloadStatusBanner(progress: Float) {
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
-                "Messages will be auto-categorised into subscriptions, categories, income, expense and other once ready.",
+                stringResource(R.string.classification_download_message),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
-

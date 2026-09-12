@@ -19,11 +19,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.SavingsGoal
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
@@ -65,10 +67,10 @@ fun SavingsGoalsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Savings goals") },
+                title = { Text(stringResource(R.string.savings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
@@ -76,7 +78,7 @@ fun SavingsGoalsScreen(
                         editorGoal = null
                         showEditor = true
                     }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add goal")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.savings_add_goal))
                     }
                 }
             )
@@ -91,9 +93,9 @@ fun SavingsGoalsScreen(
             ) {
                 AuraEmptyState(
                     icon = Icons.Default.Savings,
-                    title = "No savings goals yet",
-                    message = "Set a target — a trip, a gadget, an emergency fund — and watch it fill up.",
-                    actionLabel = "Create a goal",
+                    title = stringResource(R.string.savings_empty_title),
+                    message = stringResource(R.string.savings_empty_message),
+                    actionLabel = stringResource(R.string.savings_create_goal),
                     onAction = {
                         editorGoal = null
                         showEditor = true
@@ -118,7 +120,7 @@ fun SavingsGoalsScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    "Total saved",
+                                    stringResource(R.string.savings_total_saved),
                                     style = AuraType.metricLabel,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -129,7 +131,7 @@ fun SavingsGoalsScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    "of ${formatMoney(totalTarget)}",
+                                    stringResource(R.string.savings_of, formatMoney(totalTarget)),
                                     fontSize = 13.sp,
                                     color = MaterialTheme.extendedColors.textLight
                                 )
@@ -139,10 +141,13 @@ fun SavingsGoalsScreen(
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(72.dp),
                                 stroke = 7.dp,
-                                contentDescription = "Total savings ${(overallProgress * 100).toInt()} percent"
+                                contentDescription = stringResource(
+                                    R.string.savings_total_desc,
+                                    (overallProgress * 100).toInt()
+                                )
                             ) {
                                 Text(
-                                    "${(overallProgress * 100).toInt()}%",
+                                    stringResource(R.string.common_percent, (overallProgress * 100).toInt()),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -195,8 +200,8 @@ fun SavingsGoalsScreen(
     deleteGoal?.let { goal ->
         AlertDialog(
             onDismissRequest = { deleteGoal = null },
-            title = { Text("Delete “${goal.name}”?") },
-            text = { Text("The goal and its progress will be removed. This cannot be undone.") },
+            title = { Text(stringResource(R.string.savings_delete_title, goal.name)) },
+            text = { Text(stringResource(R.string.savings_delete_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -204,10 +209,10 @@ fun SavingsGoalsScreen(
                         deleteGoal = null
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete") }
+                ) { Text(stringResource(R.string.action_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { deleteGoal = null }) { Text("Cancel") }
+                TextButton(onClick = { deleteGoal = null }) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -237,7 +242,11 @@ private fun GoalCard(
                 color = if (complete) MaterialTheme.extendedColors.incomeAmount else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(56.dp),
                 stroke = 5.dp,
-                contentDescription = "${goal.name} ${(progress.coerceIn(0f, 1f) * 100).toInt()} percent"
+                contentDescription = stringResource(
+                    R.string.savings_goal_desc,
+                    goal.name,
+                    (progress.coerceIn(0f, 1f) * 100).toInt()
+                )
             ) {
                 if (complete) {
                     Icon(
@@ -248,7 +257,7 @@ private fun GoalCard(
                     )
                 } else {
                     Text(
-                        "${(progress.coerceIn(0f, 1f) * 100).toInt()}%",
+                        stringResource(R.string.common_percent, (progress.coerceIn(0f, 1f) * 100).toInt()),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -270,7 +279,7 @@ private fun GoalCard(
                     if (complete) {
                         Spacer(modifier = Modifier.width(AuraSpacing.sm))
                         Text(
-                            "Reached",
+                            stringResource(R.string.savings_reached),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.extendedColors.incomeAmount,
@@ -285,13 +294,17 @@ private fun GoalCard(
                 }
                 Spacer(modifier = Modifier.height(AuraSpacing.xxs))
                 Text(
-                    "${formatMoney(goal.currentAmount)} of ${formatMoney(goal.targetAmount)}",
+                    stringResource(
+                        R.string.savings_progress_of,
+                        formatMoney(goal.currentAmount),
+                        formatMoney(goal.targetAmount)
+                    ),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 deadlineLabel?.let {
                     Text(
-                        "Target $it",
+                        stringResource(R.string.savings_target_date, it),
                         fontSize = 12.sp,
                         color = MaterialTheme.extendedColors.textLight
                     )
@@ -310,15 +323,15 @@ private fun GoalCard(
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(AuraSpacing.xs))
-                Text("Add funds")
+                Text(stringResource(R.string.savings_add_funds))
             }
             IconButton(onClick = onEdit) {
-                Icon(Icons.Default.Edit, contentDescription = "Edit goal")
+                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.savings_edit_goal))
             }
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "Delete goal",
+                    contentDescription = stringResource(R.string.savings_delete_goal),
                     tint = MaterialTheme.colorScheme.error
                 )
             }
@@ -340,6 +353,12 @@ private fun GoalEditorSheet(
 
     val targetValue = target.toDoubleOrNull()
     val valid = name.isNotBlank() && targetValue != null && targetValue > 0
+    val targetDateLabel = deadlineMillis?.let {
+        stringResource(
+            R.string.savings_target_date,
+            Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("d MMM yyyy"))
+        )
+    } ?: stringResource(R.string.savings_target_date_hint)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -353,7 +372,8 @@ private fun GoalEditorSheet(
                 .padding(bottom = AuraSpacing.xxl)
         ) {
             Text(
-                if (goal == null) "New goal" else "Edit goal",
+                if (goal == null) stringResource(R.string.savings_new_goal_title)
+                else stringResource(R.string.savings_edit_goal),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -362,7 +382,7 @@ private fun GoalEditorSheet(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Goal name") },
+                label = { Text(stringResource(R.string.savings_goal_name)) },
                 singleLine = true,
                 shape = RoundedCornerShape(14.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -371,7 +391,7 @@ private fun GoalEditorSheet(
             OutlinedTextField(
                 value = target,
                 onValueChange = { target = it },
-                label = { Text("Target amount") },
+                label = { Text(stringResource(R.string.savings_target_amount)) },
                 prefix = { Text("₹") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -384,17 +404,13 @@ private fun GoalEditorSheet(
                 shape = RoundedCornerShape(14.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    deadlineMillis?.let {
-                        "Target ${Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("d MMM yyyy"))}"
-                    } ?: "Add a target date (optional)"
-                )
+                Text(targetDateLabel)
             }
             if (deadlineMillis != null) {
                 TextButton(
                     onClick = { deadlineMillis = null },
                     modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) { Text("Remove date") }
+                ) { Text(stringResource(R.string.savings_remove_date)) }
             }
             Spacer(modifier = Modifier.height(AuraSpacing.lg))
             Button(
@@ -413,7 +429,11 @@ private fun GoalEditorSheet(
                     .fillMaxWidth()
                     .height(52.dp)
             ) {
-                Text(if (goal == null) "Create goal" else "Save changes", fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (goal == null) stringResource(R.string.savings_create_goal)
+                    else stringResource(R.string.savings_save_changes),
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }
@@ -428,10 +448,10 @@ private fun GoalEditorSheet(
                         datePickerState.selectedDateMillis?.let { deadlineMillis = it }
                         showDatePicker = false
                     }
-                ) { Text("Done") }
+                ) { Text(stringResource(R.string.action_done)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.action_cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -450,11 +470,15 @@ private fun AddFundsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add to “${goal.name}”") },
+        title = { Text(stringResource(R.string.savings_add_funds_title, goal.name)) },
         text = {
             Column {
                 Text(
-                    "${formatMoney(goal.currentAmount)} of ${formatMoney(goal.targetAmount)}",
+                    stringResource(
+                        R.string.savings_progress_of,
+                        formatMoney(goal.currentAmount),
+                        formatMoney(goal.targetAmount)
+                    ),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -462,7 +486,7 @@ private fun AddFundsDialog(
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { amount = it },
-                    label = { Text("Amount") },
+                    label = { Text(stringResource(R.string.savings_amount)) },
                     prefix = { Text("₹") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -475,10 +499,10 @@ private fun AddFundsDialog(
             TextButton(
                 onClick = { parsed?.let(onAdd) },
                 enabled = parsed != null && parsed > 0
-            ) { Text("Add") }
+            ) { Text(stringResource(R.string.action_add)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
         }
     )
 }

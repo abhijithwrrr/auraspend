@@ -32,9 +32,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.data.ai.AiModelState
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
 import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
@@ -74,8 +76,8 @@ fun SettingsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete AI model?") },
-            text = { Text("This removes the local model (~380 MB). You can re-download it anytime; your transactions are never affected.") },
+            title = { Text(stringResource(R.string.settings_ai_delete_title)) },
+            text = { Text(stringResource(R.string.settings_ai_delete_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -83,10 +85,10 @@ fun SettingsScreen(
                         showDeleteDialog = false
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete") }
+                ) { Text(stringResource(R.string.action_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -105,27 +107,27 @@ fun SettingsScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
             }
             Text(
-                "Settings",
+                stringResource(R.string.settings_title),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
 
-        SettingsSectionHeader("Appearance")
+        SettingsSectionHeader(stringResource(R.string.settings_appearance))
         SettingsCard {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.DarkMode, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.width(AuraSpacing.md))
-                Text("Theme", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.settings_theme), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
             Spacer(modifier = Modifier.height(AuraSpacing.md))
             Row(horizontalArrangement = Arrangement.spacedBy(AuraSpacing.md)) {
                 ThemePreviewTile(
-                    label = "Light",
+                    label = stringResource(R.string.settings_theme_light),
                     background = AuroraCream,
                     accent = AuroraPurple,
                     selected = currentTheme == AppThemeMode.LIGHT,
@@ -133,7 +135,7 @@ fun SettingsScreen(
                     onClick = { onThemeChanged(AppThemeMode.LIGHT) }
                 )
                 ThemePreviewTile(
-                    label = "Dark",
+                    label = stringResource(R.string.settings_theme_dark),
                     background = AuroraInk,
                     accent = AuroraLavenderLight,
                     selected = currentTheme == AppThemeMode.DARK,
@@ -141,7 +143,7 @@ fun SettingsScreen(
                     onClick = { onThemeChanged(AppThemeMode.DARK) }
                 )
                 ThemePreviewTile(
-                    label = "AMOLED",
+                    label = stringResource(R.string.settings_theme_amoled),
                     background = AmoledBackground,
                     accent = AuroraLavenderLight,
                     selected = currentTheme == AppThemeMode.AMOLED,
@@ -154,14 +156,14 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(AuraSpacing.md))
             SettingToggleRow(
                 icon = Icons.Default.Palette,
-                title = "Dynamic color",
-                subtitle = "Match your wallpaper (Android 12+)",
+                title = stringResource(R.string.settings_dynamic_color),
+                subtitle = stringResource(R.string.settings_dynamic_color_subtitle),
                 checked = dynamicColor,
                 onCheckedChange = onDynamicColorChanged
             )
         }
 
-        SettingsSectionHeader("Intelligent features")
+        SettingsSectionHeader(stringResource(R.string.settings_intelligent_features))
         SettingsCard {
             AiModelSection(
                 aiModelState = aiModelState,
@@ -177,67 +179,67 @@ fun SettingsScreen(
             )
         }
 
-        SettingsSectionHeader("Data")
+        SettingsSectionHeader(stringResource(R.string.settings_data))
         SettingsCard {
             SettingsRow(
                 icon = Icons.Default.FileDownload,
-                title = "Export to CSV",
-                subtitle = "Save transactions to a CSV file",
+                title = stringResource(R.string.settings_export_csv),
+                subtitle = stringResource(R.string.settings_export_csv_subtitle),
                 onClick = onExportCsv
             )
             DividerSpacer()
             SettingsRow(
                 icon = Icons.Default.FileUpload,
-                title = "Import from CSV",
-                subtitle = "Restore transactions from a CSV file",
+                title = stringResource(R.string.settings_import_csv),
+                subtitle = stringResource(R.string.settings_import_csv_subtitle),
                 onClick = onImportCsv
             )
         }
 
-        SettingsSectionHeader("Finance")
+        SettingsSectionHeader(stringResource(R.string.settings_finance))
         SettingsCard {
             SettingsRow(
                 icon = Icons.Default.Category,
-                title = "Categories",
-                subtitle = "Add, edit, or organize categories",
+                title = stringResource(R.string.settings_categories),
+                subtitle = stringResource(R.string.settings_categories_subtitle),
                 onClick = onManageCategories
             )
             DividerSpacer()
             SettingsRow(
                 icon = Icons.Default.Subscriptions,
-                title = "Subscriptions",
-                subtitle = "Track recurring payments",
+                title = stringResource(R.string.settings_subscriptions),
+                subtitle = stringResource(R.string.settings_subscriptions_subtitle),
                 onClick = onManageSubscriptions
             )
             DividerSpacer()
             SettingsRow(
                 icon = Icons.Default.AccountBalance,
-                title = "Budgets",
-                subtitle = "Set spending limits per category",
+                title = stringResource(R.string.settings_budgets),
+                subtitle = stringResource(R.string.settings_budgets_subtitle),
                 onClick = onManageBudgets
             )
         }
 
-        SettingsSectionHeader("About")
+        SettingsSectionHeader(stringResource(R.string.settings_about))
         SettingsCard {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    "AuraSpend",
+                    stringResource(R.string.app_name),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    "Version 0.1.0 · Apache-2.0",
+                    stringResource(R.string.settings_about_version),
                     fontSize = 13.sp,
                     color = MaterialTheme.extendedColors.textLight
                 )
                 Spacer(modifier = Modifier.height(AuraSpacing.sm))
                 Text(
-                    "Made with ❤️ by AW Builds",
+                    stringResource(R.string.settings_about_made_by),
                     fontSize = 13.sp,
                     color = MaterialTheme.extendedColors.textLight
                 )
@@ -252,7 +254,7 @@ fun SettingsScreen(
                 ) {
                     Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(AuraSpacing.sm))
-                    Text("View on GitHub")
+                    Text(stringResource(R.string.settings_view_github))
                 }
             }
         }
@@ -417,10 +419,14 @@ private fun AiModelSection(
     onDelete: () -> Unit
 ) {
     val (title, subtitle) = when (aiModelState) {
-        is AiModelState.Ready -> "Local AI ready" to "Messages are auto-categorised on-device."
-        is AiModelState.Downloading -> "Downloading local AI" to "${(aiModelState.progress * 100).toInt()}% complete…"
-        AiModelState.Failed -> "Download failed" to "Check your connection and try again."
-        else -> "Local AI not downloaded" to "Download ~380 MB to auto-categorise messages into categories, income or expense."
+        is AiModelState.Ready -> stringResource(R.string.settings_ai_ready) to
+                stringResource(R.string.settings_ai_ready_subtitle)
+        is AiModelState.Downloading -> stringResource(R.string.settings_ai_downloading) to
+                stringResource(R.string.settings_ai_downloading_progress, (aiModelState.progress * 100).toInt())
+        AiModelState.Failed -> stringResource(R.string.settings_ai_failed) to
+                stringResource(R.string.settings_ai_failed_subtitle)
+        else -> stringResource(R.string.settings_ai_missing) to
+                stringResource(R.string.settings_ai_missing_subtitle)
     }
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = AuraSpacing.sm)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -453,13 +459,13 @@ private fun AiModelSection(
                     trackColor = MaterialTheme.colorScheme.outlineVariant
                 )
                 Spacer(modifier = Modifier.height(AuraSpacing.md))
-                OutlinedButton(onClick = onCancel, shape = RoundedCornerShape(14.dp)) { Text("Cancel") }
+                OutlinedButton(onClick = onCancel, shape = RoundedCornerShape(14.dp)) { Text(stringResource(R.string.action_cancel)) }
             }
             AiModelState.Ready -> {
-                OutlinedButton(onClick = onDelete, shape = RoundedCornerShape(14.dp)) { Text("Delete model") }
+                OutlinedButton(onClick = onDelete, shape = RoundedCornerShape(14.dp)) { Text(stringResource(R.string.settings_ai_delete_action)) }
             }
             else -> {
-                Button(onClick = onDownload, shape = RoundedCornerShape(14.dp)) { Text("Download model") }
+                Button(onClick = onDownload, shape = RoundedCornerShape(14.dp)) { Text(stringResource(R.string.settings_ai_download_action)) }
             }
         }
     }
@@ -474,8 +480,8 @@ private fun AutoDetectSection(
     var checked by remember(enabled) { mutableStateOf(enabled) }
     SettingToggleRow(
         icon = Icons.Default.Sms,
-        title = "Auto-categorize messages",
-        subtitle = "Read new device SMS and save them automatically.",
+        title = stringResource(R.string.settings_auto_detect),
+        subtitle = stringResource(R.string.settings_auto_detect_subtitle),
         checked = checked,
         onCheckedChange = { next ->
             checked = next

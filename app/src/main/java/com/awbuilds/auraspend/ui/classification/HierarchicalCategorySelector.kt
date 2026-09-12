@@ -12,11 +12,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.hierarchicalCategoryMap
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
@@ -58,7 +60,7 @@ fun HierarchicalCategoryDialog(
             ) {
                 // Header
                 Text(
-                    "Select Category",
+                    stringResource(R.string.category_selector_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -69,7 +71,13 @@ fun HierarchicalCategoryDialog(
                     SuggestionChip(
                         onClick = { /* Info only */ },
                         label = {
-                            Text("AI suggests: ${merchantSuggestion.first} (${(merchantSuggestion.second * 100).toInt()}% confident)")
+                            Text(
+                                stringResource(
+                                    R.string.category_selector_ai_suggestion,
+                                    merchantSuggestion.first,
+                                    (merchantSuggestion.second * 100).toInt()
+                                )
+                            )
                         },
                         shape = RoundedCornerShape(50),
                         modifier = Modifier.fillMaxWidth()
@@ -151,7 +159,7 @@ fun HierarchicalCategoryDialog(
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Done", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.action_done), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -195,17 +203,18 @@ fun DuplicateDetectionDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(28.dp),
         title = {
-            Text("Possible Duplicate Found")
+            Text(stringResource(R.string.duplicate_title))
         },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(AuraSpacing.md)
             ) {
                 Text(
-                    "We found a similar transaction from ${
+                    stringResource(
+                        R.string.duplicate_message,
                         java.text.SimpleDateFormat("MMM dd, hh:mm a", java.util.Locale.getDefault())
                             .format(java.util.Date(transaction.date.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()))
-                    }",
+                    ),
                     style = MaterialTheme.typography.bodyMedium
                 )
 
@@ -217,22 +226,22 @@ fun DuplicateDetectionDialog(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
                         DialogDetailRow(
-                            label = "Merchant",
-                            value = transaction.merchant ?: "Unknown"
+                            label = stringResource(R.string.duplicate_merchant),
+                            value = transaction.merchant ?: stringResource(R.string.duplicate_unknown_merchant)
                         )
                         DialogDetailRow(
-                            label = "Amount",
+                            label = stringResource(R.string.duplicate_amount),
                             value = "₹${String.format("%.2f", transaction.amount)}"
                         )
                         DialogDetailRow(
-                            label = "Similarity",
-                            value = "${(similarity * 100).toInt()}%"
+                            label = stringResource(R.string.duplicate_similarity),
+                            value = stringResource(R.string.common_percent, (similarity * 100).toInt())
                         )
                     }
                 }
 
                 Text(
-                    "Is this a duplicate transaction?",
+                    stringResource(R.string.duplicate_question),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -243,12 +252,12 @@ fun DuplicateDetectionDialog(
                 onClick = onMarkAsDuplicate,
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Mark as Duplicate")
+                Text(stringResource(R.string.duplicate_mark))
             }
         },
         dismissButton = {
             TextButton(onClick = onIgnore) {
-                Text("Save Anyway")
+                Text(stringResource(R.string.duplicate_save_anyway))
             }
         }
     )

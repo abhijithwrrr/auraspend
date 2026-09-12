@@ -16,8 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
 import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
@@ -39,15 +41,15 @@ fun CategoryManagementScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Manage Categories") },
+                title = { Text(stringResource(R.string.categories_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showAddDialog = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Category")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.categories_add))
                     }
                 }
             )
@@ -60,8 +62,8 @@ fun CategoryManagementScreen(
             ) {
                 AuraEmptyState(
                     icon = Icons.Default.Category,
-                    title = "No categories",
-                    message = "Add a category to organize your transactions."
+                    title = stringResource(R.string.categories_empty_title),
+                    message = stringResource(R.string.categories_empty_message)
                 )
             }
         } else {
@@ -86,7 +88,7 @@ fun CategoryManagementScreen(
 
     if (showAddDialog) {
         CategoryEditDialog(
-            title = "Add Category",
+            title = stringResource(R.string.categories_add),
             initialName = "",
             onSave = { name ->
                 onSaveCategory(
@@ -104,7 +106,7 @@ fun CategoryManagementScreen(
 
     editCategory?.let { cat ->
         CategoryEditDialog(
-            title = "Edit Category",
+            title = stringResource(R.string.categories_edit),
             initialName = cat.name,
             onSave = { name ->
                 onSaveCategory(cat.copy(name = name))
@@ -118,31 +120,31 @@ fun CategoryManagementScreen(
         val cat = categories.find { it.id == id }
         AlertDialog(
             onDismissRequest = { deleteConfirmId = null },
-            title = { Text("Delete Category") },
+            title = { Text(stringResource(R.string.categories_delete_title)) },
             text = {
                 if (cat?.isDefault == true) {
-                    Text("This is a default category and cannot be deleted.")
+                    Text(stringResource(R.string.categories_default_locked))
                 } else {
-                    Text("Delete \"${cat?.name ?: ""}\"? Transactions using this category will be affected.")
+                    Text(stringResource(R.string.categories_delete_message, cat?.name ?: ""))
                 }
             },
             confirmButton = {
                 if (cat?.isDefault == true) {
                     TextButton(onClick = { deleteConfirmId = null }) {
-                        Text("OK")
+                        Text(stringResource(R.string.action_ok))
                     }
                 } else {
                     TextButton(onClick = {
                         onDeleteCategory(id)
                         deleteConfirmId = null
                     }) {
-                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error)
                     }
                 }
             },
             dismissButton = {
                 TextButton(onClick = { deleteConfirmId = null }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -190,7 +192,7 @@ private fun CategoryCard(
                 if (category.isDefault) {
                     Spacer(modifier = Modifier.height(AuraSpacing.xxs))
                     Text(
-                        "Default",
+                        stringResource(R.string.categories_default_badge),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -198,7 +200,11 @@ private fun CategoryCard(
             }
             if (!category.isDefault) {
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.action_delete),
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
@@ -221,7 +227,7 @@ private fun CategoryEditDialog(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Category Name") },
+                label = { Text(stringResource(R.string.categories_name)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -230,12 +236,12 @@ private fun CategoryEditDialog(
             TextButton(onClick = {
                 if (name.isNotBlank()) onSave(name.trim())
             }) {
-                Text("Save")
+                Text(stringResource(R.string.action_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )
