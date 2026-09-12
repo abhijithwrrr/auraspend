@@ -1,6 +1,11 @@
 # AuraSpend: Comprehensive Improvement Roadmap
 ## World-Class Expense Management Platform
 
+> **⚠️ Superseded (2026-09):** prioritization moved to the phased **Aurora
+> rebuild** — see `docs/handoffs/0000-master-plan.md` and `docs/handoffs/`.
+> This document is kept for historical context; some early phases are now done
+> (AI classification, merchant memory, analytics, onboarding, dark themes).
+
 **Project:** AuraSpend (Open-Source Expense Manager)  
 **Focus Areas:** Categorization Excellence & Core Functionality  
 **Last Updated:** 2026-08-07

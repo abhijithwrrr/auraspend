@@ -12,11 +12,12 @@ Apache-2.0, open source.
 
 ## Current phase
 
-**P0–P5 rollout landed and device-verified** — see
-`docs/handoffs/0004-savings-goals-and-device-verification.md`. Remaining:
-Classification wizard + triage inbox, P5 Paging/aggregates/baseline profiles,
-P6 accessibility + screenshot tests + i18n. Phases are defined in
-`docs/handoffs/0000-master-plan.md`.
+**P0–P6 hardening landed and device-verified** — see
+`docs/handoffs/0005-four-iteration-hardening.md`. Four iterations completed:
+swipe triage inbox, SQL aggregates + bounded loading, i18n (330 resources) +
+accessibility + Roborazzi screenshots, compatibility-shim retirement. Remaining
+(future): Paging/baseline profiles, full a11y audit, translated locales,
+Roborazzi verify-mode CI. Phases: `docs/handoffs/0000-master-plan.md`.
 Do not start new work without reading the latest handoff.
 
 ## Module map
