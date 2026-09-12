@@ -6,7 +6,12 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "transactions",
-    indices = [Index(value = ["sourceSmsId"], unique = true)]
+    indices = [
+        Index(value = ["sourceSmsId"], unique = true),
+        Index(value = ["dateTimestamp"]),
+        Index(value = ["categoryId"]),
+        Index(value = ["type", "dateTimestamp"])
+    ]
 )
 data class TransactionEntity(
     @PrimaryKey val id: String,
@@ -33,7 +38,10 @@ data class CategoryEntity(
     val isDefault: Boolean
 )
 
-@Entity(tableName = "budgets")
+@Entity(
+    tableName = "budgets",
+    indices = [Index(value = ["categoryId"])]
+)
 data class BudgetEntity(
     @PrimaryKey val id: String,
     val categoryId: String,

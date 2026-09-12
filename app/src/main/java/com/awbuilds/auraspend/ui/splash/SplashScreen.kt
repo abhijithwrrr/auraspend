@@ -1,9 +1,15 @@
 package com.awbuilds.auraspend.ui.splash
 
-import androidx.compose.animation.*
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -11,27 +17,42 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.R
+import com.awbuilds.auraspend.ui.designsystem.AuraGradients
+import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
 import kotlinx.coroutines.delay
 
+/**
+ * Brand splash: the aurora mark settles in with a spring, the wordmark fades
+ * up, then we hand off to the app. Kept under two seconds — first impressions
+ * are quick.
+ */
 @Composable
 fun SplashScreen(onAnimationFinished: () -> Unit) {
-    var iconVisible by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(false) }
     var textVisible by remember { mutableStateOf(false) }
     var footerVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        iconVisible = true
-        delay(300)
+        visible = true
+        delay(250)
         textVisible = true
-        delay(300)
+        delay(250)
         footerVisible = true
-        delay(1400)
+        delay(1100)
         onAnimationFinished()
     }
+
+    val markScale by animateFloatAsState(
+        targetValue = if (visible) 1f else 0.6f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow),
+        label = "markScale"
+    )
 
     Box(
         modifier = Modifier
@@ -39,60 +60,77 @@ fun SplashScreen(onAnimationFinished: () -> Unit) {
             .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
+        // Soft aurora glow behind the mark.
+        Box(
+            modifier = Modifier
+                .size(320.dp)
+                .clip(RoundedCornerShape(160.dp))
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0f)
+                        )
+                    )
+                )
+        )
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
             modifier = Modifier.statusBarsPadding()
         ) {
             AnimatedVisibility(
-                visible = iconVisible,
-                enter = fadeIn(animationSpec = androidx.compose.animation.core.tween(400)) +
-                        scaleIn(initialScale = 0.5f, animationSpec = androidx.compose.animation.core.tween(400, easing = androidx.compose.animation.core.FastOutSlowInEasing))
+                visible = visible,
+                enter = androidx.compose.animation.fadeIn(
+                    animationSpec = tween(400)
+                )
             ) {
-                Box(
+                Icon(
+                    painter = painterResource(R.drawable.app_icon),
+                    contentDescription = null,
                     modifier = Modifier
-                        .size(128.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        // Use the full app icon for the splash screen, clipped to a circle.
-                        painter = painterResource(R.drawable.app_icon),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(128.dp)
-                            .clip(CircleShape),
-                        tint = androidx.compose.ui.graphics.Color.Unspecified
-                    )
-                }
+                        .size(120.dp)
+                        .clip(RoundedCornerShape(32.dp)),
+                    tint = androidx.compose.ui.graphics.Color.Unspecified
+                )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(AuraSpacing.xl))
 
             AnimatedVisibility(
                 visible = textVisible,
-                enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
+                enter = fadeIn(animationSpec = tween(400)) +
+                        slideInVertically(animationSpec = tween(400)) { it / 3 }
             ) {
-                Text(
-                    "AuraSpend",
-                    style = MaterialTheme.typography.displayLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        "AuraSpend",
+                        fontSize = 38.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(AuraSpacing.xs))
+                    Text(
+                        "Beautiful expense management",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
 
         AnimatedVisibility(
             visible = footerVisible,
-            enter = fadeIn(),
+            enter = fadeIn(animationSpec = tween(400)),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(bottom = 32.dp)
+                .padding(bottom = AuraSpacing.xxxl)
         ) {
             Text(
-                "Made with ❤️ by AW Builds",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                "Open source · Apache-2.0",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
     }
