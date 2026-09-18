@@ -33,7 +33,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Cache Gradle distributions
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.gradle/wrapper/dists
