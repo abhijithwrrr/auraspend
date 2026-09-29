@@ -13,6 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -20,27 +22,14 @@ import java.util.Locale
 import kotlin.math.abs
 
 /**
- * Locale-stable money formatter (Indian grouping, tabular-friendly).
- * Mirrors the app's `₹1,23,456` style without locale surprises.
- */
-fun formatMoney(value: Double, currencySymbol: String = "₹"): String {
-    val absValue = abs(value)
-    val whole = absValue.toLong()
-    val decimal = ((absValue - whole) * 100).toInt()
-    return buildString {
-        if (value < 0) append("-")
-        append(currencySymbol)
-        append(String.format(Locale.US, "%,d", whole))
-        if (decimal != 0) append(".").append(String.format(Locale.US, "%02d", decimal))
-    }
-}
-
-/**
  * Money text that counts from the previous value to the new one.
  *
- * Uses tabular figures, so the surrounding layout never jitters while the
- * number animates. Pass `animate = false` for values inside large lists where
- * dozens of simultaneous counters would be wasteful.
+ * Uses tabular figures, so the surrounding layout never jitters while the number
+ * animates. Pass `animate = false` for values inside large lists where dozens of
+ * simultaneous counters would be wasteful.
+ *
+ * The rendered text is also exposed as the accessibility `contentDescription`,
+ * because an animated counter is otherwise read out digit-by-digit by TalkBack.
  */
 @Composable
 fun AnimatedMoney(
@@ -48,7 +37,11 @@ fun AnimatedMoney(
     modifier: Modifier = Modifier,
     style: TextStyle = AuraType.moneyMedium,
     color: Color = LocalContentColor.current,
-    currencySymbol: String = "₹",
+    // Defaults to the theme's currency, NOT a hardcoded INR. A composable default
+    // may call a composable, so this tracks the user's setting and the device locale
+    // exactly as `formatMoney` does — the two must never disagree on one screen.
+    currency: CurrencyStyle = LocalCurrencyStyle.current,
+    locale: Locale = Locale.getDefault(),
     signed: Boolean = false,
     animate: Boolean = true,
     maxLines: Int = 1,
@@ -74,10 +67,11 @@ fun AnimatedMoney(
     val displayed = if (animate) from.value + (amount - from.value) * progress.value else amount
     val sign = if (signed) if (amount < 0) "-" else "+" else ""
     val magnitude = if (signed) abs(displayed) else displayed
+    val text = sign + formatMoney(magnitude, currency, locale)
 
     Text(
-        text = sign + formatMoney(magnitude, currencySymbol),
-        modifier = modifier,
+        text = text,
+        modifier = modifier.semantics { contentDescription = text },
         style = style,
         color = color,
         maxLines = maxLines,

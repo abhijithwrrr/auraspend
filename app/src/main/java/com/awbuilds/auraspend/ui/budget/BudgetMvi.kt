@@ -1,5 +1,7 @@
 package com.awbuilds.auraspend.ui.budget
 
+import com.awbuilds.auraspend.ui.core.UiError
+
 import com.awbuilds.auraspend.domain.model.Budget
 import com.awbuilds.auraspend.domain.model.BudgetPeriod
 import com.awbuilds.auraspend.domain.model.Category
@@ -13,7 +15,7 @@ data class BudgetViewState(
     val selectedPeriod: BudgetPeriod = BudgetPeriod.MONTHLY,
     val isAdding: Boolean = false,
     val isSaving: Boolean = false,
-    val error: String? = null
+    val error: UiError? = null
 )
 
 sealed class BudgetViewIntent {
@@ -25,4 +27,5 @@ sealed class BudgetViewIntent {
     data class DeleteBudget(val budgetId: String) : BudgetViewIntent()
     object StartAdd : BudgetViewIntent()
     object CancelEdit : BudgetViewIntent()
+    object ClearError : BudgetViewIntent()
 }

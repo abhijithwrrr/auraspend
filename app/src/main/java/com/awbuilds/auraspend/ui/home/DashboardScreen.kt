@@ -9,12 +9,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.material3.Icon
@@ -30,14 +30,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.TransactionType
-import com.awbuilds.auraspend.ui.designsystem.HideAmountIconButton
-import com.awbuilds.auraspend.ui.designsystem.SettingsAvatarButton
-import com.awbuilds.auraspend.ui.designsystem.*
 import com.awbuilds.auraspend.ui.designsystem.*
 import com.awbuilds.auraspend.ui.theme.extendedColors
 import java.time.Instant
@@ -45,10 +41,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 /**
- * Home — the app's hero surface.
- *
- * Hierarchy: greeting → aurora balance hero → quick actions → cash-flow chart
- * → budgets → subscriptions → recent activity.
+ * Home is a daily money command centre: current position → next actions →
+ * movement → plans → latest activity.
  */
 @Composable
 fun DashboardScreen(
@@ -68,7 +62,6 @@ fun DashboardScreen(
         viewModel.handleIntent(DashboardViewIntent.LoadDashboard)
     }
 
-    val extended = MaterialTheme.extendedColors
     val recent = state.recentTransactions.take(6)
 
     Column(
@@ -77,7 +70,6 @@ fun DashboardScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
-        // ── Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -87,14 +79,13 @@ fun DashboardScreen(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     greetingText(),
-                    fontSize = 14.sp,
-                    color = extended.textLight
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     stringResource(R.string.app_name),
-                    fontSize = 28.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.semantics { heading() },
-                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
@@ -106,6 +97,22 @@ fun DashboardScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = AuraSpacing.xxl)
         ) {
+            // A failed aggregate used to be set in the ViewModel and then silently
+            // dropped here, leaving an empty-looking dashboard that read as "no
+            // data yet". Show a real failure with a retry instead.
+            if (state.error != null && state.recentTransactions.isEmpty()) {
+                item {
+                    AuraErrorState(
+                        icon = Icons.Default.CloudOff,
+                        title = stringResource(R.string.error_load_failed),
+                        message = stringResource(R.string.error_load_failed_detail),
+                        actionLabel = stringResource(R.string.action_retry),
+                        onAction = { viewModel.handleIntent(DashboardViewIntent.LoadDashboard) }
+                    )
+                }
+                return@LazyColumn
+            }
+
             if (state.isLoading && state.recentTransactions.isEmpty()) {
                 item {
                     Column(
@@ -120,20 +127,18 @@ fun DashboardScreen(
                 return@LazyColumn
             }
 
-            // ── Balance hero (the one aurora-gradient moment on this screen)
             item {
                 Box(modifier = Modifier.padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.md)) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(28.dp))
-                            .background(AuraGradients.aurora)
+                            .clip(RoundedCornerShape(32.dp))
+                            .background(AuraGradients.auroraSoft)
                             .padding(AuraSpacing.xl)
                     ) {
                         Text(
                             stringResource(R.string.home_total_balance),
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
+                            style = AuraType.metricLabel,
                             color = AuraGradients.onAurora.copy(alpha = 0.82f)
                         )
                         Spacer(modifier = Modifier.height(AuraSpacing.xs))
@@ -146,14 +151,15 @@ fun DashboardScreen(
                                 color = AuraGradients.onAurora
                             )
                         }
-                        Spacer(modifier = Modifier.height(AuraSpacing.lg))
-                        Row(horizontalArrangement = Arrangement.spacedBy(AuraSpacing.xxl)) {
+                        Spacer(modifier = Modifier.height(AuraSpacing.xl))
+                        Row(horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)) {
                             HeroStat(
                                 label = stringResource(R.string.home_in_this_month),
                                 value = if (hideAmounts) stringResource(R.string.state_hidden_amount)
                                 else stringResource(R.string.common_amount_plus, formatMoney(state.monthlyIncome)),
                                 onClick = onNavigateToAnalytics
                             )
+                            HeroDivider()
                             HeroStat(
                                 label = stringResource(R.string.home_out_this_month),
                                 value = if (hideAmounts) stringResource(R.string.state_hidden_amount)
@@ -211,14 +217,32 @@ fun DashboardScreen(
                 item {
                     Box(modifier = Modifier.padding(horizontal = AuraSpacing.gutter)) {
                         AuraCard(style = AuraCardStyle.Outlined, modifier = Modifier.fillMaxWidth()) {
-                            val points = if (hideAmounts) state.dailySpending.map { it.first to 0.0 } else state.dailySpending
-                            AuraAreaChart(
-                                points = points,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(120.dp),
-                                contentDescription = stringResource(R.string.home_spending_this_week)
-                            )
+                            // The chart draws nothing when every value is 0, which left an
+                            // unexplained blank box. Say so instead of rendering emptiness.
+                            val hasSpending = state.dailySpending.any { it.second > 0.0 }
+                            if (!hasSpending) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(120.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.home_no_spending_this_week),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            } else {
+                                val points = if (hideAmounts) state.dailySpending.map { it.first to 0.0 } else state.dailySpending
+                                AuraAreaChart(
+                                    points = points,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(120.dp),
+                                    contentDescription = stringResource(R.string.home_spending_this_week)
+                                )
+                            }
                             Spacer(modifier = Modifier.height(AuraSpacing.sm))
                             WeekdayLabels(epochDays = state.dailySpending.map { it.first })
                         }
@@ -235,8 +259,7 @@ fun DashboardScreen(
                         trailing = {
                             Text(
                                 stringResource(R.string.home_manage),
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .clip(CircleShape)
@@ -296,8 +319,7 @@ fun DashboardScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         stringResource(R.string.home_subscriptions),
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.SemiBold,
+                                        style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
@@ -306,7 +328,7 @@ fun DashboardScreen(
                                             state.activeSubscriptions.size,
                                             state.activeSubscriptions.size
                                         ),
-                                        fontSize = 13.sp,
+                                        style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
@@ -330,8 +352,7 @@ fun DashboardScreen(
                     trailing = {
                         Text(
                             stringResource(R.string.home_view_all),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .clip(CircleShape)
@@ -345,7 +366,7 @@ fun DashboardScreen(
             if (recent.isEmpty()) {
                 item {
                     AuraEmptyState(
-                        icon = Icons.Default.ReceiptLong,
+                        icon = Icons.AutoMirrored.Filled.ReceiptLong,
                         title = stringResource(R.string.home_empty_title),
                         message = stringResource(R.string.home_empty_message),
                         actionLabel = stringResource(R.string.home_add_transaction),
@@ -373,19 +394,34 @@ fun DashboardScreen(
 
 @Composable
 private fun HeroStat(label: String, value: String, onClick: () -> Unit) {
-    Column(modifier = Modifier.clickable(onClick = onClick)) {
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+            .padding(AuraSpacing.sm)
+    ) {
         Text(
             label,
-            fontSize = 12.sp,
+            style = AuraType.metricLabel,
             color = AuraGradients.onAurora.copy(alpha = 0.78f)
         )
         Text(
             value,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
+            style = AuraType.moneySmall,
             color = AuraGradients.onAurora
         )
     }
+
+}
+
+@Composable
+private fun HeroDivider() {
+    Box(
+        modifier = Modifier
+            .width(1.dp)
+            .height(40.dp)
+            .background(AuraGradients.onAurora.copy(alpha = 0.2f))
+    )
 }
 
 @Composable
@@ -419,8 +455,7 @@ private fun QuickAction(
         Spacer(modifier = Modifier.height(AuraSpacing.sm))
         Text(
             label,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
     }
@@ -433,7 +468,7 @@ private fun WeekdayLabels(epochDays: List<Long>) {
         epochDays.forEach { epoch ->
             Text(
                 Instant.ofEpochMilli(epoch).atZone(ZoneId.systemDefault()).format(formatter),
-                fontSize = 11.sp,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -443,7 +478,7 @@ private fun WeekdayLabels(epochDays: List<Long>) {
 @Composable
 private fun BudgetCarouselCard(
     name: String,
-    emoji: String,
+    emoji: String?,
     color: Color,
     spent: Double,
     limit: Double,
@@ -474,12 +509,15 @@ private fun BudgetCarouselCard(
                 CategoryAvatar(icon = emoji, color = color, size = 26.dp)
             }
             Spacer(modifier = Modifier.width(AuraSpacing.sm))
+            // Category names are user-entered and routinely longer than the ring's
+            // row allows ("Food & dining" was clipped to "Food &"). Give the name
+            // its own line so it is never silently truncated.
             Text(
                 name,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
         Spacer(modifier = Modifier.height(AuraSpacing.md))
@@ -492,7 +530,7 @@ private fun BudgetCarouselCard(
         Text(
             if (hideAmounts) stringResource(R.string.home_budget_of, stringResource(R.string.state_hidden_amount))
             else stringResource(R.string.home_budget_of, formatMoney(limit)),
-            fontSize = 12.sp,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

@@ -55,6 +55,7 @@
     <string name="home_quick_stats">आंकड़े</string>
     <string name="home_cash_flow">नकदी प्रवाह</string>
     <string name="home_spending_this_week">इस हफ़्ते का खर्च</string>
+    <string name="home_no_spending_this_week">इस हफ़्ते अभी तक कोई खर्च दर्ज नहीं है</string>
     <string name="home_budgets">बजट</string>
     <string name="home_manage">प्रबंधित करें</string>
     <string name="home_unknown_category">अज्ञात</string>
@@ -153,6 +154,7 @@
     <string name="settings_title">सेटिंग्स</string>
     <string name="settings_appearance">रूप-रंग</string>
     <string name="settings_theme">थीम</string>
+    <string name="settings_theme_system">सिस्टम</string>
     <string name="settings_theme_light">लाइट</string>
     <string name="settings_theme_dark">डार्क</string>
     <string name="settings_theme_amoled">AMOLED</string>
@@ -411,4 +413,39 @@
     <string name="duplicate_question">क्या यह प्रतिलिपि लेन-देन है?</string>
     <string name="duplicate_mark">प्रतिलिपि के रूप में चिह्नित करें</string>
     <string name="duplicate_save_anyway">फिर भी सहेजें</string>
+
+    <!-- Activity paging -->
+    <string name="activity_load_error">लेन-देन लोड नहीं हो सके</string>
+    <string name="activity_loading_more">और लोड हो रहा है…</string>
+    <string name="activity_retry">पुनः प्रयास करें</string>
+
+    <!-- Drive restore -->
+    <string name="onboarding_restore_no_backup">कोई बैकअप नहीं मिला, या बैकअप पढ़ा नहीं जा सका।</string>
+    <string name="onboarding_restore_failed">रिस्टोर विफल रहा। आपका मौजूदा डेटा अपरिवर्तित है।</string>
+    <string name="onboarding_restore_success">%1$d लेन-देन, %2$d श्रेणियाँ और %3$d बचत लक्ष्य रिस्टोर किए गए।</string>
+    <string name="onboarding_restore_signin_failed">Google साइन-इन विफल रहा। कृपया पुनः प्रयास करें।</string>
+
+    <!-- CSV import / export -->
+    <string name="csv_export_success">%1$d लेन-देन निर्यात किए गए।</string>
+    <string name="csv_export_failed">CSV फ़ाइल नहीं लिखी जा सकी। कृपया पुनः प्रयास करें।</string>
+    <string name="csv_import_success">%1$d लेन-देन आयात किए गए।</string>
+    <string name="csv_import_partial">%1$d लेन-देन आयात किए गए, %2$d पंक्तियाँ छोड़ दी गईं।</string>
+    <string name="csv_import_failed">वह CSV फ़ाइल नहीं पढ़ी जा सकी।</string>
+    <string name="csv_import_all_duplicates">कुछ भी आयात नहीं हुआ — सभी पंक्तियाँ पहले से मौजूद हैं।</string>
+
+    <!-- Accessibility labels -->
+    <string name="a11y_show_amounts">राशि दिखाएँ</string>
+    <string name="a11y_hide_amounts">राशि छिपाएँ</string>
+
+    <!-- Error messages -->
+    <string name="error_load_failed_detail">आपका स्थानीय डेटा पढ़ा नहीं जा सका। कुछ भी नहीं खोया है। पुनः प्रयास करें।</string>
+    <string name="error_load_failed">आपका डेटा लोड नहीं हो सका</string>
+    <string name="error_save_failed">सहेजा नहीं जा सका। कृपया पुनः प्रयास करें।</string>
+    <string name="error_delete_failed">हटाया नहीं जा सका। कृपया पुनः प्रयास करें।</string>
+    <string name="error_restore_failed">बैकअप रिस्टोर नहीं हो सका</string>
+    <string name="error_no_transaction">इस संदेश में कोई लेन-देन नहीं मिला</string>
+    <string name="error_model_unavailable">ऑन-डिवाइस मॉडल अभी उपलब्ध नहीं है</string>
+    <string name="error_permission_denied">ऐसा करने के लिए अनुमति आवश्यक है</string>
+    <string name="error_unknown">कुछ गलत हो गया</string>
+    <string name="budget_remaining">%1$s शेष</string>
 </resources>

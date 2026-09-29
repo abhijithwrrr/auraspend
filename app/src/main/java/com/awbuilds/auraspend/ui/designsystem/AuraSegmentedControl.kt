@@ -100,7 +100,7 @@ fun AuraSegmentedControl(
                 ) {
                     Text(
                         text = label,
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                         color = textColor,
                         maxLines = 1,

@@ -105,14 +105,14 @@ fun SplashScreen(onAnimationFinished: () -> Unit) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         "AuraSpend",
-                        fontSize = 38.sp,
+                        style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(AuraSpacing.xs))
                     Text(
                         "Beautiful expense management",
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -129,7 +129,7 @@ fun SplashScreen(onAnimationFinished: () -> Unit) {
         ) {
             Text(
                 "Open source · Apache-2.0",
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }

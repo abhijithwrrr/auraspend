@@ -1,5 +1,7 @@
 package com.awbuilds.auraspend.ui.home
 
+import com.awbuilds.auraspend.ui.core.UiError
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.awbuilds.auraspend.core.AuraLog
@@ -93,7 +95,8 @@ class DashboardViewModel(
             combine(aggregates, supporting) { agg, sup -> agg to sup }
                 .catch { e ->
                     AuraLog.e(TAG, "Dashboard aggregation failed", e)
-                    _state.update { it.copy(isLoading = false, error = e.message) }
+                    // Report a reason, not e.message: the raw message reaches the user.
+                    _state.update { it.copy(isLoading = false, error = UiError.LOAD_FAILED) }
                 }
                 .collect { (agg, sup) -> publish(agg, sup, weekDates, zone) }
         }

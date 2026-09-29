@@ -54,6 +54,7 @@
     <string name="home_quick_stats">Stats</string>
     <string name="home_cash_flow">Cash flow</string>
     <string name="home_spending_this_week">Spending this week</string>
+    <string name="home_no_spending_this_week">No spending recorded this week yet</string>
     <string name="home_budgets">Budgets</string>
     <string name="home_manage">Manage</string>
     <string name="home_unknown_category">Unknown</string>
@@ -155,6 +156,7 @@
     <string name="settings_title">Settings</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_theme">Theme</string>
+    <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_theme_amoled">AMOLED</string>
@@ -278,6 +280,18 @@
     <string name="onboarding_restore_title">Restore from Google Drive</string>
     <string name="onboarding_restore_subtitle">Bring back a previous backup</string>
     <string name="onboarding_restoring">Restoring your backup…</string>
+    <string name="onboarding_restore_no_backup">No backup found, or the backup could not be read.</string>
+    <string name="onboarding_restore_failed">Restore failed. Your existing data was left untouched.</string>
+    <string name="onboarding_restore_success">Restored %1$d transactions, %2$d categories and %3$d savings goals.</string>
+    <string name="onboarding_restore_signin_failed">Google sign-in failed. Please try again.</string>
+
+    <!-- CSV import / export feedback -->
+    <string name="csv_export_success">Exported %1$d transactions.</string>
+    <string name="csv_export_failed">Could not write the CSV file. Please try again.</string>
+    <string name="csv_import_success">Imported %1$d transactions.</string>
+    <string name="csv_import_partial">Imported %1$d transactions, skipped %2$d unreadable rows.</string>
+    <string name="csv_import_failed">Could not read that CSV file.</string>
+    <string name="csv_import_all_duplicates">Nothing imported — every row was already in your history.</string>
 
     <!-- Budget -->
     <string name="budget_title">Budgets</string>
@@ -295,6 +309,7 @@
     <string name="budget_over_by">Over by %1$s</string>
     <string name="budget_limit">%1$s limit</string>
     <string name="budget_limit_reached">Limit reached</string>
+    <string name="budget_remaining">%1$s left</string>
     <string name="budget_percent_used">%1$d%% used</string>
     <string name="budget_edit_title">Edit Budget</string>
     <string name="budget_new_title">New Budget</string>
@@ -413,4 +428,19 @@
     <string name="duplicate_question">Is this a duplicate transaction?</string>
     <string name="duplicate_mark">Mark as Duplicate</string>
     <string name="duplicate_save_anyway">Save Anyway</string>
+
+    <!-- Accessibility labels -->
+    <string name="a11y_show_amounts">Show amounts</string>
+    <string name="a11y_hide_amounts">Hide amounts</string>
+
+    <!-- Error messages (see UiError) -->
+    <string name="error_load_failed_detail">We couldn\'t read your local data. Nothing has been lost. Try again.</string>
+    <string name="error_load_failed">Couldn\'t load your data</string>
+    <string name="error_save_failed">Couldn\'t save that. Please try again.</string>
+    <string name="error_delete_failed">Couldn\'t delete that. Please try again.</string>
+    <string name="error_restore_failed">Couldn\'t restore your backup</string>
+    <string name="error_no_transaction">No transaction found in this message</string>
+    <string name="error_model_unavailable">The on-device model isn\'t available right now</string>
+    <string name="error_permission_denied">Auraspend needs permission to do that</string>
+    <string name="error_unknown">Something went wrong</string>
 </resources>

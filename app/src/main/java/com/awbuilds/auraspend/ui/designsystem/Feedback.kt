@@ -112,8 +112,7 @@ fun AuraEmptyState(
         Spacer(modifier = Modifier.height(AuraSpacing.lg))
         Text(
             text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.titleLarge,
             color = scheme.onSurface,
             textAlign = TextAlign.Center
         )

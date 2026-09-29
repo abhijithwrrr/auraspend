@@ -19,6 +19,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
@@ -158,9 +160,9 @@ fun TransactionListScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             stringResource(R.string.activity_title),
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.semantics { heading() }
                         )
                         Text(
                             if (hasMore) {
@@ -172,7 +174,7 @@ fun TransactionListScreen(
                                     R.plurals.activity_records, itemCount, itemCount
                                 )
                             },
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             color = extended.textLight
                         )
                     }
@@ -432,7 +434,7 @@ private fun StickyGroupHeader(label: String, netAmount: Double) {
     ) {
         Text(
             label,
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.extendedColors.textLight,
             modifier = Modifier.weight(1f)
@@ -440,8 +442,7 @@ private fun StickyGroupHeader(label: String, netAmount: Double) {
         val sign = if (netAmount >= 0) "+" else "-"
         Text(
             "$sign${formatMoney(abs(netAmount))}",
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.labelMedium,
             color = if (netAmount >= 0) MaterialTheme.extendedColors.incomeAmount
             else MaterialTheme.extendedColors.expenseAmount
         )
@@ -503,7 +504,7 @@ private fun AppendLoadingRow(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.width(AuraSpacing.sm))
         Text(
             stringResource(R.string.activity_loading_more),
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.extendedColors.textLight
         )
     }
@@ -520,7 +521,7 @@ private fun LoadErrorRow(onRetry: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Text(
             stringResource(R.string.activity_load_error),
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.extendedColors.textLight
         )
         Spacer(modifier = Modifier.height(AuraSpacing.sm))
@@ -543,10 +544,10 @@ private fun SummaryPill(
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(horizontal = AuraSpacing.md, vertical = AuraSpacing.sm)
     ) {
-        Text(label, fontSize = 11.sp, color = MaterialTheme.extendedColors.textLight, maxLines = 1)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.extendedColors.textLight, maxLines = 1)
         Text(
             value,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             color = valueColor,
             maxLines = 1

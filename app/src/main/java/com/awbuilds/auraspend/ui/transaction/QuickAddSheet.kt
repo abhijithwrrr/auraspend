@@ -198,7 +198,7 @@ fun QuickAddSheet(
                     .heightIn(min = 52.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text(stringResource(R.string.action_save), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.action_save), style = MaterialTheme.typography.titleMedium)
             }
 
             Spacer(modifier = Modifier.height(AuraSpacing.xs))
@@ -264,8 +264,7 @@ private fun KeypadKey(
         } else {
             Text(
                 label,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
@@ -306,7 +305,7 @@ private fun CategoryChip(
             Spacer(modifier = Modifier.height(AuraSpacing.xs))
             Text(
                 category.name,
-                fontSize = 11.sp,
+                style = MaterialTheme.typography.labelSmall,
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1

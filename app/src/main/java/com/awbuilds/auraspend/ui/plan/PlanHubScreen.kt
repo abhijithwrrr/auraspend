@@ -81,8 +81,7 @@ fun PlanHubScreen(
         ) {
             Text(
                 stringResource(R.string.plan_title),
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier
                     .weight(1f)
@@ -113,7 +112,7 @@ fun PlanHubScreen(
                     Text(
                         if (totalLimit > 0) stringResource(R.string.plan_budget_percent_used, (budgetProgress * 100).toInt())
                         else stringResource(R.string.plan_no_budgets),
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.extendedColors.textLight
                     )
                 }
@@ -125,7 +124,7 @@ fun PlanHubScreen(
                 ) {
                     Text(
                         stringResource(R.string.common_percent, (budgetProgress * 100).toInt()),
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -151,7 +150,7 @@ fun PlanHubScreen(
             Spacer(modifier = Modifier.height(AuraSpacing.xs))
             Text(
                 pluralStringResource(R.plurals.plan_active_subscriptions, subscriptions.size, subscriptions.size),
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.extendedColors.textLight
             )
         }
@@ -230,13 +229,12 @@ private fun PlanRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     subtitle,
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.extendedColors.textLight
                 )
             }

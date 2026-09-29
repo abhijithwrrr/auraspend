@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.border
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.Add
@@ -31,9 +32,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.ui.designsystem.AuraGradients
 import com.awbuilds.auraspend.ui.designsystem.AuraMotion
 import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
@@ -120,22 +119,23 @@ private fun AuraBottomBar(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = MaterialTheme.colorScheme.background,
         tonalElevation = 0.dp
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
-            // Hairline separation instead of a drop shadow.
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .heightIn(min = 72.dp),
+                    .padding(horizontal = AuraSpacing.sm, vertical = AuraSpacing.sm)
+                    .heightIn(min = 64.dp)
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                        RoundedCornerShape(28.dp)
+                    ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 NavItem(
@@ -234,7 +234,13 @@ private fun NavItem(
 
     Column(
         modifier = modifier
-            .fillMaxHeight()
+            // NOT fillMaxHeight(): this Row is a non-weighted child of the frame's
+            // Column, so it is handed the full viewport height as its max constraint.
+            // fillMaxHeight() here made every nav item screen-tall, the bar swallowed
+            // the whole window and the content slot collapsed to zero height — the
+            // dashboard rendered as an empty void. Wrap the content instead, with a
+            // floor that keeps the touch target at 48dp.
+            .heightIn(min = 48.dp)
             .clickable {
                 haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onClick()
@@ -254,8 +260,7 @@ private fun NavItem(
         Spacer(modifier = Modifier.height(AuraSpacing.xs))
         Text(
             destination.label,
-            fontSize = 11.sp,
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+            style = MaterialTheme.typography.labelSmall,
             color = tint,
             maxLines = 1
         )

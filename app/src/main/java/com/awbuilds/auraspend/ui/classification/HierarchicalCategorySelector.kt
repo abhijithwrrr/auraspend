@@ -159,7 +159,7 @@ fun HierarchicalCategoryDialog(
                         .heightIn(min = 52.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text(stringResource(R.string.action_done), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.action_done), style = MaterialTheme.typography.titleMedium)
                 }
             }
         }

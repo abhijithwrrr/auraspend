@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -70,7 +71,8 @@ fun SettingsScreen(
     onCancelModelDownload: () -> Unit = {},
     onDeleteModel: () -> Unit = {},
     autoDetectEnabled: Boolean = false,
-    onAutoDetectChanged: (Boolean) -> Unit = {}
+    onAutoDetectChanged: (Boolean) -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -78,7 +80,7 @@ fun SettingsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text(stringResource(R.string.settings_ai_delete_title)) },
+            title = { Text(stringResource(R.string.settings_ai_delete_title), modifier = Modifier.semantics { heading() }) },
             text = { Text(stringResource(R.string.settings_ai_delete_message)) },
             confirmButton = {
                 TextButton(
@@ -95,13 +97,16 @@ fun SettingsScreen(
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
-    ) {
+    // Box wrapper so the CSV import/export result can be surfaced to the user —
+    // previously a failed import looked identical to a successful one.
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .statusBarsPadding()
+                .verticalScroll(rememberScrollState())
+        ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -113,7 +118,7 @@ fun SettingsScreen(
             }
             Text(
                 stringResource(R.string.settings_title),
-                fontSize = 28.sp,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.semantics { heading() }
@@ -125,10 +130,18 @@ fun SettingsScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.DarkMode, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.width(AuraSpacing.md))
-                Text(stringResource(R.string.settings_theme), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.settings_theme), style = MaterialTheme.typography.titleMedium)
             }
             Spacer(modifier = Modifier.height(AuraSpacing.md))
             Row(horizontalArrangement = Arrangement.spacedBy(AuraSpacing.md)) {
+                ThemePreviewTile(
+                    label = stringResource(R.string.settings_theme_system),
+                    background = AuroraCream,
+                    accent = AuroraPurple,
+                    selected = currentTheme == AppThemeMode.SYSTEM,
+                    modifier = Modifier.weight(1f),
+                    onClick = { onThemeChanged(AppThemeMode.SYSTEM) }
+                )
                 ThemePreviewTile(
                     label = stringResource(R.string.settings_theme_light),
                     background = AuroraCream,
@@ -231,19 +244,19 @@ fun SettingsScreen(
             ) {
                 Text(
                     stringResource(R.string.app_name),
-                    fontSize = 17.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     stringResource(R.string.settings_about_version),
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.extendedColors.textLight
                 )
                 Spacer(modifier = Modifier.height(AuraSpacing.sm))
                 Text(
                     stringResource(R.string.settings_about_made_by),
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.extendedColors.textLight
                 )
                 Spacer(modifier = Modifier.height(AuraSpacing.md))
@@ -264,6 +277,15 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(AuraSpacing.xxxl))
     }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(AuraSpacing.gutter)
+        )
+    }
 }
 
 // ─── Building blocks ──────────────────────────────────────────────────────────
@@ -272,8 +294,7 @@ fun SettingsScreen(
 private fun SettingsSectionHeader(title: String) {
     Text(
         title.uppercase(),
-        fontSize = 12.sp,
-        fontWeight = FontWeight.SemiBold,
+        style = MaterialTheme.typography.labelMedium,
         letterSpacing = 1.2.sp,
         color = MaterialTheme.extendedColors.textLight,
         modifier = Modifier.padding(start = AuraSpacing.gutter, top = AuraSpacing.xxl, bottom = AuraSpacing.sm)
@@ -315,8 +336,8 @@ private fun SettingsRow(
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
         Spacer(modifier = Modifier.width(AuraSpacing.md))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
-            Text(subtitle, fontSize = 13.sp, color = MaterialTheme.extendedColors.textLight)
+            Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.extendedColors.textLight)
         }
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -341,8 +362,8 @@ private fun SettingToggleRow(
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
         Spacer(modifier = Modifier.width(AuraSpacing.md))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
-            Text(subtitle, fontSize = 13.sp, color = MaterialTheme.extendedColors.textLight)
+            Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.extendedColors.textLight)
         }
         Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
@@ -370,7 +391,8 @@ private fun ThemePreviewTile(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp)
+                // Theme preview tiles hold a label; a fixed height clips at 200% scale.
+                .heightIn(min = 64.dp)
                 .clip(RoundedCornerShape(14.dp))
                 .background(background)
                 .border(
@@ -407,7 +429,7 @@ private fun ThemePreviewTile(
         Spacer(modifier = Modifier.height(AuraSpacing.xs))
         Text(
             label,
-            fontSize = 12.sp,
+            style = MaterialTheme.typography.labelMedium,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
             color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -441,8 +463,8 @@ private fun AiModelSection(
             )
             Spacer(modifier = Modifier.width(AuraSpacing.md))
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
-                Text(subtitle, fontSize = 13.sp, color = MaterialTheme.extendedColors.textLight)
+                Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.extendedColors.textLight)
             }
         }
         Spacer(modifier = Modifier.height(AuraSpacing.md))

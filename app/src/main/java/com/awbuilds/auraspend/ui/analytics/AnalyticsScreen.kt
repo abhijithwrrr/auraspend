@@ -16,8 +16,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.R
@@ -131,8 +131,7 @@ fun AnalyticsScreen(
         ) {
             Text(
                 stringResource(R.string.analytics_title),
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier
                     .weight(1f)
@@ -193,7 +192,7 @@ fun AnalyticsScreen(
                                         R.string.analytics_net_period,
                                         stringResource(period.labelRes).lowercase()
                                     ),
-                                    fontSize = 13.sp,
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
@@ -231,8 +230,7 @@ fun AnalyticsScreen(
                         AuraCard(style = AuraCardStyle.Outlined, modifier = Modifier.fillMaxWidth()) {
                             Text(
                                 stringResource(R.string.analytics_spending_by_category),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(AuraSpacing.lg))
@@ -250,7 +248,7 @@ fun AnalyticsScreen(
                                 )
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(stringResource(R.string.analytics_total), fontSize = 12.sp, color = extended.textLight)
+                                    Text(stringResource(R.string.analytics_total), style = MaterialTheme.typography.labelMedium, color = extended.textLight)
                                     Text(
                                         formatMoney(totalSpent),
                                         style = AuraType.moneyMedium,
@@ -276,7 +274,7 @@ fun AnalyticsScreen(
                                     Text(
                                         cat.name,
                                         modifier = Modifier.weight(1f),
-                                        fontSize = 14.sp,
+                                        style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurface,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
@@ -286,15 +284,16 @@ fun AnalyticsScreen(
                                             R.string.common_percent,
                                             if (totalSpent > 0) (amount / totalSpent * 100).toInt() else 0
                                         ),
-                                        fontSize = 13.sp,
+                                        style = MaterialTheme.typography.bodySmall,
                                         fontWeight = FontWeight.SemiBold,
                                         color = extended.textLight
                                     )
                                     Spacer(modifier = Modifier.width(AuraSpacing.md))
                                     Text(
                                         formatMoney(amount),
-                                        style = AuraType.moneySmall,
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        // Match the merchant list and the transaction list:
+                                        // an expense is an expense wherever it is summarised.
+                                        color = extended.expenseAmount
                                     )
                                 }
                                 if (index != categorySpending.lastIndex) {
@@ -315,8 +314,7 @@ fun AnalyticsScreen(
                         AuraCard(style = AuraCardStyle.Outlined, modifier = Modifier.fillMaxWidth()) {
                             Text(
                                 stringResource(R.string.analytics_top_merchants),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(AuraSpacing.sm))
@@ -330,14 +328,14 @@ fun AnalyticsScreen(
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             name,
-                                            fontSize = 15.sp,
+                                            style = MaterialTheme.typography.titleSmall,
                                             color = MaterialTheme.colorScheme.onSurface,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
                                             pluralStringResource(R.plurals.analytics_txn_count, count, count),
-                                            fontSize = 12.sp,
+                                            style = MaterialTheme.typography.labelMedium,
                                             color = extended.textLight
                                         )
                                     }
@@ -380,6 +378,6 @@ private fun Badge(text: String, color: androidx.compose.ui.graphics.Color) {
             .background(color.copy(alpha = 0.14f))
             .padding(horizontal = AuraSpacing.md, vertical = 6.dp)
     ) {
-        Text(text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = color)
+        Text(text, style = MaterialTheme.typography.labelMedium, color = color)
     }
 }

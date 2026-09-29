@@ -1,5 +1,8 @@
 package com.awbuilds.auraspend.ui.classification
 
+import com.awbuilds.auraspend.core.AuraLog
+import com.awbuilds.auraspend.ui.core.UiError
+
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -112,6 +115,7 @@ class ClassificationViewModel(
             is ClassificationViewIntent.ResetSuccess -> {
                 _state.update { it.copy(saveSuccess = false) }
             }
+            is ClassificationViewIntent.ClearError -> _state.update { it.copy(error = null) }
             is ClassificationViewIntent.SetCategories -> {
                 _state.update { it.copy(availableCategories = intent.categories) }
             }
@@ -282,7 +286,8 @@ class ClassificationViewModel(
                 rememberClassification(transaction)
                 _state.update { it.copy(isSaving = false, saveSuccess = true) }
             } catch (e: Exception) {
-                _state.update { it.copy(isSaving = false, error = e.message ?: "Failed to save") }
+                AuraLog.e(TAG, "Saving transaction failed", e)
+                _state.update { it.copy(isSaving = false, error = UiError.SAVE_FAILED) }
             }
         }
     }
@@ -389,7 +394,7 @@ class ClassificationViewModel(
                 // Never persist a message without an amount and direction — that would
                 // create a meaningless ₹0 expense (OTP / promo / balance alerts).
                 if (classified.parsed.amount == null || classified.parsed.type == null) {
-                    _state.update { it.copy(error = "No transaction detected in this message") }
+                    _state.update { it.copy(error = UiError.NO_TRANSACTION_FOUND) }
                     return@launch
                 }
 
@@ -415,7 +420,8 @@ class ClassificationViewModel(
                     )
                 }
             } catch (e: Exception) {
-                _state.update { it.copy(error = e.message ?: "Failed to save") }
+                AuraLog.e(TAG, "Saving all transactions failed", e)
+                _state.update { it.copy(error = UiError.SAVE_FAILED) }
             }
         }
     }
@@ -458,7 +464,8 @@ class ClassificationViewModel(
 
                 _state.update { it.copy(isSavingAll = false, saveSuccess = true) }
             } catch (e: Exception) {
-                _state.update { it.copy(isSavingAll = false, error = e.message ?: "Failed to save") }
+                AuraLog.e(TAG, "Batch save failed", e)
+                _state.update { it.copy(isSavingAll = false, error = UiError.SAVE_FAILED) }
             }
         }
     }
@@ -484,3 +491,5 @@ class ClassificationViewModel(
         }
     }
 }
+
+private const val TAG = "ClassificationViewModel"

@@ -134,3 +134,15 @@ val AmoledSurfContainerLow = Color(0xFF0A0810)
 val AmoledSurfContainer = Color(0xFF120E1A)
 val AmoledSurfContainerHigh = Color(0xFF1B1724)
 val AmoledSurfContainerHighest = Color(0xFF262030)
+
+// ─── AMOLED semantic tokens ───────────────────────────────────────────────────
+// AMOLED reuses the dark *Material* roles, but the semantic money colors were
+// never tuned for a true-black background: the dark-mode green/red are contrast-
+// matched to a #121212 surface and read washed out against #000000. These are
+// lifted so income/expense keep the same perceived weight on AMOLED.
+
+val IncomeGreenAmoled = Color(0xFF6FE3A2)
+val ExpenseRedAmoled = Color(0xFFFF9A93)
+val WarningOrangeAmoled = Color(0xFFFFB77A)
+val UpcomingBlueAmoled = Color(0xFFA8C7FA)
+val OverdueIndigoAmoled = Color(0xFFC0BCFF)

@@ -13,6 +13,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -41,7 +43,7 @@ fun CategoryManagementScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.categories_title)) },
+                title = { Text(stringResource(R.string.categories_title), modifier = Modifier.semantics { heading() }) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
@@ -120,7 +122,7 @@ fun CategoryManagementScreen(
         val cat = categories.find { it.id == id }
         AlertDialog(
             onDismissRequest = { deleteConfirmId = null },
-            title = { Text(stringResource(R.string.categories_delete_title)) },
+            title = { Text(stringResource(R.string.categories_delete_title), modifier = Modifier.semantics { heading() }) },
             text = {
                 if (cat?.isDefault == true) {
                     Text(stringResource(R.string.categories_default_locked))

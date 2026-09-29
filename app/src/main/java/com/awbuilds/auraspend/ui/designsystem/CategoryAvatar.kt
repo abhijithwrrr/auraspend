@@ -57,16 +57,20 @@ fun categoryIconVector(icon: String?): ImageVector? = knownCategoryIcons[icon]
 /**
  * Normalizes a category `icon` value for rendering.
  *
- * - Emoji (non-ASCII) values pass through.
- * - Known Material icon names pass through so [CategoryAvatar] can draw the
- *   vector.
- * - Anything else falls back to a tag glyph.
+ * - Known Material icon names pass through so [CategoryAvatar] can draw the vector.
+ * - Emoji (non-ASCII) values from user-created categories pass through.
+ * - Anything unrecognised returns null so the avatar draws the neutral vector
+ *   fallback instead of an emoji. A 🏷️ in chrome was an AGENTS.md rule-5
+ *   violation and rendered inconsistently across platforms.
  */
-fun categoryIconGlyph(icon: String?): String {
-    if (icon.isNullOrBlank()) return "🏷️"
+fun categoryIconGlyph(icon: String?): String? {
+    if (icon.isNullOrBlank()) return null
     if (icon.any { it.code > 127 }) return icon.take(2)
-    return if (knownCategoryIcons.containsKey(icon)) icon else "🏷️"
+    return if (knownCategoryIcons.containsKey(icon)) icon else null
 }
+
+/** Vector shown when a category has no usable icon. */
+private val FallbackVector = Icons.Default.Category
 
 /**
  * Circular category badge. Known Material icon names render as vectors tinted
@@ -99,18 +103,20 @@ fun CategoryAvatar(
             }
         }
 
-        val vector = categoryIconVector(icon)
-        if (vector != null) {
+        val vector = categoryIconVector(icon) ?: FallbackVector
+        val isEmoji = categoryIconVector(icon) == null && !icon.isNullOrBlank() &&
+            icon.any { it.code > 127 }
+        if (isEmoji) {
+            Text(
+                text = icon,
+                fontSize = (size.value / 2.3f).sp
+            )
+        } else {
             Icon(
                 imageVector = vector,
                 contentDescription = null,
                 tint = color,
                 modifier = Modifier.size(size * 0.46f)
-            )
-        } else {
-            Text(
-                text = categoryIconGlyph(icon),
-                fontSize = (size.value / 2.3f).sp
             )
         }
     }

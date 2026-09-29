@@ -1,5 +1,8 @@
 package com.awbuilds.auraspend.ui.budget
 
+import com.awbuilds.auraspend.core.AuraLog
+import com.awbuilds.auraspend.ui.core.UiError
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.awbuilds.auraspend.domain.model.Budget
@@ -28,6 +31,8 @@ class BudgetViewModel(
                 _state.update { it.copy(editingBudget = null, selectedCategoryId = "", limitAmount = "", selectedPeriod = BudgetPeriod.MONTHLY, isAdding = true) }
             }
             is BudgetViewIntent.CancelEdit -> _state.update { it.copy(editingBudget = null, isAdding = false) }
+
+            is BudgetViewIntent.ClearError -> _state.update { it.copy(error = null) }
         }
     }
 
@@ -66,7 +71,8 @@ class BudgetViewModel(
                 _state.update { it.copy(editingBudget = null, selectedCategoryId = "", limitAmount = "", isAdding = false, isSaving = false) }
                 loadBudgets()
             } catch (e: Exception) {
-                _state.update { it.copy(error = e.message, isSaving = false) }
+                AuraLog.e(TAG, "Saving budget failed", e)
+                _state.update { it.copy(error = UiError.SAVE_FAILED, isSaving = false) }
             }
         }
     }
@@ -79,3 +85,5 @@ class BudgetViewModel(
         }
     }
 }
+
+private const val TAG = "BudgetViewModel"

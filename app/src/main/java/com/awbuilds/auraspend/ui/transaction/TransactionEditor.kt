@@ -130,7 +130,7 @@ fun TransactionEditor(
 
         Text(
             stringResource(R.string.txn_editor_category),
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -191,7 +191,7 @@ fun TransactionEditor(
             Text(
                 if (isNew) stringResource(R.string.txn_editor_save_new)
                 else stringResource(R.string.txn_editor_save_changes),
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
         }
