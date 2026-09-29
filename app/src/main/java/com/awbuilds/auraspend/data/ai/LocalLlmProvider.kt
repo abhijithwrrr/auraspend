@@ -49,7 +49,12 @@ object LocalLlmProvider {
     }
 
     private fun build(context: Context): OnDeviceClassifier = try {
-        LlamaCppClassifier(context).also { Log.i(TAG, "on-device classifier ready: ${it.id}") }
+        val assets = context.assets.open("auraspend_embedding.bin")
+        EmbeddingClassifier(
+            modelFile = ModelConstants.modelFile(context),
+            tokenizerDir = ModelConstants.baseModelsDir(context),
+            centroidsAsset = assets
+        ).also { Log.i(TAG, "on-device classifier ready: ${it.id}") }
     } catch (e: UnsatisfiedLinkError) {
         Log.w(TAG, "Native runtime unavailable; using regex fallback", e)
         UnavailableClassifier

@@ -871,4 +871,14 @@
             column="24"/>
     </issue>
 
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.microsoft.onnxruntime:onnxruntime-android than 1.22.0 is available: 1.30.0"
+        errorLine1="onnxruntime-android = { group = &quot;com.microsoft.onnxruntime&quot;, name = &quot;onnxruntime-android&quot;, version.ref = &quot;onnxruntime&quot; }"
+        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../gradle/libs.versions.toml"
+            line="66"
+            column="24"/>
+    </issue>
 </issues>

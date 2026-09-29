@@ -1,0 +1,1364 @@
+{
+  "model": "functiongemma-270m-it-q4_k_m.gguf",
+  "elapsed": 9.14739203453064,
+  "rows": [
+    {
+      "id": "axis_multiline_yasar",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"919951860002\",\"subscription\":false}\nI cannot extract bank-transaction data as it falls outside the scope of my current capabilities.",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": "919951860002",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"919951860002\",\"subscription\":false}\nI cannot extract bank-transaction data as it falls outside the scope of my current capabilities."
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "axis_classic_sil",
+      "raw": " {\"is_transaction\":true,\"type\":\"expense\",\"category\":\"Classics SIL\",\"merchant\":\"Bank\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "EXPENSE",
+        "category": "cat_other",
+        "merchant": "Bank",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"expense\",\"category\":\"Classics SIL\",\"merchant\":\"Bank\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "axis_mcdonalds",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "axis_yas_mart",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"YAS MART\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": "YAS MART",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"YAS MART\",\"subscription\":false}"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "canara_neft_credit",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "canara_debit_cyber_fraud",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Canara Bank\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Canara Bank",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Canara Bank\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "canara_debit_10000",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "emoney_recharge_promo",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "bill_pay_today",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "hash_merchant_rejected",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "phishing_alert",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"Canara Bank\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": "Canara Bank",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"Canara Bank\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "otp_message",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "balance_alert",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "promo_offer",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "emande_registered",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"Microsoft Businesses\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": "Microsoft Businesses",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"Microsoft Businesses\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "installment_due",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "mandate_upcoming",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "swiggy_debit",
+      "raw": " {\"is_transaction\":true,\"type\":\"expense\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "EXPENSE",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"expense\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "upi_transfer_out",
+      "raw": " {\"is_transaction\":true,\"type\":\"expense\",\"category\":\"Transfer\",\"merchant\":\"Rahim\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "EXPENSE",
+        "category": "cat_transfer",
+        "merchant": "Rahim",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"expense\",\"category\":\"Transfer\",\"merchant\":\"Rahim\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "salary_credit",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "refund_zomato",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Zomato",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "autopay_netflix",
+      "raw": " {\"is_transaction\":true,\"type\":\"expense\",\"category\":\"Subscriptions\",\"merchant\":\"Netflix\",\"subscription\":true}",
+      "pred": {
+        "isTransaction": true,
+        "type": "EXPENSE",
+        "category": "cat_subscription",
+        "merchant": "Netflix",
+        "isSubscription": true,
+        "raw": "{\"is_transaction\":true,\"type\":\"expense\",\"category\":\"Subscriptions\",\"merchant\":\"Netflix\",\"subscription\":true}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "fuel_pump",
+      "raw": " {\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Transport\",\"merchant\":\"IOCL Petrol Pump\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": "EXPENSE",
+        "category": "cat_transport",
+        "merchant": "IOCL Petrol Pump",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Transport\",\"merchant\":\"IOCL Petrol Pump\",\"subscription\":false}"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": true,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "spotify_autodebit",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "exact": false
+    },
+    {
+      "id": "amazon_prime_renewal",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "exact": false
+    },
+    {
+      "id": "atm_withdrawal",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "cashback_credit",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "own_account_transfer",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "electricity_bill",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "medical_pharmacy",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "school_fees",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "failed_payment",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "card_declined",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"Decathlon\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": "Decathlon",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"Decathlon\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "kyc_notice",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "card_added_notice",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "cashback_announcement",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "emi_loan_disbursed",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "dividend_credit",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "grocery_bigbasket",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"BigBasket\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "BigBasket",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"BigBasket\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "restaurant_zomato",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "uber_cab",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"UBER\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "UBER",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"UBER\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "metro_recharge",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "insurance_premium",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"LIC Insurance\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "LIC Insurance",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"LIC Insurance\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "exact": false
+    },
+    {
+      "id": "gym_membership",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "exact": false
+    },
+    {
+      "id": "cloud_storage",
+      "raw": " {\"is_transaction\":true,\"type\":\"expense\",\"category\":\"Subscriptions\",\"merchant\":\"Cloud\", subscription\":true}",
+      "pred": null,
+      "false_veto": false,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "exact": false
+    },
+    {
+      "id": "failed_refund",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "otp_amount_decoy",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "balance_with_amount",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "due_reminder_utility",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"SBI\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": "SBI",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"SBI\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "cashback_credited",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "recharge_bill_paid",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "donation",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "interest_credit",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "rent_payment",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "flight_booking",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "cigarette_purchase",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "coupon_applied",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"AJIO\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "AJIO",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"AJIO\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "prepaid_mobile",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "subscription_cancelled",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "autopay_failed",
+      "raw": " {\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Food & Dining\",\"merchant\":\"SBI\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": "EXPENSE",
+        "category": "cat_food",
+        "merchant": "SBI",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Food & Dining\",\"merchant\":\"SBI\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "otp_in_transaction_sms",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "axis_balance_only",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "salary_advance",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "merchant_name_numbers",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "multi_txn_single_sms",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    }
+  ]
+}

@@ -152,16 +152,19 @@ fun ClassificationScreen(
         }
     }
 
+    // The consent *modal* was removed when the model shrank from 468 MB to
+    // 22 MB (see handoff 0012). A blocking dialog is not warranted for a
+    // download the size of a photo, and the app is fully functional without the
+    // model — so the offer is now inline on the classification tab, and the SMS
+    // notification permission is requested from the same action rather than from
+    // a modal the user cannot decline without reading 468 MB of preamble.
     if (state.consentRequired) {
-        ModelConsentDialog(
-            onAccept = {
-                if (isNotificationPermissionNeeded(context)) {
-                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-                viewModel.handleIntent(ClassificationViewIntent.ConsentResult(true))
-            },
-            onDecline = { viewModel.handleIntent(ClassificationViewIntent.ConsentResult(false)) }
-        )
+        LaunchedEffect(Unit) {
+            if (isNotificationPermissionNeeded(context)) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+            viewModel.handleIntent(ClassificationViewIntent.ConsentResult(true))
+        }
     }
 
     // Hierarchical category selector dialog

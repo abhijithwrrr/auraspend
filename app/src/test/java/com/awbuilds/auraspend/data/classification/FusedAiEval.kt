@@ -174,7 +174,14 @@ object FusedAiEval {
         category = pred.optString("category").takeIf { it.isNotBlank() && it != "null" },
         merchant = pred.optString("merchant").takeIf { it.isNotBlank() && it != "null" },
         isSubscription = pred.optBoolean("isSubscription", false),
-        rawModelOutput = pred.optString("raw").takeIf { it.isNotBlank() }
+        rawModelOutput = pred.optString("raw").takeIf { it.isNotBlank() },
+        // Must be carried through, or `AiSignalFusion.mayDiscard` sees null and
+        // takes the legacy unconditional-veto branch — which would silently
+        // measure a *worse* system than the one that ships, and blame the model
+        // for a fusion path the model is never actually on.
+        isTransactionProbability = if (pred.has("isTransactionProbability") &&
+            !pred.isNull("isTransactionProbability")
+        ) pred.optDouble("isTransactionProbability").toFloat() else null
     )
 
     private fun expected(case: ClassificationEval.Case, field: String): String? = when (field) {

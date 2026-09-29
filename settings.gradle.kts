@@ -16,6 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "AuraSpend"
 include(":app")
-include(":llama")
-project(":llama").projectDir = file("llama-lib")
 include(":benchmark")

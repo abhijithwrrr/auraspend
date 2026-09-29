@@ -19,8 +19,6 @@
     <string name="action_skip">Skip</string>
     <string name="action_continue">Continue</string>
     <string name="action_get_started">Get started</string>
-    <string name="action_download">Download</string>
-    <string name="action_not_now">Not now</string>
     <string name="action_remove">Remove</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="action_duplicate">Duplicate</string>
@@ -180,15 +178,15 @@
     <string name="settings_about_made_by">Made with ❤️ by AW Builds</string>
     <string name="settings_view_github">View on GitHub</string>
     <string name="settings_ai_delete_title">Delete AI model?</string>
-    <string name="settings_ai_delete_message">This removes the local model (~380 MB). You can re-download it anytime; your transactions are never affected.</string>
-    <string name="settings_ai_ready">Local AI ready</string>
-    <string name="settings_ai_ready_subtitle">Messages are auto-categorised on-device.</string>
+    <string name="settings_ai_delete_message">This removes the local model (~22 MB). You can re-download it anytime; your transactions are never affected.</string>
+    <string name="settings_ai_ready">Smart categories on</string>
+    <string name="settings_ai_ready_subtitle">Messages are categorised on-device. Nothing leaves your phone.</string>
     <string name="settings_ai_downloading">Downloading local AI</string>
     <string name="settings_ai_downloading_progress">%1$d%% complete…</string>
     <string name="settings_ai_failed">Download failed</string>
     <string name="settings_ai_failed_subtitle">Check your connection and try again.</string>
     <string name="settings_ai_missing">Local AI not downloaded</string>
-    <string name="settings_ai_missing_subtitle">Download ~380 MB to auto-categorise messages into categories, income or expense.</string>
+    <string name="settings_ai_missing_subtitle">Download ~22 MB to categorise messages into categories, income or expense. AuraSpend already works without it.</string>
     <string name="settings_ai_delete_action">Delete model</string>
     <string name="settings_ai_download_action">Download model</string>
     <string name="settings_auto_detect">Auto-categorize messages</string>
@@ -391,9 +389,9 @@
     <string name="classification_no_sms_message">New bank messages will appear here once detected.</string>
     <string name="classification_ai_progress">AI is categorizing: %1$d of %2$d</string>
     <string name="classification_local_ai_title">Local AI Required</string>
-    <string name="classification_local_ai_message">Download the on-device AI model to automatically detect and categorize your bank messages offline.</string>
+    <string name="classification_local_ai_message">AuraSpend already reads your bank messages. Adding the on-device categoriser (~22 MB) improves which category each one lands in.</string>
     <string name="classification_downloading">Downloading…</string>
-    <string name="classification_download_model">Download AI Model (~380 MB)</string>
+    <string name="classification_download_model">Add smart categories (~22 MB)</string>
     <string name="classification_ai_categorizing">AI is categorizing messages...</string>
     <string name="classification_reading_sms">Reading bank messages...</string>
     <string name="classification_scan_message">Scan your inbox to detect and categorize bank messages.</string>
@@ -410,11 +408,24 @@
     <string name="classification_download_progress">Downloading on-device AI… %1$d%%</string>
     <string name="classification_download_message">Messages will be auto-categorised into subscriptions, categories, income, expense and other once ready.</string>
 
-    <!-- Model consent dialog -->
-    <string name="consent_title">Download local AI model?</string>
-    <string name="consent_message">To auto-categorise your messages into subscriptions, categories, income, expense and other use this on-device AI. It works fully offline once downloaded.</string>
-    <string name="consent_model_size">~%1$d MB</string>
-    <string name="consent_footnote">The download happens in the background on your device. No data leaves your phone.</string>
+    <!-- Model consent. The consent *dialog* was removed when the model shrank
+         from 468 MB to 22 MB: a blocking modal is not warranted for a download
+         the size of a photo, and the app is fully functional without it. The
+         strings stay because the settings row and the classification tab both
+         still state what the model is and how big it is. -->
+
+    <!-- Unrecognized SMS. Messages that carry an amount and a movement word but
+         that no parser could read. Surfaced rather than dropped, because a
+         transaction missing from the history with no explanation is the failure
+         mode this screen exists to prevent. -->
+    <string name="unrecognized_title">Messages we couldn\'t read</string>
+    <string name="unrecognized_subtitle">These look like transactions but we couldn\'t categorise them. Open one to add it by hand.</string>
+    <string name="unrecognized_empty_title">Nothing missed</string>
+    <string name="unrecognized_empty_message">Every bank message was read successfully.</string>
+    <string name="unrecognized_open">Add this transaction</string>
+    <string name="unrecognized_dismiss">Dismiss</string>
+    <string name="unrecognized_sender_unknown">Unknown sender</string>
+    <!-- Shown on the classification tab when there is something to review. -->
 
     <!-- Category selector + duplicate detection -->
     <string name="category_selector_title">Select Category</string>

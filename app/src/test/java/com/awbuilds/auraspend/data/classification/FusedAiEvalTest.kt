@@ -79,6 +79,31 @@ class FusedAiEvalTest {
     }
 
     @Test
+    fun `the shipped encoder must not delete a single real transaction`() {
+        // The one criterion every generative runtime failed. A model that calls
+        // a real debit "not a transaction" has it nulled in `AiSignalFusion` and
+        // then dropped by the pipeline's unresolved-fields gate, so the error is
+        // a deletion, not a mis-filing.
+        //
+        // Recorded from `docs/evals/minilm-2026-09-29.json`, measured through
+        // this same evaluator. Generative baselines for contrast: SmolLM2 43/46,
+        // FunctionGemma 5/46, Qwen2.5-0.5B 8/46.
+        val (runtimeId, ai) = FusedAiEval.loadReport("docs/evals/minilm-2026-09-29.json")
+        val fused = FusedAiEval.run(ai, runtimeId = "$runtimeId (fused)")
+
+        println()
+        println("===== SHIPPED RUNTIME: $runtimeId =====")
+        println(fused.format())
+
+        assertTrue(
+            "the shipped encoder deleted ${fused.destroyedTransactions.size} real " +
+                "transaction(s): ${fused.destroyedTransactions}. Every generative " +
+                "runtime failed this; it is the reason this swap was made.",
+            fused.destroyedTransactions.isEmpty()
+        )
+    }
+
+    @Test
     fun `reports a recorded model end to end`() {
         // Not an assertion on the model's quality — see the class KDoc. This only
         // requires that a recorded report parses and produces a coherent
