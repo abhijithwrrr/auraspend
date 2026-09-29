@@ -9,15 +9,36 @@ import com.awbuilds.auraspend.ui.classification.SmsInfo
 import java.time.LocalDateTime
 
 /** Live status of a message while it is being categorized, shown in the UI. */
-enum class SmsStatus { PENDING, CLASSIFYING, CLASSIFIED, SAVED, FAILED }
+enum class SmsStatus { PENDING, CLASSIFYING, CLASSIFIED, SAVED, FAILED, SKIPPED }
 
 data class ClassifiedSms(
     val sms: SmsInfo,
     val parsed: ParsedBankMessage,
     val isSaved: Boolean = false,
+    /**
+     * Swiped left, or rejected as noise (an OTP, a promo, a KYC nag).
+     *
+     * Distinct from "not saved" on purpose. It used to be folded into
+     * [SmsStatus.CLASSIFIED], the same status a freshly-classified message has, so
+     * nothing could tell "ready to save" from "dismissed" — which is why
+     * `saveAllClassified` could pick up a dismissed message and save it.
+     */
+    val isDismissed: Boolean = false,
     val isSubscription: Boolean = false,
     val status: SmsStatus = SmsStatus.PENDING
 )
+
+/**
+ * The messages a user still has to act on: neither saved nor dismissed.
+ *
+ * Extracted as a pure function because the rule is easy to break and expensive to
+ * notice. A handled message must leave the triage list, and an undone one must come
+ * back — and "coming back" is not extra logic, it is this same predicate applied to
+ * a row whose status the undo reverted. Both properties are pinned in
+ * `TriageInboxTest`.
+ */
+fun pendingInbox(messages: List<ClassifiedSms>): List<ClassifiedSms> =
+    messages.filter { !it.isSaved && !it.isDismissed }
 
 object SmsAutoClassifier {
 
