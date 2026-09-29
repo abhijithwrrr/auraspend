@@ -43,7 +43,7 @@ sealed class AiModelState {
 }
 
 /**
- * Downloads the Qwen GGUF to internal storage in the background (after explicit user consent) and
+ * Downloads the categoriser weights to internal storage in the background (after explicit consent) and
  * tracks progress so the UI can reflect it. Resume/cancel are supported via HTTP Range requests.
  */
 object ModelDownloadManager {
@@ -206,18 +206,67 @@ object ModelDownloadManager {
         // Size alone cannot distinguish a truncated download from a corrupt or
         // substituted file, and this file is then executed on-device. Hash it
         // before it is allowed anywhere near the models directory.
-        verifyChecksum(partial)
+        verifyChecksum(partial, target, ModelConstants.EXPECTED_SHA256)
         if (target.exists()) target.delete()
         if (!partial.renameTo(target)) {
-            // Cross-filesystem fallback: stream the file instead of loading 400 MB into RAM.
+            // Cross-filesystem fallback: stream the file rather than loading the
+            // whole model into RAM. Kept for symmetry with the main path even
+            // though the model is now small enough to fit comfortably.
+            partial.inputStream().use { input -> target.outputStream().use { out -> input.copyTo(out) } }
+            partial.delete()
+        }
+
+        // The encoder also needs its WordPiece vocabulary, which is a separate
+        // file with its own pinned digest. Downloaded *after* the weights so the
+        // expensive part is verified and in place first, and so a tokenizer
+        // failure cannot strand a half-usable model: `isDownloaded` requires
+        // both, so the UI keeps offering the download until this succeeds.
+        downloadSingle(
+            ModelConstants.TOKENIZER_URL,
+            ModelConstants.tokenizerFile(context),
+            ModelConstants.TOKENIZER_SHA256
+        )
+    }
+
+    /**
+     * Downloads one verified file, with resume and the same delete-on-mismatch
+     * rule as the weights. The tokenizer is small enough that a simpler
+     * implementation would do, but reusing the verified path means there is one
+     * place where "how do we know this file is the file we asked for" is
+     * answered, rather than two that could drift apart.
+     */
+    private fun downloadSingle(url: String, target: File, expectedSha256: String) {
+        val partial = File(target.parentFile, target.name + ".part")
+        target.parentFile?.mkdirs()
+        if (partial.exists()) partial.delete()
+
+        val request = Request.Builder().url(url).build()
+        httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Server responded ${response.code} for $url")
+            val body = response.body ?: throw IOException("Empty response body")
+            body.byteStream().use { input ->
+                partial.outputStream().use { out -> input.copyTo(out) }
+            }
+        }
+        verifyChecksum(partial, target, expectedSha256)
+        if (target.exists()) target.delete()
+        if (!partial.renameTo(target)) {
             partial.inputStream().use { input -> target.outputStream().use { out -> input.copyTo(out) } }
             partial.delete()
         }
     }
 
-    /** Streams the file through SHA-256 and compares it with the pinned digest. */
-    private fun verifyChecksum(file: File) {
-        val expected = ModelConstants.EXPECTED_SHA256.lowercase()
+    /**
+     * Streams [file] through SHA-256 and compares it with the pinned digest.
+     *
+     * A mismatch deletes both the part file and any existing target rather than
+     * keeping either: something that failed verification must never be retried
+     * as if it were a resumable partial, or the next resume would append to bytes
+     * that are already wrong — and leaving a previously-good target in place
+     * would hide the fact that the new download is broken.
+     */
+    private fun verifyChecksum(file: File, target: File, expected: String) {
+        val expectedLower = expected.lowercase()
         val digest = MessageDigest.getInstance("SHA-256")
         file.inputStream().use { input ->
             val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
@@ -229,11 +278,13 @@ object ModelDownloadManager {
             }
         }
         val actual = digest.digest().joinToString("") { "%02x".format(it) }
-        if (actual != expected) {
-            // Delete rather than keep: a file that failed verification must never
-            // be retried as if it were a resumable partial.
+        if (actual != expectedLower) {
             file.delete()
-            throw IOException("Model checksum mismatch.\n  expected $expected\n  actual   $actual")
+            target.delete()
+            throw IOException(
+                "Checksum mismatch for ${target.name}\n" +
+                    "  expected $expectedLower\n  actual   $actual"
+            )
         }
     }
 

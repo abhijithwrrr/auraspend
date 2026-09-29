@@ -54,7 +54,7 @@ data class SmsExtraction(
 /**
  * The app's on-device AI contract, described as a *job* rather than a mechanism.
  *
- * The previous seam was `LocalLlm.generate(prompt): String?` — prompt in, text
+ * The previous seam was a `generate(prompt): String?` — prompt in, text
  * out, blocking, with no schema and no confidence. That shape is dictated by
  * llama.cpp and fits nothing else: a grammar-constrained runtime has no meaningful
  * "prompt", and its two main advantages — output that is structurally guaranteed

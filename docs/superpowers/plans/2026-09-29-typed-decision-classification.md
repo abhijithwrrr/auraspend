@@ -1,3 +1,11 @@
+> **SUPERSEDED — partially executed, then overtaken.** Tasks 1–4 shipped in
+> handoff 0012. Task 5's decision was reached differently than planned: the
+> answer was not "keep Qwen" or "delete it" but "replace it with a 22 MB
+> encoder", after five runtimes were measured (handoff 0013). The veto
+> constraint this plan built is now load-bearing — `EmbeddingClassifier` is the
+> first runtime that populates `isTransactionProbability`. Kept for the
+> reasoning and the measured baselines, not as a live plan.
+
 # Typed-Decision Classification Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

@@ -55,7 +55,7 @@ class AutoClassificationWorker(
         // names, so they CAN overlap. A shared mutex guarantees a single pipeline pass at a
         // time: no double LLM batches, no CPU contention, no jank.
         return pipelineMutex.withLock {
-            // SMS query + LLM enrichment are heavy (each AI pass reads a 400 MB model), so run
+            // The SMS scan plus a per-message inference pass is heavy, so run
             // on IO rather than WorkManager's Default dispatcher. The inference engine itself
             // runs on a dedicated background-priority thread; this priority bump keeps the
             // orchestration work (DB, regex) equally polite.
