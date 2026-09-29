@@ -28,7 +28,7 @@
     <!-- Shared formats -->
     <string name="common_percent">%1$d%%</string>
     <string name="common_amount_plus">+%1$s</string>
-    <string name="common_amount_minus">-%1$s</string>
+    <string name="common_amount_minus">−%1$s</string>
 
     <!-- States -->
     <string name="state_offline">आप ऑफ़लाइन हैं — बदलाव डिवाइस पर सहेजे गए हैं</string>

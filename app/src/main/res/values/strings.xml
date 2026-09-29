@@ -27,7 +27,7 @@
     <!-- Shared formats -->
     <string name="common_percent">%1$d%%</string>
     <string name="common_amount_plus">+%1$s</string>
-    <string name="common_amount_minus">-%1$s</string>
+    <string name="common_amount_minus">−%1$s</string>
 
     <!-- States -->
     <string name="state_offline">You\'re offline — changes are saved on device</string>
