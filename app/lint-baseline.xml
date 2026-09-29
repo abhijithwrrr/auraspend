@@ -299,149 +299,6 @@
     </issue>
 
     <issue
-        id="MissingTranslation"
-        message="&quot;activity_loading_more&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;activity_loading_more&quot;>Loading more transactions&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="99"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;activity_load_error&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;activity_load_error&quot;>Couldn\&apos;t load transactions&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="100"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;activity_retry&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;activity_retry&quot;>Retry&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="101"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;onboarding_restore_no_backup&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;onboarding_restore_no_backup&quot;>No backup found, or the backup could not be read.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="281"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;onboarding_restore_failed&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;onboarding_restore_failed&quot;>Restore failed. Your existing data was left untouched.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="282"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;onboarding_restore_success&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;onboarding_restore_success&quot;>Restored %1$d transactions, %2$d categories and %3$d savings goals.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="283"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;onboarding_restore_signin_failed&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;onboarding_restore_signin_failed&quot;>Google sign-in failed. Please try again.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="284"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;csv_export_success&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;csv_export_success&quot;>Exported %1$d transactions.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="287"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;csv_export_failed&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;csv_export_failed&quot;>Could not write the CSV file. Please try again.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="288"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;csv_import_success&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;csv_import_success&quot;>Imported %1$d transactions.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="289"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;csv_import_partial&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;csv_import_partial&quot;>Imported %1$d transactions, skipped %2$d unreadable rows.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="290"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;csv_import_failed&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;csv_import_failed&quot;>Could not read that CSV file.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="291"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;csv_import_all_duplicates&quot; is not translated in &quot;hi&quot; (Hindi)"
-        errorLine1="    &lt;string name=&quot;csv_import_all_duplicates&quot;>Nothing imported — every row was already in your history.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="292"
-            column="13"/>
-    </issue>
-
-    <issue
         id="PluralsCandidate"
         message="Formatting %d followed by words (&quot;percent&quot;): This should probably be a plural rather than a string"
         errorLine1="    &lt;string name=&quot;home_budget_percent_used&quot;>%1$s budget %2$d percent used&lt;/string>"
@@ -459,7 +316,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="252"
+            line="253"
             column="5"/>
     </issue>
 
@@ -470,7 +327,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="255"
+            line="256"
             column="5"/>
     </issue>
 
@@ -481,7 +338,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="283"
+            line="284"
             column="5"/>
     </issue>
 
@@ -492,7 +349,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="287"
+            line="288"
             column="5"/>
     </issue>
 
@@ -503,7 +360,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="289"
+            line="290"
             column="5"/>
     </issue>
 
@@ -514,7 +371,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="290"
+            line="291"
             column="5"/>
     </issue>
 
@@ -590,7 +447,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/ui/onboarding/OnboardingScreen.kt"
-            line="110"
+            line="112"
             column="66"/>
     </issue>
 
@@ -601,7 +458,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/ui/designsystem/AnimatedMoney.kt"
-            line="91"
+            line="82"
             column="18"/>
     </issue>
 
@@ -728,7 +585,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="283"
+            line="284"
             column="13"/>
     </issue>
 
@@ -750,7 +607,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="322"
+            line="323"
             column="40"/>
     </issue>
 
@@ -761,7 +618,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="336"
+            line="337"
             column="40"/>
     </issue>
 
@@ -772,7 +629,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="347"
+            line="348"
             column="46"/>
     </issue>
 
@@ -783,7 +640,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="361"
+            line="362"
             column="46"/>
     </issue>
 
@@ -794,7 +651,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="380"
+            line="381"
             column="51"/>
     </issue>
 
@@ -805,7 +662,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="381"
+            line="382"
             column="47"/>
     </issue>
 
@@ -816,7 +673,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="394"
+            line="395"
             column="51"/>
     </issue>
 
@@ -827,7 +684,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="395"
+            line="396"
             column="47"/>
     </issue>
 
@@ -856,7 +713,7 @@
         errorLine2="                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/MainActivity.kt"
-            line="39"
+            line="47"
             column="25"/>
     </issue>
 
@@ -867,7 +724,7 @@
         errorLine2="                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/MainActivity.kt"
-            line="44"
+            line="52"
             column="25"/>
     </issue>
 
@@ -955,7 +812,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/ui/settings/SettingsScreen.kt"
-            line="257"
+            line="265"
             column="56"/>
     </issue>
 

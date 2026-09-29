@@ -15,3 +15,9 @@ captures
 *.hprof
 *.log
 /app/release/
+
+# Host venv for tools/needle_eval.py (41MB, reproducible from the appendix)
+.zcode/needle-venv/
+
+# Python bytecode from tools/ scripts
+tools/__pycache__/

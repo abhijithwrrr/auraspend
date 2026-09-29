@@ -2,15 +2,19 @@ name: PR Check
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
     paths:
       - '**.kt'
       - '**.kts'
+      - '**.xml'
       - 'build.gradle.kts'
       - 'app/build.gradle.kts'
       - 'settings.gradle.kts'
       - 'gradle/**'
       - 'gradle.properties'
+      - '.github/workflows/pr_check.yml'
+      - 'app/src/test/**'
+      - 'app/src/main/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -42,8 +46,38 @@ jobs:
             ${{ runner.os }}-gradle-wrapper-
             ${{ runner.os }}-
 
+      # Previously this workflow only ran two assemble tasks. It never ran the
+      # unit tests, never ran lint, and never built :benchmark — so the
+      # screenshot baselines, the baseline profile and the test suite could all
+      # break without a single red build.
+
+      - name: Unit tests (free debug)
+        run: ./gradlew testFreeDebugUnitTest
+
+      - name: Lint (free debug)
+        run: ./gradlew :app:lintFreeDebug
+
+      - name: Lint (play debug)
+        run: ./gradlew :app:lintPlayDebug
+
       - name: Build free flavor
         run: ./gradlew assembleFreeDebug
 
       - name: Build play flavor
         run: ./gradlew assemblePlayDebug
+
+      # Compiles the Macrobenchmark module and the R8-minified benchmark variant,
+      # which is what actually consumes app/src/main/baseline-prof.txt. Without
+      # this, profile drift is invisible until someone runs it by hand.
+      - name: Build benchmark variant + module
+        run: ./gradlew :app:assembleFreeBenchmark :benchmark:assemble
+
+      - name: Upload lint reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports
+          path: |
+            app/build/reports/lint-results-*.html
+            app/build/reports/lint-results-*.xml
+          if-no-files-found: ignore

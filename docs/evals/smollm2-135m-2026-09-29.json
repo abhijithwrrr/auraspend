@@ -1,0 +1,1371 @@
+{
+  "model": "smollm2-135m-instruct-q4_k_m.gguf",
+  "elapsed": 28.66002321243286,
+  "rows": [
+    {
+      "id": "axis_multiline_tulip",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: 120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: 120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "axis_amber_leaf",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Avl Limit\",\"subscription\":false}\nSMS: INR 100000.00\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Avl Limit\",\"subscription\":false}\nSMS: INR 100000.00\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Avl Limit\",\"subscription\":false}\nSMS",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Avl Limit",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Avl Limit\",\"subscription\":false}\nSMS: INR 100000.00\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Avl Limit\",\"subscription\":false}\nSMS: INR 100000.00\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Avl Limit\",\"subscription\":false}\nSMS"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "axis_sunrise_diner",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSpent INR 2745 Axis Bank Card no. XX4821 03-07-26 20:11:45 IST SUNRISE DINER\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSpent INR 2745 Axis Bank Card no. XX4821 11-08",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSpent INR 2745 Axis Bank Card no. XX4821 03-07-26 20:11:45 IST SUNRISE DINER\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSpent INR 2745 Axis Bank Card no. XX4821 11-08"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "axis_tulip_mart",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"MART\",\"subscription\":false}\nSMS: Rs 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "MART",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"MART\",\"subscription\":false}\nSMS: Rs 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "canara_neft_credit",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Sending 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Sending 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "canara_debit_cyber_fraud",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: INR 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: INR 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "canara_debit_10000",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs.10,000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs.10,000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs.10,000.0",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs.10,000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs.10,000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs.10,000.0"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "emoney_recharge_promo",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "bill_pay_today",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "hash_merchant_rejected",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "phishing_alert",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: INR 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: INR 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "otp_message",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 482913 do not share with anyone\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 482913 do not share with anyone\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 4",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 482913 do not share with anyone\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 482913 do not share with anyone\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 4"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "balance_alert",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your SBI account balance is 25,000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your SBI account balance is 25,000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS:",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your SBI account balance is 25,000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your SBI account balance is 25,000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS:"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "promo_offer",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Use code GET50 for recharge, limited period offer!\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 482913 do not share with anyone\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 48291",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Use code GET50 for recharge, limited period offer!\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 482913 do not share with anyone\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 48291"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "emande_registered",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 482913 do not share with anyone\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 482913 do not share with anyone\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 4",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 482913 do not share with anyone\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 482913 do not share with anyone\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 4"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "installment_due",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "mandate_upcoming",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: 120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: 120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "swiggy_debit",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nINR 250 paid for food and drinks\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nINR 250 paid for food and drinks\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nINR 250 paid for food and",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nINR 250 paid for food and drinks\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nINR 250 paid for food and drinks\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nINR 250 paid for food and"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "upi_transfer_out",
+      "raw": " {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Rahim\",\"subscription\":false}\nSMS: Rs 45000 salary credited to A/c XX1234 at SWIGGY on 01-07\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}\nSMS: Rs 999 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & D",
+      "pred": {
+        "isTransaction": true,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Rahim",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Rahim\",\"subscription\":false}\nSMS: Rs 45000 salary credited to A/c XX1234 at SWIGGY on 01-07\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}\nSMS: Rs 999 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":true,\"type\":\"income\",\"category\":\"Food & D"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "salary_credit",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}\nSMS: Rs 45000 salary credited to A/c XX1234 NEFT ACME CORP\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Rahim\",\"subscription\":false}\nSMS: Rs 45000 salary credited to A/c XX1234 NEFT ACME CORP\nOUT: {\"is_transaction\":false,\"type",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}\nSMS: Rs 45000 salary credited to A/c XX1234 NEFT ACME CORP\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Rahim\",\"subscription\":false}\nSMS: Rs 45000 salary credited to A/c XX1234 NEFT ACME CORP\nOUT: {\"is_transaction\":false,\"type"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "refund_zomato",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Netflix\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Netflix\",\"subscription",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Zomato",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Netflix\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Netflix\",\"subscription"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "autopay_netflix",
+      "raw": " {\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Subscriptions\",\"merchant\":\"Netflix\",\"subscription\":true}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Subscriptions\",\"merchant\":\"Netflix\",\"subscription\":true}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Subscriptions\",\"merchant\":\"Netflix\",\"subscription\":",
+      "pred": {
+        "isTransaction": false,
+        "type": "EXPENSE",
+        "category": "cat_subscription",
+        "merchant": "Netflix",
+        "isSubscription": true,
+        "raw": "{\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Subscriptions\",\"merchant\":\"Netflix\",\"subscription\":true}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Subscriptions\",\"merchant\":\"Netflix\",\"subscription\":true}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Subscriptions\",\"merchant\":\"Netflix\",\"subscription\":"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "fuel_pump",
+      "raw": " {\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Subscriptions\",\"merchant\":\"IOCL Petrol Pump\",\"subscription\":false}\nINR 1200 spent on Credit Card XX5678 at IOCL PETROL PUMP\nOUT: {\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Transfer\",\"merchant\":\"IOCL Petrol Pump\",\"subscription\":false}\nINR 1200 spent on Credit Card XX5678 at IOCL PETROL PUMP\nOUT: {\"is_transaction\":false,\"type\":\"expense\",\"category",
+      "pred": {
+        "isTransaction": false,
+        "type": "EXPENSE",
+        "category": "cat_subscription",
+        "merchant": "IOCL Petrol Pump",
+        "isSubscription": true,
+        "raw": "{\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Subscriptions\",\"merchant\":\"IOCL Petrol Pump\",\"subscription\":false}\nINR 1200 spent on Credit Card XX5678 at IOCL PETROL PUMP\nOUT: {\"is_transaction\":false,\"type\":\"expense\",\"category\":\"Transfer\",\"merchant\":\"IOCL Petrol Pump\",\"subscription\":false}\nINR 1200 spent on Credit Card XX5678 at IOCL PETROL PUMP\nOUT: {\"is_transaction\":false,\"type\":\"expense\",\"category"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "exact": false
+    },
+    {
+      "id": "spotify_autodebit",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Spotify\",\"subscription\":false}\nSMS: Rs 120000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Spotify\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Spotify",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Spotify",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Spotify\",\"subscription\":false}\nSMS: Rs 120000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Spotify\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Spotify"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "exact": false
+    },
+    {
+      "id": "amazon_prime_renewal",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 25000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 499 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 499 refunded for cancelled Z",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 25000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 499 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 499 refunded for cancelled Z"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "exact": false
+    },
+    {
+      "id": "atm_withdrawal",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "cashback_credit",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 150 cashback credited to your account\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 150 cashback credited to your account\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 150 cashback credited to your account\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 150 cashback credited to your account\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "own_account_transfer",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "electricity_bill",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Adani\",\"subscription\":false}\nSMS: Rs 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Adani",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Adani\",\"subscription\":false}\nSMS: Rs 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "medical_pharmacy",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"APOLLO PHARMACY\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "APOLLO PHARMACY",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"APOLLO PHARMACY\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "school_fees",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 100000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 120000 salary credited to A/c XX1234 at IOCL PETROL PUMP\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 100000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 120000 salary credited to A/c XX1234 at IOCL PETROL PUMP\nOUT: {\"is_transaction\":false,\"type\":\"income\",\""
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "failed_payment",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 100000.00\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 100000.00\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 10000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 100000.00\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 100000.00\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 10000"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "card_declined",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour card ending 1234 was declined for Rs 4500 at DECATHLON\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour card ending 1234 was declined for Rs 4500 at DECATHLON\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour card ending",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour card ending 1234 was declined for Rs 4500 at DECATHLON\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour card ending 1234 was declined for Rs 4500 at DECATHLON\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour card ending"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "kyc_notice",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account is active.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account is active.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account is active.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account is active.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account is active.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account is active.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\""
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "card_added_notice",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour credit card ending 8899 has been added successfully\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour credit card ending 8899 has been added successfully\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour credit card ending 8899 has been added successfully\nOUT: {\"is_transaction\":",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour credit card ending 8899 has been added successfully\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour credit card ending 8899 has been added successfully\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour credit card ending 8899 has been added successfully\nOUT: {\"is_transaction\":"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "cashback_announcement",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "emi_loan_disbursed",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 100000 loan amount has been credited to your account\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 100000 loan amount has been credited to your account\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 1000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 100000 loan amount has been credited to your account\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 100000 loan amount has been credited to your account\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 1000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "dividend_credit",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 125000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 125000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 125000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 125000.00 - SBI\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "grocery_bigbasket",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"BigBasket\",\"subscription\":false}\nINR 1250 paid for food and drinks\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"BigBasket\",\"subscription\":false}\nINR 1250 paid for food and drinks\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"BigBasket\",\"subscription\":false}\nINR 1250 paid",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "BigBasket",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"BigBasket\",\"subscription\":false}\nINR 1250 paid for food and drinks\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"BigBasket\",\"subscription\":false}\nINR 1250 paid for food and drinks\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"BigBasket\",\"subscription\":false}\nINR 1250 paid"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "restaurant_zomato",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: Rs 1200 paid for Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: Rs 1200 paid for Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Zomato",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: Rs 1200 paid for Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: Rs 1200 paid for Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "uber_cab",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Uber\",\"subscription\":false}\nSMS: Rs 120000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Netflix\",\"subscription",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Uber",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Uber\",\"subscription\":false}\nSMS: Rs 120000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Netflix\",\"subscription"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "metro_recharge",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Deli Metro\",\"subscription\":false}\nSMS: Rs 100000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 120000 salary credited to A/c XX1234 at IOCL PETROL PUMP\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Deli Metro",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Deli Metro\",\"subscription\":false}\nSMS: Rs 100000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 120000 salary credited to A/c XX1234 at IOCL PETROL PUMP\nOUT: {\"is_transaction\":false,\"type\":\"income\",\""
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "insurance_premium",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"LIC Insurance\",\"subscription\":false}\nSMS: Rs 120000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Netflix\",\"",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "LIC Insurance",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"LIC Insurance\",\"subscription\":false}\nSMS: Rs 120000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Netflix\",\""
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "exact": false
+    },
+    {
+      "id": "gym_membership",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 150000 refunded for gym membership renewal\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 150000 refunded for gym membership renewal\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 150000 refunded for gym membership renewal\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 150000 refunded for gym membership renewal\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "exact": false
+    },
+    {
+      "id": "cloud_storage",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "exact": false
+    },
+    {
+      "id": "failed_refund",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 100000.00.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 100000.00.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 100",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 100000.00.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 100000.00.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your account balance is 100"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "otp_amount_decoy",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 100000 is your available credit limit. Your OTP is 772914.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 772914.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS:",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 100000 is your available credit limit. Your OTP is 772914.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Your OTP is 772914.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS:"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "balance_with_amount",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour account balance is Rs 45,200 as on 15-09-2026\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour account balance is Rs 45,200 as on 15-09-2026\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour account balance is Rs 45,200 as on 15-09-2026\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour account balance is Rs 45,200 as on 15-09-2026\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "due_reminder_utility",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: 120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: 120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "cashback_credited",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "recharge_bill_paid",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 1200 paid to Airtel for prepaid recharge\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 1200 paid to Airtel for prepaid recharge\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 1200 paid to Airtel",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 1200 paid to Airtel for prepaid recharge\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 1200 paid to Airtel for prepaid recharge\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 1200 paid to Airtel"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "donation",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "interest_credit",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "rent_payment",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 10000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Netflix\",\"subscription",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 10000 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Netflix\",\"subscription"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "flight_booking",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Dubai\",\"subscription\":false}\nSMS: Rs 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Dubai",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Dubai\",\"subscription\":false}\nSMS: Rs 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "cigarette_purchase",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"General Store\",\"subscription\":false}\nSMS: Rs 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "General Store",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"General Store\",\"subscription\":false}\nSMS: Rs 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "coupon_applied",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Ajio\",\"subscription\":false}\nSMS: Rs 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Ajio",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Ajio\",\"subscription\":false}\nSMS: Rs 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "prepaid_mobile",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 1200 paid for Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 1200 paid for Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 1200 paid for Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS: Rs 1200 paid for Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nSMS"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "subscription_cancelled",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour subscription has been cancelled. No further charges.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour subscription has been cancelled. No further charges.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour subscription has been cancelled. No further charges.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour subscription has been cancelled. No further charges.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour subscription has been cancelled. No further charges.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nYour subscription has been cancelled. No further charges.\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "autopay_failed",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 499 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NET",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 499 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NET"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "otp_in_transaction_sms",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: Rs 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "axis_balance_only",
+      "raw": " {\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: INR 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"none\",\"category\":\"Other\",\"merchant\":\"none\",\"subscription\":false}\nSMS: INR 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": false,
+      "fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": true
+    },
+    {
+      "id": "salary_advance",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}\nSMS: Rs 1200 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_salary",
+        "merchant": "Acme Corp",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Salary\",\"merchant\":\"Acme Corp\",\"subscription\":false}\nSMS: Rs 1200 refunded for cancelled Zomato order\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false}\nSMS: AutoPay of Rs 499 NETFLIX e-mandate successful\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Zomato\",\"subscription\":false"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": true,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "merchant_name_numbers",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"SHOP\",\"subscription\":false}\nINR 1000 paid to SHOP 123\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"SHOP\",\"subscription\":false}\nINR 1000 paid to SHOP 123\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"SHOP\",\"subscription\":false}\n",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "SHOP",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"SHOP\",\"subscription\":false}\nINR 1000 paid to SHOP 123\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"SHOP\",\"subscription\":false}\nINR 1000 paid to SHOP 123\nOUT: {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"SHOP\",\"subscription\":false}"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "exact": false
+    },
+    {
+      "id": "multi_txn_single_sms",
+      "raw": " {\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nINR 15000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pred": {
+        "isTransaction": false,
+        "type": "INCOME",
+        "category": "cat_food",
+        "merchant": "Swiggy",
+        "isSubscription": false,
+        "raw": "{\"is_transaction\":false,\"type\":\"income\",\"category\":\"Food & Dining\",\"merchant\":\"Swiggy\",\"subscription\":false}\nINR 15000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "false_veto": true,
+      "fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": true,
+        "merchant": true,
+        "subscription": true
+      },
+      "exact": false
+    }
+  ]
+}
