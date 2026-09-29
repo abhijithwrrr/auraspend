@@ -1,0 +1,851 @@
+{
+  "model": "minilm-l6-v2-q8-arm64",
+  "elapsed": 0.0,
+  "rows": [
+    {
+      "id": "axis_multiline_tulip",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.45991459488868713
+      },
+      "false_veto": true
+    },
+    {
+      "id": "axis_amber_leaf",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_salary",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.6648483276367188
+      },
+      "false_veto": false
+    },
+    {
+      "id": "axis_sunrise_diner",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_food",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.8605113625526428
+      },
+      "false_veto": false
+    },
+    {
+      "id": "axis_tulip_mart",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.7685188055038452
+      },
+      "false_veto": false
+    },
+    {
+      "id": "canara_neft_credit",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_transfer",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.7149978280067444
+      },
+      "false_veto": false
+    },
+    {
+      "id": "canara_debit_cyber_fraud",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.6939497590065002
+      },
+      "false_veto": false
+    },
+    {
+      "id": "canara_debit_10000",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.8400213122367859
+      },
+      "false_veto": false
+    },
+    {
+      "id": "emoney_recharge_promo",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_bills",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9052802920341492
+      },
+      "false_veto": false
+    },
+    {
+      "id": "bill_pay_today",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_bills",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.8288925290107727
+      },
+      "false_veto": false
+    },
+    {
+      "id": "hash_merchant_rejected",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.8401645421981812
+      },
+      "false_veto": false
+    },
+    {
+      "id": "phishing_alert",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.6815612316131592
+      },
+      "false_veto": false
+    },
+    {
+      "id": "otp_message",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.10499964654445648
+      },
+      "false_veto": false
+    },
+    {
+      "id": "balance_alert",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_salary",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.6350446939468384
+      },
+      "false_veto": false
+    },
+    {
+      "id": "promo_offer",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.17341884970664978
+      },
+      "false_veto": false
+    },
+    {
+      "id": "emande_registered",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.2679596543312073
+      },
+      "false_veto": false
+    },
+    {
+      "id": "installment_due",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.402142196893692
+      },
+      "false_veto": false
+    },
+    {
+      "id": "mandate_upcoming",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.4853155016899109
+      },
+      "false_veto": false
+    },
+    {
+      "id": "swiggy_debit",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.8915730714797974
+      },
+      "false_veto": false
+    },
+    {
+      "id": "upi_transfer_out",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_transfer",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.6173373460769653
+      },
+      "false_veto": false
+    },
+    {
+      "id": "salary_credit",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_salary",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9375478625297546
+      },
+      "false_veto": false
+    },
+    {
+      "id": "refund_zomato",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.8597846031188965
+      },
+      "false_veto": false
+    },
+    {
+      "id": "autopay_netflix",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_subscription",
+        "merchant": null,
+        "isSubscription": true,
+        "isTransactionProbability": 0.5061745047569275
+      },
+      "false_veto": false
+    },
+    {
+      "id": "fuel_pump",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_transfer",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.6109269261360168
+      },
+      "false_veto": false
+    },
+    {
+      "id": "spotify_autodebit",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_subscription",
+        "merchant": null,
+        "isSubscription": true,
+        "isTransactionProbability": 0.9758012294769287
+      },
+      "false_veto": false
+    },
+    {
+      "id": "amazon_prime_renewal",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_subscription",
+        "merchant": null,
+        "isSubscription": true,
+        "isTransactionProbability": 0.9168339371681213
+      },
+      "false_veto": false
+    },
+    {
+      "id": "atm_withdrawal",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.8910427689552307
+      },
+      "false_veto": false
+    },
+    {
+      "id": "cashback_credit",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_salary",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9427148699760437
+      },
+      "false_veto": false
+    },
+    {
+      "id": "own_account_transfer",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_salary",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.6138565540313721
+      },
+      "false_veto": false
+    },
+    {
+      "id": "electricity_bill",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_bills",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9682537913322449
+      },
+      "false_veto": false
+    },
+    {
+      "id": "medical_pharmacy",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_healthcare",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9689936637878418
+      },
+      "false_veto": false
+    },
+    {
+      "id": "school_fees",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_education",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9911977648735046
+      },
+      "false_veto": false
+    },
+    {
+      "id": "failed_payment",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9274027943611145
+      },
+      "false_veto": false
+    },
+    {
+      "id": "card_declined",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.29683753848075867
+      },
+      "false_veto": false
+    },
+    {
+      "id": "kyc_notice",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.009338537231087685
+      },
+      "false_veto": false
+    },
+    {
+      "id": "card_added_notice",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.07725462317466736
+      },
+      "false_veto": false
+    },
+    {
+      "id": "cashback_announcement",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.2501256465911865
+      },
+      "false_veto": false
+    },
+    {
+      "id": "emi_loan_disbursed",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_salary",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.8078932166099548
+      },
+      "false_veto": false
+    },
+    {
+      "id": "dividend_credit",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_salary",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9105027914047241
+      },
+      "false_veto": false
+    },
+    {
+      "id": "grocery_bigbasket",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9209731221199036
+      },
+      "false_veto": false
+    },
+    {
+      "id": "restaurant_zomato",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9731615781784058
+      },
+      "false_veto": false
+    },
+    {
+      "id": "uber_cab",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_transport",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9801400303840637
+      },
+      "false_veto": false
+    },
+    {
+      "id": "metro_recharge",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_bills",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9623814225196838
+      },
+      "false_veto": false
+    },
+    {
+      "id": "insurance_premium",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_bills",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.8892560005187988
+      },
+      "false_veto": false
+    },
+    {
+      "id": "gym_membership",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_subscription",
+        "merchant": null,
+        "isSubscription": true,
+        "isTransactionProbability": 0.9338085651397705
+      },
+      "false_veto": false
+    },
+    {
+      "id": "cloud_storage",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_bills",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9313519597053528
+      },
+      "false_veto": false
+    },
+    {
+      "id": "failed_refund",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.6218793988227844
+      },
+      "false_veto": false
+    },
+    {
+      "id": "otp_amount_decoy",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.23802828788757324
+      },
+      "false_veto": false
+    },
+    {
+      "id": "balance_with_amount",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.491728812456131
+      },
+      "false_veto": false
+    },
+    {
+      "id": "due_reminder_utility",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_bills",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.5957663059234619
+      },
+      "false_veto": false
+    },
+    {
+      "id": "cashback_credited",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_salary",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.8327180743217468
+      },
+      "false_veto": false
+    },
+    {
+      "id": "recharge_bill_paid",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_bills",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9446589946746826
+      },
+      "false_veto": false
+    },
+    {
+      "id": "donation",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9704878926277161
+      },
+      "false_veto": false
+    },
+    {
+      "id": "interest_credit",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_salary",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9457446932792664
+      },
+      "false_veto": false
+    },
+    {
+      "id": "rent_payment",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_bills",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9831444025039673
+      },
+      "false_veto": false
+    },
+    {
+      "id": "flight_booking",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_transport",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9296503663063049
+      },
+      "false_veto": false
+    },
+    {
+      "id": "cigarette_purchase",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9838325381278992
+      },
+      "false_veto": false
+    },
+    {
+      "id": "coupon_applied",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.7688094973564148
+      },
+      "false_veto": false
+    },
+    {
+      "id": "prepaid_mobile",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_bills",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.955568253993988
+      },
+      "false_veto": false
+    },
+    {
+      "id": "subscription_cancelled",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": true,
+        "isTransactionProbability": 0.4641512334346771
+      },
+      "false_veto": false
+    },
+    {
+      "id": "autopay_failed",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_subscription",
+        "merchant": null,
+        "isSubscription": true,
+        "isTransactionProbability": 0.6737057566642761
+      },
+      "false_veto": false
+    },
+    {
+      "id": "otp_in_transaction_sms",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.7761860489845276
+      },
+      "false_veto": false
+    },
+    {
+      "id": "axis_balance_only",
+      "raw": "",
+      "pred": {
+        "isTransaction": false,
+        "type": null,
+        "category": null,
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.3824504315853119
+      },
+      "false_veto": false
+    },
+    {
+      "id": "salary_advance",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_salary",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.8693460822105408
+      },
+      "false_veto": false
+    },
+    {
+      "id": "merchant_name_numbers",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_other",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9392275214195251
+      },
+      "false_veto": false
+    },
+    {
+      "id": "multi_txn_single_sms",
+      "raw": "",
+      "pred": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_transfer",
+        "merchant": null,
+        "isSubscription": false,
+        "isTransactionProbability": 0.9783679246902466
+      },
+      "false_veto": false
+    }
+  ]
+}

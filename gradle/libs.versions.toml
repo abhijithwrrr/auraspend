@@ -38,6 +38,8 @@ benchmarkMacro = "1.5.0"
 uiautomator = "2.4.0"
 testRunner = "1.7.0"
 
+onnxruntime = "1.22.0"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -57,6 +59,13 @@ androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+ # ONNX Runtime Mobile. Ships prebuilt native .so files, so it is covered by
+ # tools/audit_native_runtime.sh like any other prebuilt binary. Pinned rather
+ # than latest, for two measured reasons: 1.30 ships a 50 MB AAR against this
+ # one's 27 MB for no capability this app uses, and 1.20 is rejected outright
+ # because its arm64 .so is not 16 KB aligned, which lint fails on devices with
+ # 16 KB pages.
+onnxruntime-android = { group = "com.microsoft.onnxruntime", name = "onnxruntime-android", version.ref = "onnxruntime" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }

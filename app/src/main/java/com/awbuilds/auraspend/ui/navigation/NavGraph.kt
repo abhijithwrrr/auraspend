@@ -48,6 +48,7 @@ import com.awbuilds.auraspend.ui.budget.BudgetScreen
 import com.awbuilds.auraspend.ui.budget.BudgetViewModel
 import com.awbuilds.auraspend.ui.category.CategoryManagementScreen
 import com.awbuilds.auraspend.ui.classification.ClassificationScreen
+import com.awbuilds.auraspend.ui.classification.UnrecognizedSmsScreen
 import com.awbuilds.auraspend.ui.classification.ClassificationViewIntent
 import com.awbuilds.auraspend.ui.classification.ClassificationViewModel
 import com.awbuilds.auraspend.ui.core.AuraAppChrome
@@ -85,6 +86,7 @@ object Routes {
     const val SETTINGS = "settings"
     const val ADD_TRANSACTION = "add_transaction"
     const val CLASSIFICATION = "classification"
+    const val UNRECOGNIZED_SMS = "unrecognized-sms"
     const val BUDGETS = "budgets"
     const val SUBSCRIPTIONS = "subscriptions"
     const val CATEGORIES = "categories"
@@ -268,6 +270,33 @@ fun AuraSpendNavHost(
                     onThemeChanged = onThemeChanged,
                     dynamicColor = dynamicColor,
                     onDynamicColorChanged = onDynamicColorChanged
+                )
+            }
+
+            composable(
+                route = Routes.UNRECOGNIZED_SMS,
+                enterTransition = { pushEnter },
+                exitTransition = { pushExit },
+                popEnterTransition = { popEnter },
+                popExitTransition = { popExit }
+            ) {
+                val app = LocalContext.current.applicationContext as AuraSpendApp
+                // Reads the same Flow the dashboard badge and this screen observe.
+                // Deleting the row first means a file that fails to save loses
+                // nothing the user had not already been shown.
+                UnrecognizedSmsScreen(
+                    repository = app.unrecognizedSms,
+                    onBack = { navController.popBackStack() },
+                    // Filing manually opens the same editor Smart Add uses, so
+                    // the user supplies the fields rather than inheriting a guess
+                    // the app already admitted it could not make. The row is
+                    // dismissed either way — whether the user files it or not, the
+                    // question has been answered, and leaving it would show the
+                    // same unreadable message forever.
+                    onFileManually = { message ->
+                        repositoryScope.launch { app.unrecognizedSms.delete(message.id) }
+                        navController.navigate(Routes.ADD_TRANSACTION)
+                    }
                 )
             }
 

@@ -63,6 +63,9 @@ object AiSignalFusion {
             ai?.type == null -> base.type
             base.type == null -> ai.type
             // Both present but conflicting: keyword signals ("credited"/"debited") are explicit.
+            // Applies to every runtime including a calibrated one — the parser
+            // read a literal movement word out of the message, which is stronger
+            // evidence than any model's inference from it.
             else -> base.type
         }
 

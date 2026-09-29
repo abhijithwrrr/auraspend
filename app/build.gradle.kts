@@ -185,8 +185,10 @@ dependencies {
     // Installs baseline profiles at first boot when present (startup performance).
     implementation(libs.androidx.profileinstaller)
 
-    // On-device LLM runtime (llama.cpp) and model downloader
-    implementation(project(":llama"))
+    // On-device inference. The encoder runs on ONNX Runtime Mobile; the model
+    // itself is downloaded separately (22 MB, SHA-256 verified) rather than
+    // shipped in the APK, so users who never opt in pay nothing for it.
+    implementation(libs.onnxruntime.android)
     implementation(libs.okhttp)
 
     // Room
