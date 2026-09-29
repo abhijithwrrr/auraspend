@@ -34,6 +34,29 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Native ABI filter. ONNX Runtime's prebuilt .so is ~95% of the app's
+        // footprint, so the ABI list is the single biggest size lever there is.
+        // Measured 2026-09-29, native payload per ABI:
+        //
+        //   arm64-v8a     17.5 MB   real consumer hardware
+        //   armeabi-v7a   12.7 MB   32-bit low-end hardware still ships
+        //   x86           20.6 MB   dropped — no device or current emulator
+        //   x86_64        21.0 MB   emulators and ChromeOS
+        //
+        // Dropping 32-bit x86 takes the release AAB from 35.4 MB to ~28 MB for
+        // hardware that does not exist: Android Studio no longer ships an x86
+        // image, and no consumer phone uses it. Play's 64-bit requirement is
+        // met by arm64-v8a.
+        //
+        // x86_64 STAYS, and not for emulator convenience. ChromeOS runs Android
+        // apps on x86_64, so dropping it makes the app uninstallable on
+        // Chromebooks — a user-facing loss, not a developer one. Lint enforces
+        // this: `ChromeOsAbiSupport` fails the build without it. Do not
+        // suppress that check to save the ~8 MB.
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+        }
     }
 
     flavorDimensions += "distribution"
