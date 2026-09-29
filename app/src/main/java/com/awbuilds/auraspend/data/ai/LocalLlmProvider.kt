@@ -4,10 +4,15 @@ import android.content.Context
 import android.util.Log
 
 /**
- * Provides the single [LocalLlm] used by the classification flow.
+ * Supplies the [OnDeviceClassifier] used by the classification flow.
  *
- * It returns the llama.cpp-backed adapter when the native runtime is linked; otherwise it safely
- * returns [UnavailableLlm] so the app keeps working with regex-based classification.
+ * This is the single place a runtime is chosen, and the single place the app
+ * degrades. When the native runtime cannot be linked it returns
+ * [UnavailableClassifier] rather than throwing, so the app keeps working on
+ * regex-only classification — the property that makes swapping runtimes safe.
+ *
+ * Cached permanently once built: a failed native link is a build/packaging fact,
+ * not a transient one, so retrying it on every message would only add log noise.
  */
 object LocalLlmProvider {
 
@@ -17,37 +22,44 @@ object LocalLlmProvider {
     private var appContext: Context? = null
 
     @Volatile
-    private var delegate: LocalLlm? = null
+    private var delegate: OnDeviceClassifier? = null
 
     fun init(context: Context) {
         appContext = context.applicationContext
     }
 
-    /** True when a downloaded, usable model is present. */
+    /** True when a downloaded, usable model is present **and** a runtime is linked. */
     fun isReady(context: Context): Boolean =
-        ModelConstants.isDownloaded(context) && get() !is UnavailableLlm
+        ModelConstants.isDownloaded(context) && get() !is UnavailableClassifier
 
-    /**
-     * Returns the shared runtime, building it lazily. Never returns null; falls back to
-     * [UnavailableLlm] when the native library cannot be loaded (e.g. not built into the APK).
-     */
-    fun get(): LocalLlm {
+    /** Returns the shared classifier, building it lazily. Never null. */
+    fun get(): OnDeviceClassifier {
         delegate?.let { return it }
         synchronized(this) {
             delegate?.let { return it }
             val ctx = appContext
-                ?: run { Log.w(TAG, "LocalLlmProvider used before init()"); return UnavailableLlm }
-            val llm = try {
-                LlamaCppLlm(ctx).also { Log.i(TAG, "llama.cpp runtime initialised") }
-            } catch (e: UnsatisfiedLinkError) {
-                Log.w(TAG, "Native llama.cpp runtime unavailable; using regex fallback", e)
-                UnavailableLlm
-            } catch (e: Throwable) {
-                Log.w(TAG, "Failed to initialise llama.cpp runtime; using regex fallback", e)
-                UnavailableLlm
+            if (ctx == null) {
+                Log.w(TAG, "LocalLlmProvider used before init()")
+                return UnavailableClassifier
             }
-            delegate = llm
-            return llm
+            val classifier = build(ctx)
+            delegate = classifier
+            return classifier
         }
+    }
+
+    private fun build(context: Context): OnDeviceClassifier = try {
+        LlamaCppClassifier(context).also { Log.i(TAG, "on-device classifier ready: ${it.id}") }
+    } catch (e: UnsatisfiedLinkError) {
+        Log.w(TAG, "Native runtime unavailable; using regex fallback", e)
+        UnavailableClassifier
+    } catch (e: Throwable) {
+        Log.w(TAG, "Failed to initialise on-device runtime; using regex fallback", e)
+        UnavailableClassifier
+    }
+
+    /** Test seam: swap the runtime without touching production wiring. */
+    internal fun overrideForTest(classifier: OnDeviceClassifier?) {
+        delegate = classifier
     }
 }

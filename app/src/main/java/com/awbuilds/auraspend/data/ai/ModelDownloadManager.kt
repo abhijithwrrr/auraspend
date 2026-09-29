@@ -21,6 +21,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
 import java.io.IOException
+import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -202,11 +203,37 @@ object ModelDownloadManager {
         if (partial.length() < ModelConstants.MIN_SIZE_BYTES) {
             throw IOException("Downloaded file is too small: ${partial.length()} bytes")
         }
+        // Size alone cannot distinguish a truncated download from a corrupt or
+        // substituted file, and this file is then executed on-device. Hash it
+        // before it is allowed anywhere near the models directory.
+        verifyChecksum(partial)
         if (target.exists()) target.delete()
         if (!partial.renameTo(target)) {
             // Cross-filesystem fallback: stream the file instead of loading 400 MB into RAM.
             partial.inputStream().use { input -> target.outputStream().use { out -> input.copyTo(out) } }
             partial.delete()
+        }
+    }
+
+    /** Streams the file through SHA-256 and compares it with the pinned digest. */
+    private fun verifyChecksum(file: File) {
+        val expected = ModelConstants.EXPECTED_SHA256.lowercase()
+        val digest = MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (true) {
+                if (cancelRequested.get()) throw CancelledDownloadException()
+                val read = input.read(buffer)
+                if (read <= 0) break
+                digest.update(buffer, 0, read)
+            }
+        }
+        val actual = digest.digest().joinToString("") { "%02x".format(it) }
+        if (actual != expected) {
+            // Delete rather than keep: a file that failed verification must never
+            // be retried as if it were a resumable partial.
+            file.delete()
+            throw IOException("Model checksum mismatch.\n  expected $expected\n  actual   $actual")
         }
     }
 

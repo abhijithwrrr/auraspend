@@ -46,6 +46,9 @@ class SmsPipelineProcessorTest {
         }
 
         override suspend fun getMaxReceivedAt(): Long = rows.values.maxOfOrNull { it.receivedAt } ?: 0L
+
+        // Added for the atomic Drive restore path; unused by these tests.
+        override suspend fun clear() = rows.clear()
     }
 
     private class FakeTransactionRepository : com.awbuilds.auraspend.TestTransactionRepositoryDefaults {

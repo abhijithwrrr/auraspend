@@ -71,7 +71,7 @@ class AiOutputParsingTest {
         val out = "```json\n{\"is_transaction\":true,\"type\":\"expense\",\"category\":\"Transport\",\"merchant\":\"Uber\",\"subscription\":false}\n```"
         val r = categorizer().parse(out, categories)
         assertNotNull(r)
-        assertEquals("cat_transport", r!!.categoryId)
+        assertEquals("cat_transport", r!!.category)
         assertEquals(TransactionType.EXPENSE, r.type)
     }
 
@@ -89,31 +89,31 @@ class AiOutputParsingTest {
     @Test
     fun `case and punctuation differences still resolve`() {
         val r = categorizer().parse("""{"category":"FOOD & DINING!"}""", categories)
-        assertEquals("cat_food", r!!.categoryId)
+        assertEquals("cat_food", r!!.category)
     }
 
     @Test
     fun `partial names resolve by containment`() {
         val r = categorizer().parse("""{"category":"food"}""", categories)
-        assertEquals("cat_food", r!!.categoryId)
+        assertEquals("cat_food", r!!.category)
     }
 
     @Test
     fun `word overlap resolves salary`() {
         val r = categorizer().parse("""{"category":"monthly salary income"}""", categories)
-        assertEquals("cat_salary", r!!.categoryId)
+        assertEquals("cat_salary", r!!.category)
     }
 
     @Test
     fun `none maps to other not subscription`() {
         val r = categorizer().parse("""{"category":"none","subscription":false}""", categories)
-        assertEquals("cat_other", r!!.categoryId)
+        assertEquals("cat_other", r!!.category)
         assertFalse(r.isSubscription)
     }
 
     @Test
     fun `unknown name falls back to other`() {
         val r = categorizer().parse("""{"category":"quantum entanglement"}""", categories)
-        assertEquals("cat_other", r!!.categoryId)
+        assertEquals("cat_other", r!!.category)
     }
 }
