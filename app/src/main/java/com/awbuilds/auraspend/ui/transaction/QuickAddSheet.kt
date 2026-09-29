@@ -82,7 +82,12 @@ fun QuickAddSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        tonalElevation = 0.dp
+        tonalElevation = 0.dp,
+        // The sheet grows taller than the usable height once the keypad is in it,
+        // so the default insets left the "Merchant (optional)" field underneath
+        // the system navigation bar and unreachable. Found on-device
+        // 2026-09-29: the field was half-hidden and untappable.
+        contentWindowInsets = { WindowInsets.navigationBars },
     ) {
         Column(
             modifier = Modifier

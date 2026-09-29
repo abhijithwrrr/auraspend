@@ -135,6 +135,11 @@ class ClassificationViewModel(
                     AutoClassificationWorker.runNow(context)
                 }
             }
+            is ClassificationViewIntent.DismissModelConsent -> {
+                // Decline without recording consent. The offer stops showing here,
+                // and Settings can still start the download later.
+                _state.update { it.copy(consentRequired = false) }
+            }
             is ClassificationViewIntent.StartModelDownload -> {
                 _state.update { it.copy(consentRequired = false) }
                 ModelDownloadManager.start(context)

@@ -16,7 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.FileDownload
@@ -105,6 +105,13 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .statusBarsPadding()
+                // Settings is a pushed screen with no AuraBottomBar of its own, so
+                // nothing else kept the list clear of the system navigation bar —
+                // the last row ("Categories") sat under it and could not be read or
+                // tapped. Found on-device 2026-09-29. Applied before
+                // verticalScroll so the viewport itself ends above the bar and the
+                // final item can still be scrolled fully into view.
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
         ) {
         Row(
@@ -454,12 +461,25 @@ private fun AiModelSection(
                 stringResource(R.string.settings_ai_missing_subtitle)
     }
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = AuraSpacing.sm)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        // Alignment.Top, not CenterVertically: `title` is one or two lines and
+        // the subtitle can be three (see settings_ai_missing_subtitle), so
+        // vertically centring the glyph floated it beside whichever line happened
+        // to be in the middle instead of sitting on the title. Caught on-device
+        // 2026-09-29, where the icon hung below the words "Local AI not
+        // downloaded".
+        Row(verticalAlignment = Alignment.Top) {
             Icon(
-                Icons.Default.Android,
+                // AutoAwesome, not the stock Android robot. A platform logo is
+                // the wrong mark for a feature the user switches on, and AGENTS.md
+                // keeps chrome on the Aurora token set rather than default
+                // Material glyphs. Matches the Smart Add quick action.
+                Icons.Default.AutoAwesome,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier
+                    .size(22.dp)
+                    // Nudge to the optical centre of a titleSmall line box.
+                    .padding(top = 1.dp)
             )
             Spacer(modifier = Modifier.width(AuraSpacing.md))
             Column(modifier = Modifier.weight(1f)) {

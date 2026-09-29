@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.awbuilds.auraspend.core.AuraLog
 import com.awbuilds.auraspend.domain.model.Budget
+import com.awbuilds.auraspend.domain.model.RecurringCost
 import com.awbuilds.auraspend.domain.model.BudgetPeriod
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.Subscription
@@ -137,7 +138,10 @@ class DashboardViewModel(
                 categories = sup.categories,
                 budgets = budgets,
                 activeSubscriptions = sup.subscriptions,
-                totalSubscriptionCost = sup.subscriptions.sumOf { sub -> sub.amount },
+                // Monthly-equivalent, not the raw sum. Summing raw amounts counted
+                // a YEARLY charge twelve times over, so this card disagreed with
+                // the Plan hub about the same figure. See RecurringCost.
+                totalSubscriptionCost = RecurringCost.monthlyTotal(sup.subscriptions),
                 dailySpending = dailySpending,
                 categoryMonthTotals = categoryTotals,
                 isLoading = false,

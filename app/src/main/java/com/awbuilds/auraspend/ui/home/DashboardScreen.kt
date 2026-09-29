@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.TransactionType
@@ -334,7 +335,10 @@ fun DashboardScreen(
                                 }
                                 Text(
                                     if (hideAmounts) stringResource(R.string.state_hidden_amount)
-                                    else stringResource(R.string.home_subscription_monthly, formatMoney(state.totalSubscriptionCost)),
+                                    else stringResource(
+                                        R.string.home_subscription_monthly,
+                                        formatMoney(state.totalSubscriptionCost, fractionDigits = 0)
+                                    ),
                                     style = AuraType.moneyMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
@@ -512,12 +516,25 @@ private fun BudgetCarouselCard(
             // Category names are user-entered and routinely longer than the ring's
             // row allows ("Food & dining" was clipped to "Food &"). Give the name
             // its own line so it is never silently truncated.
+            //
+            // Reserving two lines matters as much as allowing them: a card whose
+            // name wraps grew taller than its neighbours, so the amount beneath it
+            // sat at a different height across the carousel. Screenshot on-device
+            // 2026-09-29: "Food &" / "Dining" over "₹4,928" while "Grocery" over
+            // "₹7,299" — two baselines one row apart.
+            //
+            // heightIn, not height, so the reserve grows with the user's font scale
+            // instead of clipping at 200%.
+            val nameLineHeight = MaterialTheme.typography.titleSmall.lineHeight
             Text(
                 name,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.heightIn(
+                    min = with(LocalDensity.current) { nameLineHeight.toDp() } * 2
+                )
             )
         }
         Spacer(modifier = Modifier.height(AuraSpacing.md))

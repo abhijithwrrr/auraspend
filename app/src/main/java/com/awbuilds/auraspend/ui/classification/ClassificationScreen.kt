@@ -55,6 +55,10 @@ import com.awbuilds.auraspend.ui.theme.extendedColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 
@@ -140,6 +144,79 @@ fun ClassificationScreen(
                 )
             )
 
+        // The consent *modal* was removed when the model shrank from 468 MB to
+        // 22 MB (see handoff 0012). A blocking dialog is not warranted for a
+        // download the size of a photo, and the app is fully functional without the
+        // model — so the offer is an inline card on the classification tab, and the
+        // notification permission is requested from the accept action rather than
+        // from a modal the user cannot decline without reading 468 MB of preamble.
+        //
+        // It used to be a `LaunchedEffect` that fired `ConsentResult(true)` the
+        // instant this state became true, rendering nothing at all. On a fresh
+        // install that meant one tap on Smart Add silently downloaded the 22 MB
+        // model, enabled the auto-read toggle and ran an inbox scan — verified on
+        // device 2026-09-29: `files/models/minilm-l6-v2-q8.onnx`, 23,026,053 bytes,
+        // with no prompt on screen. It also contradicted the app's own promise
+        // (ADR 0008) that nothing happens without the user choosing it. Consent now
+        // requires the tap below.
+        if (state.consentRequired) {
+            val notificationPermissionLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { /* Accepted either way; the download proceeds regardless. */ }
+
+            AuraCard(
+                style = AuraCardStyle.Tonal,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AuraSpacing.gutter, vertical = AuraSpacing.sm),
+                contentPadding = PaddingValues(AuraSpacing.lg)
+            ) {
+                Text(
+                    stringResource(R.string.classification_local_ai_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.semantics { heading() }
+                )
+                Spacer(modifier = Modifier.height(AuraSpacing.xs))
+                Text(
+                    stringResource(R.string.classification_local_ai_message),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.extendedColors.textLight
+                )
+                Spacer(modifier = Modifier.height(AuraSpacing.md))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
+                ) {
+                    TextButton(
+                        onClick = {
+                            viewModel.handleIntent(
+                                ClassificationViewIntent.DismissModelConsent
+                            )
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.action_not_now))
+                    }
+                    Button(
+                        onClick = {
+                            if (isNotificationPermissionNeeded(context)) {
+                                notificationPermissionLauncher.launch(
+                                    Manifest.permission.POST_NOTIFICATIONS
+                                )
+                            }
+                            viewModel.handleIntent(
+                                ClassificationViewIntent.ConsentResult(true)
+                            )
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.classification_download_model_short))
+                    }
+                }
+            }
+        }
+
             when (selectedTab) {
                 0 -> PasteMessageTab(state, viewModel)
                 1 -> SmsListTab(state, viewModel, smsPermissionLauncher)
@@ -149,21 +226,6 @@ fun ClassificationScreen(
             (state.aiModelState as? AiModelState.Downloading)?.let { d ->
                 AiDownloadStatusBanner(progress = d.progress)
             }
-        }
-    }
-
-    // The consent *modal* was removed when the model shrank from 468 MB to
-    // 22 MB (see handoff 0012). A blocking dialog is not warranted for a
-    // download the size of a photo, and the app is fully functional without the
-    // model — so the offer is now inline on the classification tab, and the SMS
-    // notification permission is requested from the same action rather than from
-    // a modal the user cannot decline without reading 468 MB of preamble.
-    if (state.consentRequired) {
-        LaunchedEffect(Unit) {
-            if (isNotificationPermissionNeeded(context)) {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-            viewModel.handleIntent(ClassificationViewIntent.ConsentResult(true))
         }
     }
 

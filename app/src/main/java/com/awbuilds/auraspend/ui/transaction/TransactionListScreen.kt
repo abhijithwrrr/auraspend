@@ -34,6 +34,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.Category
+import com.awbuilds.auraspend.domain.model.RecurringCost
 import com.awbuilds.auraspend.domain.model.Transaction
 import com.awbuilds.auraspend.domain.model.TransactionType
 import com.awbuilds.auraspend.ui.designsystem.AuraEmptyState
@@ -45,6 +46,7 @@ import com.awbuilds.auraspend.ui.designsystem.TransactionEntryRow
 import com.awbuilds.auraspend.ui.designsystem.categoryColor
 import com.awbuilds.auraspend.ui.designsystem.categoryIconGlyph
 import com.awbuilds.auraspend.ui.designsystem.formatMoney
+import com.awbuilds.auraspend.ui.designsystem.formatSignedMoney
 import com.awbuilds.auraspend.ui.theme.extendedColors
 import java.time.LocalDate
 import java.time.ZoneId
@@ -439,9 +441,8 @@ private fun StickyGroupHeader(label: String, netAmount: Double) {
             color = MaterialTheme.extendedColors.textLight,
             modifier = Modifier.weight(1f)
         )
-        val sign = if (netAmount >= 0) "+" else "-"
         Text(
-            "$sign${formatMoney(abs(netAmount))}",
+            formatSignedMoney(netAmount),
             style = MaterialTheme.typography.labelMedium,
             color = if (netAmount >= 0) MaterialTheme.extendedColors.incomeAmount
             else MaterialTheme.extendedColors.expenseAmount

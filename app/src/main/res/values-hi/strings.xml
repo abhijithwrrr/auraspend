@@ -23,6 +23,7 @@
     <string name="action_remove">हटाएँ</string>
     <string name="action_dismiss">खारिज करें</string>
     <string name="action_duplicate">प्रतिलिपि बनाएँ</string>
+    <string name="action_not_now">अभी नहीं</string>
 
     <!-- Shared formats -->
     <string name="common_percent">%1$d%%</string>
@@ -158,7 +159,7 @@
     <string name="settings_theme_amoled">AMOLED</string>
     <string name="settings_dynamic_color">डायनामिक रंग</string>
     <string name="settings_dynamic_color_subtitle">अपने वॉलपेपर से मिलाएँ (Android 12+)</string>
-    <string name="settings_intelligent_features">बुद्धिमान सुविधाएँ</string>
+    <string name="settings_intelligent_features">स्मार्ट श्रेणियाँ</string>
     <string name="settings_data">डेटा</string>
     <string name="settings_export_csv">CSV में निर्यात करें</string>
     <string name="settings_export_csv_subtitle">लेन-देन को CSV फ़ाइल में सहेजें</string>
@@ -175,18 +176,18 @@
     <string name="settings_about_version">संस्करण 0.1.0 · Apache-2.0</string>
     <string name="settings_about_made_by">AW Builds द्वारा ❤️ से निर्मित</string>
     <string name="settings_view_github">GitHub पर देखें</string>
-    <string name="settings_ai_delete_title">AI मॉडल हटाएँ?</string>
-    <string name="settings_ai_delete_message">इससे स्थानीय मॉडल (~22 MB) हट जाएगा। आप इसे कभी भी फिर से डाउनलोड कर सकते हैं; आपके लेन-देन पर कोई असर नहीं पड़ेगा।</string>
+    <string name="settings_ai_delete_title">श्रेणीकर्ता हटाएँ?</string>
+    <string name="settings_ai_delete_message">इससे ऑन-डिवाइस श्रेणीकर्ता (~22 MB) हट जाएगा। आप इसे कभी भी फिर से डाउनलोड कर सकते हैं; आपके लेन-देन पर कोई असर नहीं पड़ेगा।</string>
     <string name="settings_ai_ready">स्मार्ट श्रेणियाँ चालू</string>
     <string name="settings_ai_ready_subtitle">संदेश डिवाइस पर ही वर्गीकृत होते हैं। कोई डेटा आपके फ़ोन से बाहर नहीं जाता।</string>
-    <string name="settings_ai_downloading">स्थानीय AI डाउनलोड हो रहा है</string>
+    <string name="settings_ai_downloading">श्रेणीकर्ता डाउनलोड हो रहा है</string>
     <string name="settings_ai_downloading_progress">%1$d%% पूर्ण…</string>
     <string name="settings_ai_failed">डाउनलोड विफल</string>
     <string name="settings_ai_failed_subtitle">अपना कनेक्शन जाँचें और फिर से प्रयास करें।</string>
     <string name="settings_ai_missing">स्थानीय AI डाउनलोड नहीं है</string>
     <string name="settings_ai_missing_subtitle">संदेशों को श्रेणियों, आय या खर्च में वर्गीकृत करने के लिए ~22 MB डाउनलोड करें। इसके बिना भी AuraSpend काम करता है।</string>
     <string name="settings_ai_delete_action">मॉडल हटाएँ</string>
-    <string name="settings_ai_download_action">मॉडल डाउनलोड करें</string>
+    <string name="settings_ai_download_action">श्रेणीकर्ता डाउनलोड करें</string>
     <string name="settings_auto_detect">संदेश स्वतः वर्गीकृत करें</string>
     <string name="settings_auto_detect_subtitle">डिवाइस के नए SMS पढ़ें और उन्हें स्वतः सहेजें।</string>
 
@@ -373,10 +374,11 @@
     <string name="classification_no_sms_title">कोई बैंक SMS संदेश नहीं मिला</string>
     <string name="classification_no_sms_message">पहचाने जाने पर नए बैंक संदेश यहाँ दिखाई देंगे।</string>
     <string name="classification_ai_progress">AI वर्गीकृत कर रहा है: %1$d / %2$d</string>
-    <string name="classification_local_ai_title">स्थानीय AI आवश्यक</string>
+    <string name="classification_local_ai_title">स्मार्ट श्रेणियाँ</string>
     <string name="classification_local_ai_message">AuraSpend आपके बैंक संदेश पहले से पढ़ता है। ऑन-डिवाइस श्रेणीकर्ता (~22 MB) जोड़ने से श्रेणी अधिक सही चुनी जाती है।</string>
     <string name="classification_downloading">डाउनलोड हो रहा है…</string>
     <string name="classification_download_model">स्मार्ट श्रेणियाँ जोड़ें (~22 MB)</string>
+    <string name="classification_download_model_short">(~22 MB) जोड़ें</string>
     <string name="classification_ai_categorizing">AI संदेशों को वर्गीकृत कर रहा है...</string>
     <string name="classification_reading_sms">बैंक संदेश पढ़े जा रहे हैं...</string>
     <string name="classification_scan_message">बैंक संदेशों को पहचानने और वर्गीकृत करने के लिए अपना इनबॉक्स स्कैन करें।</string>

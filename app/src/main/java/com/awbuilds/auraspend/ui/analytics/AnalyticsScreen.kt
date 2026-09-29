@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.domain.model.Category
@@ -52,6 +53,20 @@ private enum class StatsPeriod(val labelRes: Int) {
  * Insights — spending analytics with animated data visualisations and
  * month-over-month context.
  */
+/**
+ * Share of [total] as a whole percentage, never rounding a real amount to "0%".
+ *
+ * Truncating made a category with genuine spend read as zero: the demo data
+ * showed "Transport 0% ₹2,795" on-device, which looks like a bug next to a
+ * non-zero amount. Anything above zero now floors at 1%, so a slice can be
+ * small but never absent, and the legend still sums to a readable total.
+ */
+private fun sharePercent(amount: Double, total: Double): Int {
+    if (total <= 0.0 || amount <= 0.0) return 0
+    val percent = (amount / total * 100).toInt()
+    return if (percent == 0) 1 else percent
+}
+
 @Composable
 fun AnalyticsScreen(
     transactions: List<Transaction>,
@@ -114,7 +129,17 @@ fun AnalyticsScreen(
                 ts in prevStart until thisStart -> prevMonth += txn.amount
             }
         }
-        if (prevMonth <= 0.0) null else ((thisMonth - prevMonth) / prevMonth * 100).toInt()
+        if (prevMonth <= 0.0) {
+            null
+        } else {
+            val delta = ((thisMonth - prevMonth) / prevMonth * 100).toInt()
+            // Suppress rather than print a meaningless figure. With a near-empty
+            // previous month the ratio explodes: seeded demo data produced
+            // "↑ 46843% vs last month" on-device, which reads as a bug and tells
+            // the user nothing. Three digits is already past the point where a
+            // month-over-month percentage is interpretable.
+            if (abs(delta) > 999) null else delta
+        }
     }
 
     Column(
@@ -282,7 +307,7 @@ fun AnalyticsScreen(
                                     Text(
                                         stringResource(
                                             R.string.common_percent,
-                                            if (totalSpent > 0) (amount / totalSpent * 100).toInt() else 0
+                                            sharePercent(amount, totalSpent)
                                         ),
                                         style = MaterialTheme.typography.bodySmall,
                                         fontWeight = FontWeight.SemiBold,

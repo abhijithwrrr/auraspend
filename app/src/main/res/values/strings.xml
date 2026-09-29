@@ -22,6 +22,7 @@
     <string name="action_remove">Remove</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="action_duplicate">Duplicate</string>
+    <string name="action_not_now">Not now</string>
 
     <!-- Shared formats -->
     <string name="common_percent">%1$d%%</string>
@@ -160,7 +161,7 @@
     <string name="settings_theme_amoled">AMOLED</string>
     <string name="settings_dynamic_color">Dynamic color</string>
     <string name="settings_dynamic_color_subtitle">Match your wallpaper (Android 12+)</string>
-    <string name="settings_intelligent_features">Intelligent features</string>
+    <string name="settings_intelligent_features">Smart categories</string>
     <string name="settings_data">Data</string>
     <string name="settings_export_csv">Export to CSV</string>
     <string name="settings_export_csv_subtitle">Save transactions to a CSV file</string>
@@ -177,18 +178,18 @@
     <string name="settings_about_version">Version 0.1.0 · Apache-2.0</string>
     <string name="settings_about_made_by">Made with ❤️ by AW Builds</string>
     <string name="settings_view_github">View on GitHub</string>
-    <string name="settings_ai_delete_title">Delete AI model?</string>
-    <string name="settings_ai_delete_message">This removes the local model (~22 MB). You can re-download it anytime; your transactions are never affected.</string>
+    <string name="settings_ai_delete_title">Delete the categoriser?</string>
+    <string name="settings_ai_delete_message">This removes the on-device categoriser (~22 MB). You can re-download it anytime; your transactions are never affected.</string>
     <string name="settings_ai_ready">Smart categories on</string>
     <string name="settings_ai_ready_subtitle">Messages are categorised on-device. Nothing leaves your phone.</string>
-    <string name="settings_ai_downloading">Downloading local AI</string>
+    <string name="settings_ai_downloading">Downloading categoriser</string>
     <string name="settings_ai_downloading_progress">%1$d%% complete…</string>
     <string name="settings_ai_failed">Download failed</string>
     <string name="settings_ai_failed_subtitle">Check your connection and try again.</string>
     <string name="settings_ai_missing">Local AI not downloaded</string>
     <string name="settings_ai_missing_subtitle">Download ~22 MB to categorise messages into categories, income or expense. AuraSpend already works without it.</string>
     <string name="settings_ai_delete_action">Delete model</string>
-    <string name="settings_ai_download_action">Download model</string>
+    <string name="settings_ai_download_action">Download categoriser</string>
     <string name="settings_auto_detect">Auto-categorize messages</string>
     <string name="settings_auto_detect_subtitle">Read new device SMS and save them automatically.</string>
 
@@ -388,10 +389,11 @@
     <string name="classification_no_sms_title">No bank SMS messages found</string>
     <string name="classification_no_sms_message">New bank messages will appear here once detected.</string>
     <string name="classification_ai_progress">AI is categorizing: %1$d of %2$d</string>
-    <string name="classification_local_ai_title">Local AI Required</string>
+    <string name="classification_local_ai_title">Smart categories</string>
     <string name="classification_local_ai_message">AuraSpend already reads your bank messages. Adding the on-device categoriser (~22 MB) improves which category each one lands in.</string>
     <string name="classification_downloading">Downloading…</string>
     <string name="classification_download_model">Add smart categories (~22 MB)</string>
+    <string name="classification_download_model_short">Add (~22 MB)</string>
     <string name="classification_ai_categorizing">AI is categorizing messages...</string>
     <string name="classification_reading_sms">Reading bank messages...</string>
     <string name="classification_scan_message">Scan your inbox to detect and categorize bank messages.</string>
