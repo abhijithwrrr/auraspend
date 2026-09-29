@@ -2,6 +2,54 @@
 
 Durable decisions with context. Latest first.
 
+## D10 — Score the system, never the model (2026-09-29)
+The measured lesson of the runtime bake-off, and the one most likely to be
+relearned expensively. Qwen and SmolLM2 both scored **29.2% standalone** and
+reached opposite conclusions once fused into the pipeline, because the pipeline
+is where a veto becomes a deletion. Judge every candidate with `FusedAiEval`
+against the fused regex floor (13.8% exact, type 95.4%, category 36.9%), not
+with a standalone prompt benchmark. Corollary: **size does not predict
+quality.** Across a 21× size range the destruction rate ran 43 → 8 → 5 → 0,
+non-monotonic — the 4.7×-smaller SmolLM2 deleted *more* than Qwen.
+
+## D9 — A model may never delete a transaction on a bare boolean (2026-09-12 → refined 2026-09-29)
+`AiSignalFusion` nulls `amount` and `type` on a "not a transaction" verdict, and
+the pipeline's unresolved-fields gate then drops the row — so a false veto
+*deletes* a real debit rather than mis-filing it. Measured destruction rates:
+43/46 (SmolLM2), 8/46 (Qwen2.5-0.5B), 5/46 (FunctionGemma-270M), **0/46 (the
+shipped encoder)**. `mayDiscard` therefore requires *both*
+`isTransactionProbability >= 0.9` *and* `base.amount == null`. Confidence alone
+is not enough, because the regex layer reading a message correctly is the
+stronger signal. A runtime that cannot supply a probability reports `null` and
+keeps the old behaviour — never fabricate one, since a higher probability is
+licence to discard. "Destroyed" outranks "exact match" in every model decision.
+
+## D8 — 22 MB encoder replaces the 468 MB decoder (2026-09-29)
+Five runtimes were measured through the production pipeline; a quantised
+MiniLM-L6-v2 ONNX **encoder** won. It is the first runtime that is not a text
+generator, which matters structurally: an encoder emits no text, so it cannot
+fabricate a "not a transaction" verdict in the first place. It is also the only
+one that supplies `isTransactionProbability`, the field `mayDiscard` has
+required since D9. llama.cpp was removed entirely (`:llama`,
+`third_party/llama.cpp`, `llama-lib/`, the GGUF prompt/parser,
+`ModelConsentDialog`) rather than kept as a fallback, and the blocking consent
+modal was replaced by an inline offer — a 22 MB download does not warrant a
+modal. Handoffs 0011–0013.
+
+## D7 — Distribution flavors carry no features, no analytics, no ads (2026-09-29)
+Question: should the Play build add analytics, ads and premium gating that the
+GitHub/F-Droid build lacks? A standard open-source model, and it was considered
+rather than refused. Three findings decided it. (1) The app's promise is an
+*on-screen* claim, not a policy page: onboarding says a local AI "never uploads
+your data", so an SDK in one flavor makes the Play listing contradict the first
+run screen of the same APK. (2) D4 already ruled on gating. (3) Both flavor
+source sets were empty, so nothing needed unwinding. Both published builds are
+feature-identical; flavors carry distribution config only. No feature may live
+in `src/play/` that is absent from `main/` — that invariant is what makes the
+free build incapable of being a degraded build, and F-Droid (which builds from
+source and accepts only FOSS) requires it. See ADR 0008. Consequence accepted:
+no crash insight beyond what users volunteer.
+
 ## D1 — Aurora purple replaces Cashew blue (2026-09-12)
 The app icon and landing page already use purple (#5E3A8B / #6750A4 / #C4A6E6);
 the in-app theme was Cashew blue (#1B447A). The rebuild adopts the existing

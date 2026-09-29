@@ -186,6 +186,14 @@ rebuilt (P1–P3), then delete the shim.
   that floor *standalone* may still be worse in the pipeline — Qwen and
   SmolLM2 both score 29.2 % standalone and reached opposite conclusions. Judge
   every candidate with `FusedAiEval`.
+- **The `free`/`play` flavors are distribution-only and feature-identical.** No
+  feature may live in `app/src/play/` that is absent from `app/src/main/`; only
+  services and configuration may differ. **Neither build may carry analytics, ads
+  or any telemetry** — the app's on-screen claim is that bank SMS never leaves
+  the device, and an SDK in one flavor would make that claim false and the store
+  listing self-contradictory. There is no paywall and no in-app purchase; every
+  feature ships in every build. Do not reintroduce premium gating (ADR 0007),
+  and do not add a Play-only capability without superseding ADR 0008.
 - **A model may never delete a transaction on a bare boolean.** A model "not a
   transaction" verdict nulls `amount` and `type` in `AiSignalFusion`, and the
   pipeline's unresolved-fields gate then drops the row — so a false veto
