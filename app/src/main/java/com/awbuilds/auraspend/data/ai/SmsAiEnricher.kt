@@ -6,6 +6,7 @@ import com.awbuilds.auraspend.data.classification.AiSignalFusion
 import com.awbuilds.auraspend.data.classification.ClassificationMemory
 import com.awbuilds.auraspend.data.classification.ClassifiedSms
 import com.awbuilds.auraspend.domain.model.TransactionType
+import kotlinx.coroutines.CancellationException
 
 /**
  * Enriches heuristic classification results, in order of trust:
@@ -21,12 +22,15 @@ class SmsAiEnricher(
     private val memory: ClassificationMemory? = null
 ) {
 
-    private val categorizer: QwenMessageCategorizer? = run {
-        if (ModelConstants.isDownloaded(context) && LocalLlmProvider.get() !is UnavailableLlm) {
-            QwenMessageCategorizer(
-                llm = LocalLlmProvider.get(),
-                modelFile = ModelConstants.modelFile(context)
-            )
+    /**
+     * Resolved once at construction, so the model-download check and the
+     * native-link check are frozen for the life of this batch. Null means "no
+     * runtime", which the fusion layer treats as regex-only.
+     */
+    private val classifier: OnDeviceClassifier? = run {
+        val runtime = LocalLlmProvider.get()
+        if (ModelConstants.isDownloaded(context) && runtime !is UnavailableClassifier) {
+            runtime
         } else {
             null
         }
@@ -55,12 +59,15 @@ class SmsAiEnricher(
 
         // 2. LLM fusion when available; regex-only fusion otherwise. Both paths apply
         //    recurring-keyword / known-subscription-service detection.
-        val cat = categorizer
-        val ai = if (cat != null) {
+        val runtime = classifier
+        val ai = if (runtime != null) {
             try {
-                cat.categorise(classified.sms.body, categoryIdByName)
+                runtime.extract(classified.sms.body, categoryIdByName)
+            } catch (e: CancellationException) {
+                // Never swallow cancellation: the caller's coroutine scope owns it.
+                throw e
             } catch (e: Exception) {
-                Log.w(TAG, "LLM categorisation crashed; using regex result", e)
+                Log.w(TAG, "On-device categorisation crashed; using regex result", e)
                 null
             }
         } else null

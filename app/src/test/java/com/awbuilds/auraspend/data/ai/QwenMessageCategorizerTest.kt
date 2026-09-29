@@ -36,7 +36,7 @@ class QwenMessageCategorizerTest {
         val result = cat.parse("""{"type":"expense","category":"Food & Dining","merchant":"Swiggy","subscription":false}""", categories)
         assertNotNull(result)
         assertEquals(TransactionType.EXPENSE, result!!.type)
-        assertEquals("cat_food", result.categoryId)
+        assertEquals("cat_food", result.category)
         assertEquals("Swiggy", result.merchant)
         assertFalse(result.isSubscription)
     }
@@ -47,7 +47,7 @@ class QwenMessageCategorizerTest {
         val result = cat.parse("""{"type":"expense","category":"subscription","merchant":"Netflix","subscription":true}""", categories)
         assertNotNull(result)
         assertTrue(result!!.isSubscription)
-        assertEquals("cat_subscription", result.categoryId)
+        assertEquals("cat_subscription", result.category)
     }
 
     @Test
@@ -55,7 +55,7 @@ class QwenMessageCategorizerTest {
         val cat = categorizer()
         val result = cat.parse("""{"type":"expense","category":"Mystery","merchant":"x","subscription":false}""", categories)
         assertNotNull(result)
-        assertEquals("cat_other", result!!.categoryId)
+        assertEquals("cat_other", result!!.category)
     }
 
     @Test
@@ -85,7 +85,7 @@ class QwenMessageCategorizerTest {
         val cat = categorizer(llm = fake)
         val result = cat.categorise("INR 500 at Swiggy", categories)
         assertNotNull(result)
-        assertEquals("cat_food", result!!.categoryId)
+        assertEquals("cat_food", result!!.category)
         assertEquals(TransactionType.EXPENSE, result.type)
     }
 
@@ -130,7 +130,7 @@ class QwenMessageCategorizerTest {
         val result = cat.parse("""{"isTransaction":true,"type":"expense","category":"Transport","merchant":"Uber","subscription":false}""", categories)
         assertNotNull(result)
         assertTrue(result!!.isTransaction)
-        assertEquals("cat_transport", result.categoryId)
+        assertEquals("cat_transport", result.category)
     }
 
     @Test

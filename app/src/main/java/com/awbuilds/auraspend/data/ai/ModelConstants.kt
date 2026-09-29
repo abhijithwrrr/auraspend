@@ -19,11 +19,28 @@ object ModelConstants {
     /** Source of the model. Apache-2.0 licensed. */
     const val MODEL_URL = "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf"
 
-    /** Expected size in bytes (~397 MB). Used for validation against a truncated download. */
-    val EXPECTED_SIZE_BYTES: Long = 400 * 1024 * 1024L
+    /**
+     * Exact size of the published file, in bytes (468.6 MiB).
+     *
+     * The previous constant claimed 400 MiB, which is simply wrong — the
+     * consent dialog has been telling users the wrong download size, and the
+     * loose `MIN_SIZE_BYTES` below let a truncated file through.
+     */
+    val EXPECTED_SIZE_BYTES: Long = 491_400_032L
 
     /** Minimum acceptable size for a complete model (bytes). */
-    val MIN_SIZE_BYTES: Long = 350 * 1024 * 1024L
+    val MIN_SIZE_BYTES: Long = 450 * 1024 * 1024L
+
+    /**
+     * SHA-256 of the published file, taken from the upstream `x-linked-etag`
+     * header. Verified after download, before the model is moved into place.
+     *
+     * A size check alone cannot tell a truncated download from a corrupt one —
+     * or a substituted file of the right length. This matters more than usual
+     * here: the model is fetched over the network and then executed on-device.
+     */
+    const val EXPECTED_SHA256: String =
+        "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db"
 
     const val PREF_CONSENT_GIVEN = "ai_model_consent_given"
 
