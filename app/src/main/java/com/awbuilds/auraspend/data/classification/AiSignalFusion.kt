@@ -1,6 +1,6 @@
 package com.awbuilds.auraspend.data.classification
 
-import com.awbuilds.auraspend.data.ai.AiCategorisation
+import com.awbuilds.auraspend.data.ai.SmsExtraction
 import com.awbuilds.auraspend.domain.model.ParsedBankMessage
 import com.awbuilds.auraspend.domain.model.TransactionType
 
@@ -51,11 +51,11 @@ object AiSignalFusion {
         return subscriptionServices.any { svc -> haystack.contains(" $svc ") }
     }
 
-    fun fuse(regexParsed: ParsedBankMessage, ai: AiCategorisation?): Fused {
+    fun fuse(regexParsed: ParsedBankMessage, ai: SmsExtraction?): Fused {
         val base = regexParsed
 
-        if (ai != null && !ai.isTransaction) {
-            // LLM veto: not a transaction (OTP, promo, balance alert...).
+        if (ai != null && !ai.isTransaction && mayDiscard(ai, base)) {
+            // Model veto: not a transaction (OTP, promo, balance alert...).
             return Fused(base.copy(amount = null, type = null), isSubscription = false, usedAi = true)
         }
 
@@ -79,7 +79,7 @@ object AiSignalFusion {
         val resolvedCategory = when {
             isSubscription -> "cat_subscription"
             base.categoryId != null -> base.categoryId
-            else -> ai?.categoryId
+            else -> ai?.category
         }
 
         val resolvedMerchant = base.merchant ?: ai?.merchant
@@ -99,11 +99,47 @@ object AiSignalFusion {
         )
     }
 
+    /**
+     * Confidence above which a model may discard a transaction on its own.
+     *
+     * Deliberately high, and deliberately not the only condition. A false veto
+     * does not mis-file a transaction — it deletes it, because the pipeline
+     * skips any row whose amount or type is unresolved. Measured rates of
+     * "not a transaction" on real transactions were 7/46 (Qwen2.5-0.5B) and
+     * 40/46 (SmolLM2-135M), so the model is far more often wrong about this
+     * than right and the bar has to reflect that.
+     */
+    const val DISCARD_MIN_CONFIDENCE = 0.9f
+
+    /**
+     * Whether a model verdict is allowed to discard a parsed transaction.
+     *
+     * Two independent conditions, both required:
+     *
+     *  - the model must be *confident*, and
+     *  - the regex layer must not have found an amount.
+     *
+     * The second is the important one. A message the parser could not read has
+     * nothing worth protecting, so a confident verdict can safely clear it. A
+     * message the parser *did* read is exactly the case where the model is most
+     * likely to be wrong, and where discarding destroys real data. Confidence
+     * alone is not sufficient.
+     *
+     * A runtime with no calibrated head (llama.cpp) reports null, and keeps the
+     * previous unconditional behaviour — so this change is behaviour-preserving
+     * for the shipped model, and only a runtime that can actually express doubt
+     * is constrained by it.
+     */
+    private fun mayDiscard(ai: SmsExtraction, base: ParsedBankMessage): Boolean {
+        val probability = ai.isTransactionProbability ?: return true
+        return probability >= DISCARD_MIN_CONFIDENCE && base.amount == null
+    }
+
     private fun computeConfidence(
         regexConfidence: Float,
         regexType: TransactionType?,
         fusedType: TransactionType?,
-        ai: AiCategorisation?
+        ai: SmsExtraction?
     ): Float {
         var confidence = regexConfidence
         when {

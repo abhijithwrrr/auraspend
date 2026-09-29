@@ -10,14 +10,8 @@ import java.io.File
  * The LLM handles the parts regex is bad at: subscription detection, category selection and
  * income-vs-expense. Amount/merchant/date stay with the existing parser (BankMessageParser).
  */
-data class AiCategorisation(
-    val isTransaction: Boolean,
-    val type: TransactionType?,
-    val categoryId: String?,
-    val isSubscription: Boolean,
-    val merchant: String?,
-    val rawModelOutput: String
-)
+/** Superseded by [SmsExtraction], which is runtime-agnostic. */
+typealias AiCategorisation = SmsExtraction
 
 /**
  * Builds prompts for Qwen2.5-0.5B-Instruct and parses its strict JSON output into an
@@ -36,7 +30,23 @@ data class AiCategorisation(
 class QwenMessageCategorizer(
     private val llm: LocalLlm?,
     private val modelFile: File
-) {
+) : OnDeviceClassifier {
+
+    override val id: String = "llama.cpp"
+
+    /**
+     * The [OnDeviceClassifier] entry point. Adapts the existing prompt-and-parse
+     * pipeline unchanged; a grammar-constrained runtime would implement this
+     * directly instead of going through text at all.
+     */
+    override suspend fun extract(
+        smsBody: String,
+        categoryIdByName: Map<String, String>
+    ): SmsExtraction? = categorise(smsBody, categoryIdByName)
+
+    override fun close() {
+        llm?.close()
+    }
 
     companion object {
         private const val TAG = "QwenCategorizer"
@@ -176,13 +186,20 @@ class QwenMessageCategorizer(
             else -> type != null
         }
 
-        return AiCategorisation(
+        return SmsExtraction(
             isTransaction = isTransaction,
             type = type,
-            categoryId = categoryId,
-            isSubscription = isSubscription,
+            category = categoryId,
             merchant = merchant,
-            rawModelOutput = trimmed
+            isSubscription = isSubscription,
+            rawModelOutput = trimmed,
+            // Deliberately null. A GGUF generation carries no calibrated score,
+            // and the prompt only asks for a boolean. Fabricating a number here
+            // would be worse than useless: `AiSignalFusion` treats a *higher*
+            // probability as licence to discard a real transaction, so an
+            // invented 0.99 would be actively dangerous. Null means "this
+            // runtime cannot say", and null preserves the existing behaviour.
+            isTransactionProbability = null
         )
     }
 
