@@ -55,6 +55,7 @@ import com.awbuilds.auraspend.ui.theme.extendedColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.awbuilds.auraspend.ui.designsystem.SwipeToAct
 
 @OptIn(ExperimentalMaterial3Api::class)
 
@@ -169,7 +170,8 @@ private fun formatTimestamp(timestamp: Long): String {
 internal fun AutoDetectTab(
     state: ClassificationViewState,
     viewModel: ClassificationViewModel,
-    permissionLauncher: androidx.activity.result.ActivityResultLauncher<String>
+    permissionLauncher: androidx.activity.result.ActivityResultLauncher<String>,
+    onTriageSwipe: (smsId: String, save: Boolean) -> Unit = { _, _ -> }
 ) {
     val isModelDownloaded = state.aiModelState is AiModelState.Ready
 
@@ -328,29 +330,32 @@ internal fun AutoDetectTab(
                         )
                     } else {
                         // Triage inbox: swipe right to save, left to dismiss.
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = { value ->
+                        //
+                        // This used to pass `confirmValueChange`, which is deprecated
+                        // without replacement in this Compose version — the callback is
+                        // never called, so the card parked at the swiped anchor showing
+                        // a full-height green or red block with the content translated
+                        // away, and the action was never dispatched. Caught on-device
+                        // 2026-09-29: after swiping, the list still read "6 messages
+                        // found" and the cards reset on re-entry, i.e. the gesture did
+                        // nothing at all.
+                        //
+                        // `SwipeToAct` drives it from the state that actually settles.
+                        // Both actions are undoable — a save creates a transaction and a
+                        // dismiss hides a message, so neither should be one accidental
+                        // gesture from being permanent.
+                        SwipeToAct(
+                            onAction = { value ->
                                 when (value) {
-                                    SwipeToDismissBoxValue.StartToEnd -> {
-                                        viewModel.handleIntent(
-                                            ClassificationViewIntent.SaveClassifiedSms(classified.sms.id)
-                                        )
-                                        true
-                                    }
-                                    SwipeToDismissBoxValue.EndToStart -> {
-                                        viewModel.handleIntent(
-                                            ClassificationViewIntent.DismissClassifiedSms(classified.sms.id)
-                                        )
-                                        true
-                                    }
-                                    else -> false
+                                    SwipeToDismissBoxValue.StartToEnd ->
+                                        onTriageSwipe(classified.sms.id, true)
+                                    SwipeToDismissBoxValue.EndToStart ->
+                                        onTriageSwipe(classified.sms.id, false)
+                                    else -> Unit
                                 }
-                            }
-                        )
-                        SwipeToDismissBox(
-                            state = dismissState,
+                            },
                             modifier = Modifier.animateItem(),
-                            backgroundContent = { TriageSwipeBackground(dismissState.dismissDirection) }
+                            backgroundContent = { direction -> TriageSwipeBackground(direction) }
                         ) {
                             ClassifiedSmsItem(
                                 classified = classified,

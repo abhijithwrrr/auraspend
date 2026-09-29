@@ -84,6 +84,16 @@ sealed class ClassificationViewIntent {
      * downloadable later from Settings.
      */
     object DismissModelConsent : ClassificationViewIntent()
+    /**
+     * Reverse a triage "swipe right to save". Removes the transaction the save
+     * created and returns the message to the inbox, so the gesture is safe to
+     * perform by accident — which matters because it is a swipe.
+     */
+    data class UndoSaveClassifiedSms(val smsId: String) : ClassificationViewIntent()
+
+    /** Reverse a triage "swipe left to dismiss": put the message back in the queue. */
+    data class UndoDismissClassifiedSms(val smsId: String) : ClassificationViewIntent()
+
     object StartModelDownload : ClassificationViewIntent()
     object CancelModelDownload : ClassificationViewIntent()
     object RefreshAiModelState : ClassificationViewIntent()

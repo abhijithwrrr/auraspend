@@ -389,6 +389,8 @@
     </plurals>
     <string name="classification_save_all">सभी सहेजें</string>
     <string name="classification_swipe_hint">सहेजने के लिए दाएँ स्वाइप करें · खारिज करने के लिए बाएँ</string>
+    <string name="classification_sms_saved">लेन-देन में सहेजा गया</string>
+    <string name="classification_sms_dismissed">संदेश छोड़ दिया गया</string>
     <string name="classification_save_desc">लेन-देन सहेजें</string>
     <string name="classification_dismiss_desc">संदेश खारिज करें</string>
     <string name="classification_saved">सहेजा गया</string>

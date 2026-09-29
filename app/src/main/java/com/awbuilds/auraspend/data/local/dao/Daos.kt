@@ -108,6 +108,15 @@ interface TransactionDao {
     @Query("DELETE FROM transactions WHERE id = :id")
     suspend fun deleteTransactionById(id: String)
 
+    /**
+     * The transaction created from a bank SMS, if any. Undo for "swipe right to
+     * save" in the triage inbox needs to find the row it just created, and the
+     * only durable link between the two is `sourceSmsId` — the SMS provider's
+     * `_id`, which the classifier already stamps onto the transaction.
+     */
+    @Query("SELECT * FROM transactions WHERE sourceSmsId = :smsId LIMIT 1")
+    suspend fun getTransactionBySourceSmsId(smsId: String): TransactionEntity?
+
     /** Used only by the atomic Drive restore, which replaces the table wholesale. */
     @Query("DELETE FROM transactions")
     suspend fun clear()

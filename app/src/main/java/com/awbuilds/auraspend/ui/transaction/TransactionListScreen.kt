@@ -54,6 +54,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.abs
 import kotlinx.coroutines.launch
+import com.awbuilds.auraspend.ui.designsystem.SwipeToAct
 
 private enum class TxnFilter(val labelRes: Int, val type: TransactionType?) {
     ALL(R.string.activity_filter_all, null),
@@ -328,17 +329,20 @@ fun TransactionListScreen(
                         }
                         item(key = transaction.id, contentType = "transaction") {
                             val category = categories.find { it.id == transaction.categoryId }
-                            val dismissState = rememberSwipeToDismissBoxState(
-                                confirmValueChange = {
-                                    if (it == SwipeToDismissBoxValue.EndToStart) {
+                            // Swipe left to delete, with undo. See `SwipeToAct` for
+                            // why this is not a bare `SwipeToDismissBox`:
+                            // `confirmValueChange` is deprecated without replacement, so
+                            // the row used to animate to its anchor, paint a red delete
+                            // block, and change nothing. Found on-device 2026-09-29.
+                            SwipeToAct(
+                                onAction = { value ->
+                                    if (value == SwipeToDismissBoxValue.EndToStart) {
                                         deleteWithUndo(transaction)
-                                        true
-                                    } else false
-                                }
-                            )
-                            SwipeToDismissBox(
-                                state = dismissState,
-                                backgroundContent = {
+                                    }
+                                },
+                                modifier = Modifier.animateItem(),
+                                enabledFromStartToEnd = false,
+                                backgroundContent = { _ ->
                                     Box(
                                         modifier = Modifier
                                             .fillMaxSize()
@@ -353,9 +357,7 @@ fun TransactionListScreen(
                                             modifier = Modifier.padding(horizontal = AuraSpacing.xxl)
                                         )
                                     }
-                                },
-                                enableDismissFromStartToEnd = false,
-                                modifier = Modifier.animateItem()
+                                }
                             ) {
                                 TransactionEntryRow(
                                     transaction = transaction,
