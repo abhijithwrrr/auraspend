@@ -27,6 +27,17 @@ data class ClassificationViewState(
     val smsMessages: List<SmsInfo> = emptyList(),
     val smsPermissionGranted: Boolean = false,
     val classifiedSmsList: List<ClassifiedSms> = emptyList(),
+
+    /**
+     * The triage inbox: only messages still awaiting a decision.
+     *
+     * Saved and dismissed messages leave this list, so handling one is a
+     * one-way action on screen — undo puts it back by reverting the status,
+     * which the observer reflows into this list. [classifiedSmsList] stays the
+     * full queue and is kept for lookups that need it (`saveAllClassified`,
+     * `saveClassifiedSms`).
+     */
+    val pendingSmsList: List<ClassifiedSms> = emptyList(),
     val isBatchClassifying: Boolean = false,
     val isSavingAll: Boolean = false,
 

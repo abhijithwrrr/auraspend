@@ -212,7 +212,7 @@ internal fun AutoDetectTab(
                 }
             }
         }
-    } else if (state.isBatchClassifying || (state.isAiEnriching && state.classifiedSmsList.isEmpty())) {
+    } else if (state.isBatchClassifying || (state.isAiEnriching && state.pendingSmsList.isEmpty())) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -231,7 +231,7 @@ internal fun AutoDetectTab(
                 )
             }
         }
-    } else if (state.classifiedSmsList.isEmpty()) {
+    } else if (state.pendingSmsList.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -286,12 +286,12 @@ internal fun AutoDetectTab(
                         Text(
                             pluralStringResource(
                                 R.plurals.classification_messages_found,
-                                state.classifiedSmsList.size,
-                                state.classifiedSmsList.size
+                                state.pendingSmsList.size,
+                                state.pendingSmsList.size
                             ),
                             style = MaterialTheme.typography.titleSmall
                         )
-                        if (state.classifiedSmsList.any { !it.isSaved }) {
+                        if (state.pendingSmsList.isNotEmpty()) {
                             Column(horizontalAlignment = Alignment.End) {
                                 Button(
                                     onClick = {
@@ -321,56 +321,52 @@ internal fun AutoDetectTab(
                         }
                     }
                 }
-                items(state.classifiedSmsList, key = { it.sms.id }) { classified ->
-                    if (classified.isSaved) {
+                items(state.pendingSmsList, key = { it.sms.id }) { classified ->
+                    // Triage inbox: swipe right to save, left to dismiss.
+                    //
+                    // Everything here is awaiting a decision — saved and dismissed
+                    // messages are filtered out by `pendingSmsList`, so this branch
+                    // used to carry a dead `if (classified.isSaved)` arm rendering a
+                    // saved card with no-op buttons. Handling a message now removes
+                    // it from the list; undo reverts the status and it returns.
+                    //
+                    // This used to pass `confirmValueChange`, which is deprecated
+                    // without replacement in this Compose version — the callback is
+                    // never called, so the card parked at the swiped anchor showing
+                    // a full-height green or red block with the content translated
+                    // away, and the action was never dispatched. Caught on-device
+                    // 2026-09-29: after swiping, the list still read "6 messages
+                    // found" and the cards reset on re-entry, i.e. the gesture did
+                    // nothing at all.
+                    //
+                    // `SwipeToAct` drives it from the state that actually settles.
+                    // Both actions are undoable — a save creates a transaction and a
+                    // dismiss hides a message, so neither should be one accidental
+                    // gesture from being permanent.
+                    SwipeToAct(
+                        onAction = { value ->
+                            when (value) {
+                                SwipeToDismissBoxValue.StartToEnd ->
+                                    onTriageSwipe(classified.sms.id, true)
+                                SwipeToDismissBoxValue.EndToStart ->
+                                    onTriageSwipe(classified.sms.id, false)
+                                else -> Unit
+                            }
+                        },
+                        modifier = Modifier.animateItem(),
+                        backgroundContent = { direction -> TriageSwipeBackground(direction) }
+                    ) {
                         ClassifiedSmsItem(
                             classified = classified,
-                            onSave = {},
-                            onDismiss = {}
+                            // Routed through the same callback as the swipe, so the
+                            // buttons and the gesture behave identically: both
+                            // remove the message from the inbox and both offer
+                            // undo. Dispatching the intent directly here gave the
+                            // buttons a permanent delete while the identical swipe
+                            // was undoable.
+                            onSave = { onTriageSwipe(classified.sms.id, true) },
+                            onDismiss = { onTriageSwipe(classified.sms.id, false) }
                         )
-                    } else {
-                        // Triage inbox: swipe right to save, left to dismiss.
-                        //
-                        // This used to pass `confirmValueChange`, which is deprecated
-                        // without replacement in this Compose version — the callback is
-                        // never called, so the card parked at the swiped anchor showing
-                        // a full-height green or red block with the content translated
-                        // away, and the action was never dispatched. Caught on-device
-                        // 2026-09-29: after swiping, the list still read "6 messages
-                        // found" and the cards reset on re-entry, i.e. the gesture did
-                        // nothing at all.
-                        //
-                        // `SwipeToAct` drives it from the state that actually settles.
-                        // Both actions are undoable — a save creates a transaction and a
-                        // dismiss hides a message, so neither should be one accidental
-                        // gesture from being permanent.
-                        SwipeToAct(
-                            onAction = { value ->
-                                when (value) {
-                                    SwipeToDismissBoxValue.StartToEnd ->
-                                        onTriageSwipe(classified.sms.id, true)
-                                    SwipeToDismissBoxValue.EndToStart ->
-                                        onTriageSwipe(classified.sms.id, false)
-                                    else -> Unit
-                                }
-                            },
-                            modifier = Modifier.animateItem(),
-                            backgroundContent = { direction -> TriageSwipeBackground(direction) }
-                        ) {
-                            ClassifiedSmsItem(
-                                classified = classified,
-                                onSave = {
-                                    viewModel.handleIntent(
-                                        ClassificationViewIntent.SaveClassifiedSms(classified.sms.id)
-                                    )
-                                },
-                                onDismiss = {
-                                    viewModel.handleIntent(
-                                        ClassificationViewIntent.DismissClassifiedSms(classified.sms.id)
-                                    )
-                                }
-                            )
-                        }
                     }
                 }
             }

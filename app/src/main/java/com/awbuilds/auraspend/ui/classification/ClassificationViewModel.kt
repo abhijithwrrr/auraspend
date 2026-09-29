@@ -21,6 +21,7 @@ import com.awbuilds.auraspend.data.classification.MerchantRepository
 import com.awbuilds.auraspend.data.classification.SmsAutoClassifier
 import com.awbuilds.auraspend.data.classification.SmsIngestor
 import com.awbuilds.auraspend.data.classification.SmsStatus
+import com.awbuilds.auraspend.data.classification.pendingInbox
 import com.awbuilds.auraspend.data.classification.TransactionClassifier
 import com.awbuilds.auraspend.data.local.entities.SmsMessageEntity
 import com.awbuilds.auraspend.data.local.entities.SmsMessageStatus
@@ -337,6 +338,10 @@ class ClassificationViewModel(
                     _state.update {
                         it.copy(
                             classifiedSmsList = classified,
+                            // Handled messages leave the inbox. Undo reverts the
+                            // stored status, the observer re-emits, and the message
+                            // reappears here.
+                            pendingSmsList = pendingInbox(classified),
                             smsMessages = classified.map { c -> c.sms },
                             isBatchClassifying = false
                         )
@@ -379,13 +384,14 @@ class ClassificationViewModel(
             SmsMessageStatus.NEW -> SmsStatus.PENDING
             SmsMessageStatus.PROCESSED -> SmsStatus.CLASSIFYING
             SmsMessageStatus.SAVED -> SmsStatus.SAVED
-            SmsMessageStatus.SKIPPED -> SmsStatus.CLASSIFIED
+            SmsMessageStatus.SKIPPED -> SmsStatus.SKIPPED
             SmsMessageStatus.FAILED -> SmsStatus.FAILED
         }
         return ClassifiedSms(
             sms = SmsInfo(id = id, address = address, body = body, timestamp = receivedAt),
             parsed = parsed,
             isSaved = status == SmsMessageStatus.SAVED.name,
+            isDismissed = status == SmsMessageStatus.SKIPPED.name,
             isSubscription = isSubscription,
             status = uiStatus
         )
