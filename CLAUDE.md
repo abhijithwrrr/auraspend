@@ -5,7 +5,7 @@ Hot cache for agents. Keep this under ~100 lines. Deep detail lives in `memory/`
 
 ## Project
 AuraSpend — offline-first Android expense manager (Kotlin, Jetpack Compose,
-Room, on-device Qwen2.5 via llama.cpp). Apache-2.0.
+Room, a 22 MB on-device encoder via ONNX Runtime). Apache-2.0.
 Repo: `github.com/abhijithwrrr/auraspend`. Branch strategy: one phase per branch.
 
 ## Glossary
@@ -33,7 +33,8 @@ Repo: `github.com/abhijithwrrr/auraspend`. Branch strategy: one phase per branch
 | **UI revamp (locale/type/theme/states/a11y)** | ✅ Complete — `docs/handoffs/0010-ui-revamp.md` |
 | **On-device AI: eval + seam + download integrity** | ✅ Complete — `docs/handoffs/0011-on-device-ai-foundation.md` |
 | **Needle runtime swap** | ❌ **No-go, measured** — 0/65 exact, `type` 0/46, engine withheld all 65 calls at median confidence 0.017. See 0011 App. A/B |
-| **Typed-decision classification** | ✅ Tasks 1–4 shipped — 0012. Calibrated veto seam, sender-routed bank parsers (Axis/Canara/SBI), keyword category map, unrecognized-SMS table. **278 tests green** |
+| **Typed-decision classification** | ✅ Tasks 1–4 shipped — 0012. Calibrated veto seam, sender-routed bank parsers (Axis/Canara/SBI), keyword category map, unrecognized-SMS table |
+| **Encoder replaces the generator** | ✅ 0013 — MiniLM-L6-v2 int8 (22 MB) on ONNX Runtime replaces Qwen 468 MB. **Zero transactions destroyed, 4 rescued.** llama.cpp removed. Not yet run on-device |
 | **Next: error-handling debt** | `CancellationException` swallowed at most catch sites; `runBlocking` in `LlamaCppLlm`; dead duplicate-SMS guard; no DAO/migration tests (`exportSchema = false`) |
 
 ## Hard-won invariants (do not regress)
@@ -105,8 +106,14 @@ Repo: `github.com/abhijithwrrr/auraspend`. Branch strategy: one phase per branch
 - **Score the SYSTEM, never the model.** A standalone model score and a fused
   one can point opposite ways: Qwen and SmolLM2 both score 29.2 % standalone
   and one is mildly harmful while the other is catastrophic. `FusedAiEval` runs
-  the production path; `tools/gguf_eval.py` runs a real GGUF host-side. Both
-  exist because a green unit suite proves the *parser*, never the *model*.
+  the production path; a green unit suite proves the *parser*, never the model.
+  Measured table: `docs/evals/README.md`.
+- **A non-generative model for classification.** The job is a closed-vocabulary
+  decision over SMS text, so `EmbeddingClassifier` (nearest-centroid over
+  cosine) beats a decoder LM on every field at 1/21st the size — and cannot
+  express a destructive "not a transaction" verdict, because it emits no text.
+  Centroids are precomputed by `tools/build_embedding_asset.py`; seed phrases
+  are hand-written, never sampled from the corpus it is scored on.
 
 → Full glossary: `memory/glossary.md` · Phases: `memory/projects/aurora-rebuild.md`
 → Stack + commands: `memory/context/tech-stack.md` · Decisions: `memory/decisions.md`

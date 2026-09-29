@@ -137,7 +137,7 @@ object AiSignalFusion {
      * likely to be wrong, and where discarding destroys real data. Confidence
      * alone is not sufficient.
      *
-     * A runtime with no calibrated head (llama.cpp) reports null, and keeps the
+     * A runtime with no calibrated head reports null, and keeps the
      * previous unconditional behaviour — so this change is behaviour-preserving
      * for the shipped model, and only a runtime that can actually express doubt
      * is constrained by it.

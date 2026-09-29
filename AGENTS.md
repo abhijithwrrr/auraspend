@@ -12,13 +12,11 @@ Apache-2.0, open source.
 
 ## Current phase
 
-**On-device AI foundation** — latest is
-`docs/handoffs/0011-on-device-ai-foundation.md`. Classification accuracy is now
-*measured* (golden corpus + `ClassificationEval`), the runtime seam is
-`OnDeviceClassifier`, model downloads are SHA-256 verified, and the prebuilt
-Needle library passed a static privacy audit. The Needle swap was then
-**measured and rejected on accuracy** (0/65, `type` inverted on 46/46) — see
-its Appendix A for the failure modes before proposing it again. Before that:
+**On-device AI: a 22 MB encoder, not a generator** — latest is
+`docs/handoffs/0013-encoder-runtime.md`. The runtime is `EmbeddingClassifier`
+(nearest-centroid over cosine, ONNX Runtime, 22 MB int8 MiniLM), which replaced
+a 468 MB Qwen/llama.cpp. Five runtimes were measured; the measured table is in
+`docs/evals/README.md` and the reasoning in 0011–0013. Before that:
 `0010-ui-revamp.md`.
 Money is locale/currency-correct (explicit lakh-crore grouping), all hardcoded
 font sizes are on the Material 3 scale, `SYSTEM` theme is the default, AMOLED has
@@ -37,8 +35,10 @@ Do not start new work without reading the latest handoff.
 | Module | What lives there |
 |---|---|
 | `:app` | Everything (UI, domain, data) |
-| `:llama` (`llama-lib/`) | Vendored llama.cpp Android runtime |
-| `third_party/llama.cpp` | Upstream submodule (never edit) |
+
+On-device inference is ONNX Runtime (an AAR, not a module). The `:llama` module
+and the `third_party/llama.cpp` submodule were removed in handoff 0013 along with
+the Qwen GGUF they served.
 
 Kotlin source root: `app/src/main/java/com/awbuilds/auraspend/`
 
@@ -178,26 +178,27 @@ rebuilt (P1–P3), then delete the shim.
   only place a backend is chosen, and `UnavailableClassifier` is the only
   degradation path.
 - **`SmsExtraction.confidence` is nullable and must stay honest.** null means
-  the runtime has no calibrated head (llama.cpp). Never fabricate a score.
-- **Any new runtime must beat the measured floor** before it can replace an
-  existing one. Baseline with the model switched off: **13.8 % exact match**,
-  type 95.4 %, category 36.9 % (`RegexBaselineEval`, `./gradlew
-  :app:classificationBaseline`). `RegexBaselineEvalTest` fails if the regex layer
-  regresses. The one alternative runtime that has been measured — Needle 3, base
-  model — scores **0 % exact, `type` 0/46, `category` 2/46**, and its own
-  calibration head withheld **all 65** extractions at median confidence 0.017.
-  It is rejected; reproduce with `tools/needle_eval.py` rather than restating
-  the number.
+  the runtime has no calibrated head. Never fabricate a score.
+- **Any new runtime must beat the measured floor, *fused*.** Baseline with the
+  model switched off: **13.8 % exact match**, type 95.4 %, category 36.9 %
+  (`RegexBaselineEval`, `./gradlew :app:classificationBaseline`).
+  `RegexBaselineEvalTest` fails if the regex layer regresses. A model that beats
+  that floor *standalone* may still be worse in the pipeline — Qwen and
+  SmolLM2 both score 29.2 % standalone and reached opposite conclusions. Judge
+  every candidate with `FusedAiEval`.
 - **A model may never delete a transaction on a bare boolean.** A model "not a
   transaction" verdict nulls `amount` and `type` in `AiSignalFusion`, and the
   pipeline's unresolved-fields gate then drops the row — so a false veto
-  *deletes* a real debit rather than mis-filing it. Measured rates: 7/46 real
-  transactions (Qwen2.5-0.5B) and 40/46 (SmolLM2-135M). `mayDiscard` therefore
-  requires **both** `isTransactionProbability >= 0.9` **and** `base.amount ==
-  null`; confidence alone is not enough, because the regex layer reading a
-  message correctly is the stronger signal. A runtime that cannot supply a
-  probability reports `null` and keeps the old behaviour — never fabricate one,
-  since a higher probability is licence to discard.
+  *deletes* a real debit rather than mis-filing it. Measured rates of that
+  failure: 43/46 (SmolLM2), 8/46 (Qwen2.5-0.5B), 5/46 (FunctionGemma-270M),
+  **0/46 (the shipped encoder)**. `mayDiscard` requires **both**
+  `isTransactionProbability >= 0.9` **and** `base.amount == null`; confidence
+  alone is not enough, because the regex layer reading a message correctly is
+  the stronger signal. A runtime that cannot supply a probability reports `null`
+  and keeps the old behaviour — never fabricate one, since a higher probability
+  is licence to discard. This is also the reason to prefer a **non-generative**
+  classifier here: an encoder emits no text, so it cannot fabricate the verdict
+  in the first place.
 - **Classify by sender first.** The SMS sender ID is free, reliable routing
   metadata (`BankParserRegistry.parserFor`). Per-bank parsers live in
   `data/classification/bank/`. `CanaraBankParser` must never read the
@@ -208,7 +209,14 @@ rebuilt (P1–P3), then delete the shim.
   `ModelConstants` before the file is moved into place. A size check alone cannot
   detect a corrupt or substituted file, and the model is executed on-device.
 - **A prebuilt native library must pass `tools/audit_native_runtime.sh`**
-  (no network imports, no URLs, no `dlopen`, no telemetry strings) before it is
-  wired in, and the audit must be re-run on every version bump — a pass is only
-  valid for the digest it was run against. Beware `grep -E '\b'`: POSIX ERE has
-  no word boundary, so it matches a backspace and silently finds nothing.
+  (no network imports, no service URLs, no `dlopen`, no telemetry vendor
+  strings) before it is wired in, and the audit must be re-run on every version
+  bump — a pass is only valid for the digest it was run against. Two traps it
+  must keep avoiding, both of which silently produce a meaningless result:
+  POSIX ERE has **no word boundary**, so `grep -E '\b'` matches a backspace and
+  finds nothing; and a release `.so` is usually **stripped**, so `nm` returns
+  empty and the scan reads nothing at all. The script now falls back to `nm -D`,
+  validates that it found symbols *before* reporting a clean result, and filters
+  documentation URLs (arXiv, scipy, NVIDIA docs) and mangled C++ names containing
+  "Telemetry" — a real library embeds both, and flagging them would train people
+  to ignore the check. ONNX Runtime arm64 passes with zero network imports.
