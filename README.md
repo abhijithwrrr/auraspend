@@ -16,7 +16,7 @@ Made with ❤️ by AW Builds
 
 | Category | Details | Availability |
 |----------|---------|---------|
-| **Smart Classification** | Paste bank SMS or read from inbox — auto-categorizes via regex + optional on-device AI (Qwen2.5) into subscriptions / categories / income / expense / other | Free |
+| **Smart Classification** | Paste bank SMS or read from inbox — auto-categorizes via sender-routed bank parsers + an optional 22 MB on-device encoder into subscriptions / categories / income / expense / other | Free |
 | **Dashboard** | Balance card, weekly bar chart, budget progress, subscription summary, category breakdown | Free |
 | **Transaction List** | Search, date groups, swipe-to-delete, expense/income filters | Free |
 | **Budgets** | Per-category monthly/weekly/yearly spending limits with progress bars | Free |
@@ -28,19 +28,39 @@ Made with ❤️ by AW Builds
 
 ## On-Device AI (Local Categorization)
 
-AuraSpend can run a small, fully-on-device LLM (**Qwen2.5-0.5B-Instruct**, GGUF Q4_K_M, ~400 MB) to
-improve message auto-categorization into **subscriptions, categories, income, expense and other**.
+AuraSpend can run a small, fully-on-device model to improve message
+auto-categorization into **subscriptions, categories, income, expense and other**.
 
-- **Consent first**: the first time you open **Smart Add** a dialog asks whether you want to download the model.
-  Accepting starts a **background download** (resumable, cancellable) to internal storage — nothing leaves the device,
-  and it immediately runs a classification pass (reading + saving device SMS as income / expense) and opts you into
-  **Auto-categorize messages** (toggle in Settings).
+- **22 MB, not 400 MB.** The model is a quantised `all-MiniLM-L6-v2` sentence
+  **encoder** (int8, ONNX), Apache-2.0 licensed. Downloaded at runtime from
+  HuggingFace after user consent, and SHA-256 verified before it is allowed
+  anywhere near the models directory.
+- **Why an encoder, not a language model.** The job is a closed-vocabulary
+  decision over a bank SMS, not text generation. Five runtimes were measured
+  through the production pipeline; a 468 MB Qwen-0.5B decoder *deleted* 8 of 46
+  real transactions because it mistook them for OTPs, and the 22 MB encoder
+  deletes **none**. The measured table is in
+  [`docs/evals/README.md`](docs/evals/README.md).
+- **Consent first**: the first time you open **Smart Add**, the app offers to add
+  the categoriser (a 22 MB download, so it is an inline offer rather than a modal
+  dialog). Accepting starts a **background download** (resumable, cancellable) to
+  internal storage — nothing leaves the device.
 - **Progress everywhere**: the download progress is shown **in-app** (Smart Add banner + Settings card) **and in a
   system notification** that updates live and clears when the download finishes.
-- **Hybrid classifier**: amount / merchant / date still come from the battle-tested regex parser
-  (`BankMessageParser`), while the LLM handles the parts regex is bad at — *subscription detection,
-  category selection, income-vs-expense*. If the model isn't downloaded (or the native runtime isn't
-  linked), the app transparently falls back to the pure regex classifier, so nothing breaks.
+- **A gap-filler, never a gatekeeper**: amount / merchant / date come from the
+  battle-tested regex parser (`BankMessageParser`), and the model fills only the
+  gaps it left — *subscription detection, category selection, income-vs-expense*.
+  On any conflict the parser's answer wins. A model may never discard a
+  transaction on its own: `AiSignalFusion` requires both a calibrated probability
+  *and* that the parser found no amount, because a false veto **deletes** a real
+  debit rather than mis-filing it. If the model isn't downloaded, the app
+  transparently falls back to the pure regex classifier, so nothing breaks.
+- **Sender-routed bank parsers**: the SMS sender ID selects a hand-written parser
+  for that bank's exact format (Axis, Canara, SBI), which is what resolves
+  messages carrying both a real amount and a decoy available-limit figure.
+- **Unreadable messages are surfaced, not dropped**: a bank SMS carrying an amount
+  and a movement word that no parser can read is recorded so it can be filed by
+  hand, rather than silently vanishing from your history.
 - **Learned classification memory**: every save (manual or auto) records a normalized
   merchant/note → category mapping in a local Room table (`classification_memory`). Repeat
   merchants are categorized **instantly** — the LLM is skipped entirely — and your manual
@@ -50,23 +70,15 @@ improve message auto-categorization into **subscriptions, categories, income, ex
   false positives; explicit *credited/debited* keywords beat an LLM type guess on conflict;
   recurring-payment keywords (auto-debit, NACH, renewal…) force subscription classification even
   without AI; confidence rises when signals agree and drops when they conflict.
-- **Hardened inference**: every LLM generation runs under a 90 s wall-clock timeout, an
-  errored engine short-circuits instead of blocking, unparseable output triggers one retry, and
-  JSON extraction survives markdown fences / surrounding prose / nested braces. Category names
-  returned by the model are matched fuzzily ("food" → *Food & Dining*).
-- **Manage it**: an **Intelligent Features** card in Settings shows status, lets you download, cancel and delete the model.
+- **Manage it**: the **Smart categories** card in Settings shows status and lets
+  you download, cancel and delete the model.
 
-### Build prerequisites (native runtime)
+### Build prerequisites
 
-To ship the APK with the llama.cpp runtime that *actually runs* the model, your build machine needs:
-
-1. **Android NDK 29** (e.g. `29.0.14206865`) — the app's `:llama` module sets `ndkVersion`.
-2. **CMake >= 3.31.6** (AGP will auto-download it during build if the SDK license is accepted).
-
-The runtime lives in the vendored `llama-lib/` module (a cleaned copy of llama.cpp's official
-`examples/llama.android`), and the upstream source is pinned as a git submodule at
-`third_party/llama.cpp`. Without the native toolchain installed, the app still **compiles and runs**
-with regex-only classification (the UI shows the download option but the model won't load).
+No native toolchain is needed. Inference runs on **ONNX Runtime**, a Maven AAR
+rather than a compiled C++ module, so a stock JDK and the Android SDK are
+sufficient — the NDK/CMake requirement of earlier releases is gone along with
+`llama-lib/`.
 
 ### Toolchain
 
@@ -80,14 +92,13 @@ with regex-only classification (the UI shows the download option but the model w
 | R8        | Full mode (minify + optimize + obfuscate + resource shrinking) |
 
 ```bash
-# first time, fetch the llama.cpp submodule
-git submodule update --init --recursive
-# build (requires NDK + CMake)
+# no submodule to fetch - the native runtime is a Maven AAR
 ./gradlew assembleFreeDebug
 ```
 
-The model is Apache-2.0 licensed (Qwen2.5-0.5B-Instruct). It is downloaded at runtime from
-HuggingFace after user consent.
+The model is Apache-2.0 licensed (`all-MiniLM-L6-v2`). It is downloaded at
+runtime from HuggingFace after user consent, and its SHA-256 is verified before
+use.
 
 ## Build Flavors
 
@@ -96,8 +107,28 @@ HuggingFace after user consent.
 | `free` | `./gradlew assembleFreeDebug` | Development, self-build, F-Droid |
 | `play` | `./gradlew assemblePlayDebug` | Play Store release |
 
-Every feature is available in both flavors — AuraSpend has no paywall. The
-flavors exist only to separate distribution concerns (Play signing/listing).
+**Every feature is available in both flavors, and neither build carries
+analytics or ads.** AuraSpend has no paywall, no tracking and no ad SDKs — the
+claim that your bank SMS never leaves your phone is true of every build we
+publish.
+
+The flavors separate *distribution* only: signing, listing metadata, and a
+distribution-specific permission if one is ever needed. **No feature may live in
+`app/src/play/` that is absent from `app/src/main/`** — see
+[ADR 0007](docs/adr/0007-no-paywall.md) and
+[ADR 0008](docs/adr/0008-distribution-flavors.md).
+
+### Building a release
+
+```bash
+./gradlew assembleFreeRelease    # F-Droid / self-build
+./gradlew assemblePlayRelease    # Play Store
+```
+
+Release builds require a keystore in `secrets.properties` (see
+`secrets.properties.example`). **Without it the build still succeeds but
+produces an `…-unsigned.apk`**, which both F-Droid and the Play Store will
+reject — check the filename before uploading.
 
 ## Tech Stack
 
@@ -119,10 +150,14 @@ flavors exist only to separate distribution concerns (Play signing/listing).
 ```
 app/src/
 ├── main/java/com/awbuilds/auraspend/
+│   ├── core/                 # AuraLog + the boundary { } try/catch helpers
 │   ├── data/
-│   │   ├── classification/   # Bank SMS parser + classifier
+│   │   ├── ai/               # OnDeviceClassifier seam, encoder runtime, model download
+│   │   ├── classification/   # Bank parsers, regex layer, AI fusion, SMS intake
 │   │   ├── local/            # Room DB, DAOs, entities, CSV manager
-│   │   └── remote/           # Google Drive sync
+│   │   ├── privacy/          # SensitiveDataMasker
+│   │   ├── remote/           # Google Drive backup
+│   │   └── repository/       # Repository implementations
 │   ├── domain/
 │   │   ├── model/            # Core domain models
 │   │   ├── repository/       # Repository interface
@@ -133,19 +168,25 @@ app/src/
 │   │   ├── category/         # Category management
 │   │   ├── classification/   # SMS classification screen
 │   │   ├── core/             # Shared scaffold, navigation bar
+│   │   ├── designsystem/     # Aurora tokens + reusable components — use these
 │   │   ├── home/             # Dashboard with charts
 │   │   ├── navigation/       # NavGraph, route definitions
 │   │   ├── onboarding/       # First-launch wizard
-│   │   ├── premium/          # Premium feature gate
+│   │   ├── plan/             # Plan hub (budgets + subscriptions + goals)
 │   │   ├── recurring/        # Subscription management
-│   │   ├── settings/         # Settings + premium upgrade
+│   │   ├── savings/          # Savings goals
+│   │   ├── settings/         # Settings
 │   │   ├── splash/           # Animated splash screen
 │   │   ├── theme/            # M3 colors, light/dark/AMOLED
 │   │   └── transaction/      # List + add/edit screens
 │   └── AuraSpendApp.kt       # Application class (DI)
-├── free/                     # Free flavor sources (BillingManager stub)
-└── play/                     # Play flavor sources (real IAP)
+├── free/                     # Distribution flavor: manifest only, no code
+└── play/                     # Distribution flavor: manifest only, no code
 ```
+
+The `free` and `play` source sets deliberately contain **no Kotlin**. Every
+feature lives in `main`, so the two published builds are identical — see
+[ADR 0008](docs/adr/0008-distribution-flavors.md).
 
 ## Getting Started
 

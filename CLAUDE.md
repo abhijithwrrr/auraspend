@@ -22,7 +22,7 @@ Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
 | **Shim** | `ui/core/CashewComponents.kt` — Phase 0 compat layer, deleted after P3 |
 | **Boundary** | try/catch wrapper (`boundary {}` in `core/AuraLog.kt`) required at every IO edge |
 | **AuraCard / tokens** | Core design-system primitives (`ui/designsystem/`) |
-| **Flavor** | `free` (everything unlocked) / `play` (Play Store) build variants |
+| **Flavor** | `free` (F-Droid/self-build) / `play` (Play Store) — **distribution-only, feature-identical, no analytics/ads in either** (ADR 0008) |
 
 ## Active work
 | Item | State |
@@ -79,13 +79,17 @@ Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
 - Baseline profile: `app/src/main/baseline-prof.txt` (generate via the `:benchmark` BaselineProfileGenerator)
 - Design system: `ui/designsystem/`; ADRs in `docs/adr/`
 - Master plan: `docs/handoffs/0000-master-plan.md`. Paywall removed in P0
-  (PremiumGate, PremiumUpgradeScreen, BillingManager deleted).
+  (PremiumGate, PremiumUpgradeScreen, BillingManager deleted). Public pages
+  (`docs/index.html`, `docs/terms.html`, `docs/privacy.html`) state the same
+  no-purchase, no-tracking promise as the app — keep them true.
 
 ## Locked decisions
 - Aurora purple brand (matches app icon + landing page), not Cashew blue.
 - 4 tabs + center FAB; Settings moves behind header avatar in P1.
 - `material3 1.4.0` stable via Compose BOM `2026.09.00` (Compose UI 1.12.1).
-- No premium/paywall anywhere; `free` and `play` flavors remain.
+- No premium/paywall anywhere; `free` and `play` flavors remain for
+  **distribution only** — identical features, and neither build may carry
+  analytics, ads or telemetry (ADR 0007, ADR 0008).
 - Try/catch at every boundary is a hard rule (see `AGENTS.md`).
 
 ## Preferences / rules

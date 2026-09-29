@@ -57,12 +57,14 @@
                 </ul>
 
                 <h3>1.2 Information Collected Automatically</h3>
-                <p>The free version of AuraSpend does <strong>not</strong> include any analytics SDK, crash reporting framework, or telemetry. No usage data, device identifiers, or diagnostic information is transmitted to us or any third party.</p>
-                <p>If you build the application from source using the <strong>free</strong> flavor, no automatic data collection occurs at all.</p>
-                <p>The <strong>Play Store</strong> flavor includes Google Play Billing for processing in-app purchases intended to support development. Google Play Billing may collect transaction identifiers and purchase history in accordance with Google's Privacy Policy.</p>
+                <p><strong>No build of AuraSpend collects anything automatically.</strong> Neither the <strong>free</strong> (F-Droid / self-build) nor the <strong>Play Store</strong> flavor includes an analytics SDK, an advertising SDK, a crash-reporting framework, or any telemetry. No usage data, device identifiers, advertising identifiers, or diagnostic information is transmitted to us or to any third party.</p>
+                <p>The two builds are <strong>identical in features</strong> and differ only in distribution configuration — see <a href="https://github.com/auraspend/auraspend/blob/main/docs/adr/0008-distribution-flavors.md">ADR 0008</a> for the reasoning.</p>
+                <p>AuraSpend does declare the <code>INTERNET</code> permission, because two optional features require a network connection: downloading the on-device model from HuggingFace, and backing up to your own Google Drive account. Neither feature sends us anything. We operate no servers and have no access to your data. The app contacts only the model host (when you download the model) and Google Drive (only if you enable backup), and it makes no other network requests. <strong>No data is transmitted to us or to any advertising or analytics third party.</strong></p>
+                <p>AuraSpend has no in-app purchases and no paywall. Every feature is available in every build.</p>
 
                 <h3>1.3 SMS Data</h3>
-                <p>If you choose to use the bank SMS auto-classification feature, AuraSpend will request permission to read SMS messages from your device. This data is processed entirely on-device. SMS content is used solely to extract transaction details and is never transmitted off your device or stored outside the local database.</p>
+                <p>If you choose to use the bank SMS auto-classification feature, AuraSpend will request permission to read SMS messages from your device. This data is processed <strong>entirely on-device</strong> by a small local model (22 MB, downloaded after you consent) and by on-device parsers. SMS content is used solely to extract transaction details and is <strong>never transmitted off your device</strong> or stored outside the local database. The model is downloaded from HuggingFace and is verified by SHA-256 checksum before use; that download is a request for the model file only, and contains no information about you or your messages.</p>
+                <p>Android Auto Backup is <strong>excluded</strong> for the app database, so your transactions are not copied to Google's servers even if you have backup enabled for your account.</p>
             </section>
 
             <section>
@@ -72,7 +74,7 @@
                     <li>To display your financial transactions, budgets, and analytics within the app.</li>
                     <li>To process and categorize SMS-based banking notifications into transactions.</li>
                     <li>To create backups to your Google Drive when you explicitly enable this feature.</li>
-                    <li>To process in-app purchases through Google Play Billing (Play Store flavor only).</li>
+                    <li>To download the optional on-device classification model, at your request, from Hugging Face.</li>
                 </ul>
                 <p>We do <strong>not</strong> use your data for advertising, profiling, training machine learning models, or any purpose other than operating the application you have chosen to use.</p>
             </section>
@@ -91,8 +93,8 @@
                 <h2>4. Third-Party Services</h2>
                 <p>AuraSpend integrates with the following third-party services:</p>
                 <ul>
+                    <li><strong>Hugging Face:</strong> The optional on-device classification model (22 MB) is downloaded from Hugging Face at your request. That request retrieves the model file and nothing about you. Subject to the <a href="https://huggingface.co/privacy" target="_blank" rel="noopener">Hugging Face Privacy Policy</a>.</li>
                     <li><strong>Google Drive API:</strong> Used for cloud backups when you opt-in. Subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
-                    <li><strong>Google Play Billing:</strong> Used exclusively in the Play Store flavor for processing in-app purchases to support development. Subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
                 </ul>
                 <p>The application does <strong>not</strong> integrate advertising SDKs, analytics frameworks, crash reporting tools, or any other third-party services that collect personal data.</p>
             </section>

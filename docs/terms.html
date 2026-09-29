@@ -100,21 +100,21 @@
             </section>
 
             <section>
-                <h2>5. Premium Features and Purchases</h2>
+                <h2>5. Pricing and Build Flavors</h2>
 
-                <h3>5.1 Build Flavors</h3>
-                <p>AuraSpend is distributed in two build flavors:</p>
+                <h3>5.1 No Purchase Required</h3>
+                <p>AuraSpend has <strong>no paywall and no in-app purchases</strong>. Every feature of the Application is available in every build at no cost, and no functionality is unlocked by payment. This is a deliberate project decision, not a temporary promotion &mdash; see ADR 0007 in the project repository.</p>
+
+                <h3>5.2 Build Flavors</h3>
+                <p>AuraSpend is distributed in two build flavors, which are <strong>identical in features</strong> and differ only in distribution configuration:</p>
                 <ul>
-                    <li><strong>Free Flavor:</strong> Available by building from source or downloading from alternative distribution channels. All features are unlocked at no cost.</li>
-                    <li><strong>Play Store Flavor:</strong> Available on the Google Play Store. In-app purchases are available as a way to support ongoing development.</li>
+                    <li><strong>Free Flavor:</strong> Available by building from source or downloading from F-Droid. All features unlocked at no cost.</li>
+                    <li><strong>Play Store Flavor:</strong> Available on the Google Play Store. The same features, the same code, at no cost.</li>
                 </ul>
+                <p>Neither flavor includes analytics, advertising, or telemetry of any kind. The Application does not contain any advertising or analytics SDK in any build.</p>
 
-                <h3>5.2 Purchases</h3>
-                <p>In-app purchases in the Play Store flavor are provided as a way to support development. All transactions are processed by Google Play and are subject to Google's terms and conditions.</p>
-                <p>We reserve the right to introduce or change premium feature pricing, with reasonable notice provided through the application or app store listing.</p>
-
-                <h3>5.3 Refunds</h3>
-                <p>All purchases are subject to the refund policy of the Google Play Store. Refund requests must be directed to Google in accordance with their refund policy. We do not process refunds directly.</p>
+                <h3>5.3 Supporting the Project</h3>
+                <p>Because the Application has no purchases, the only way to support its development is voluntary: contributions to the open-source repository, or a donation through a channel we may list in the project README. Any future monetization would be a supporter tier that unlocks <strong>nothing</strong>, and we would not gate existing functionality behind payment.</p>
             </section>
 
             <section>
@@ -123,7 +123,7 @@
                 <ul>
                     <li><strong>Ownership:</strong> We do not claim ownership of your User Content. Your data belongs to you.</li>
                     <li><strong>Privacy:</strong> As detailed in our Privacy Policy, we do not access, collect, or store your User Content on our servers. All data is stored locally on your device and, if you opt-in, in your personal Google Drive.</li>
-                    <li><strong>License to Us:</strong> You grant us a non-exclusive, royalty-free, worldwide license to process your User Content solely for the purpose of operating and providing the Application's functionality (e.g., displaying transactions, generating analytics).</li>
+                    <li><strong>License to Us:</strong> You grant us a non-exclusive, royalty-free, worldwide license to process your User Content solely for the purpose of operating and providing the Application's functionality (e.g., displaying and totalling your transactions). We do not exercise this license for any other purpose, because the Application processes your data on your own device.</li>
                 </ul>
             </section>
 
@@ -131,8 +131,8 @@
                 <h2>7. Third-Party Services</h2>
                 <p>AuraSpend integrates with the following third-party services:</p>
                 <ul>
+                    <li><strong>Hugging Face:</strong> Used to download the optional on-device classification model (22 MB). This is a one-way download of the model file only; it contains no information about you or your messages. Subject to the <a href="https://huggingface.co/terms-of-service" target="_blank" rel="noopener">Hugging Face Terms of Service</a>.</li>
                     <li><strong>Google Drive API:</strong> Used for optional cloud backup. Use is subject to <a href="https://developers.google.com/terms" target="_blank" rel="noopener">Google API Terms of Service</a>.</li>
-                    <li><strong>Google Play Billing:</strong> Used for processing in-app purchases. Use is subject to <a href="https://play.google.com/about/play-terms.html" target="_blank" rel="noopener">Google Play Terms of Service</a>.</li>
                 </ul>
                 <p>We are not responsible for the availability, accuracy, or legality of any third-party services. Your use of these services is at your own risk.</p>
             </section>
@@ -196,7 +196,7 @@
                 <ul>
                     <li>Your right to use the Application immediately ceases.</li>
                     <li>All locally stored data on your device will remain until you uninstall the Application or delete the data manually.</li>
-                    <li>In-app purchases (if any) will be governed by the applicable app store's refund policy.</li>
+                    <li>The Application has no in-app purchases, so no refund is applicable. Any donation you make is voluntary, is not a purchase, and is non-refundable.</li>
                 </ul>
                 <p>Sections 6 (User Content), 8 (Disclaimer of Warranties), 9 (Limitation of Liability), 10 (Indemnification), 11 (Governing Law), and 13 (Miscellaneous) shall survive any termination.</p>
             </section>
