@@ -59,6 +59,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 
@@ -101,7 +108,14 @@ fun ClassificationScreen(
 
     var selectedTab by remember { mutableIntStateOf(0) }
 
+    // Undo surface for the triage swipes. Held here rather than in the tab so
+    // the tab can stay a pure renderer, and so the SnackbarHost lives in the
+    // Scaffold that owns the content.
+    val triageSnackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
+        snackbarHost = { SnackbarHost(triageSnackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text(stringResource(R.string.classification_title), modifier = Modifier.semantics { heading() }) },
@@ -217,10 +231,58 @@ fun ClassificationScreen(
             }
         }
 
+            // Read here, in composition scope: `onTriageSwipe` is a plain
+            // lambda, and stringResource is @Composable.
+            val savedMessage = stringResource(R.string.classification_sms_saved)
+            val dismissedMessage = stringResource(R.string.classification_sms_dismissed)
+            val undoActionLabel = stringResource(R.string.action_undo)
+
             when (selectedTab) {
                 0 -> PasteMessageTab(state, viewModel)
                 1 -> SmsListTab(state, viewModel, smsPermissionLauncher)
-                2 -> AutoDetectTab(state, viewModel, smsPermissionLauncher)
+                2 -> AutoDetectTab(
+                    state,
+                    viewModel,
+                    smsPermissionLauncher,
+                    onTriageSwipe = { smsId, save ->
+                        // Both triage swipes are undoable. A save creates a
+                        // transaction and a dismiss hides a message, so neither
+                        // should be one accidental gesture from being permanent.
+                        if (save) {
+                            viewModel.handleIntent(
+                                ClassificationViewIntent.SaveClassifiedSms(smsId)
+                            )
+                            scope.launch {
+                                val result = triageSnackbarHostState.showSnackbar(
+                                    message = savedMessage,
+                                    actionLabel = undoActionLabel,
+                                    duration = SnackbarDuration.Short
+                                )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    viewModel.handleIntent(
+                                        ClassificationViewIntent.UndoSaveClassifiedSms(smsId)
+                                    )
+                                }
+                            }
+                        } else {
+                            viewModel.handleIntent(
+                                ClassificationViewIntent.DismissClassifiedSms(smsId)
+                            )
+                            scope.launch {
+                                val result = triageSnackbarHostState.showSnackbar(
+                                    message = dismissedMessage,
+                                    actionLabel = undoActionLabel,
+                                    duration = SnackbarDuration.Short
+                                )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    viewModel.handleIntent(
+                                        ClassificationViewIntent.UndoDismissClassifiedSms(smsId)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                )
             }
 
             (state.aiModelState as? AiModelState.Downloading)?.let { d ->

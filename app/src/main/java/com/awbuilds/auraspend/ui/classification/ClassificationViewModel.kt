@@ -1,6 +1,7 @@
 package com.awbuilds.auraspend.ui.classification
 
 import com.awbuilds.auraspend.core.AuraLog
+import com.awbuilds.auraspend.core.boundary
 import com.awbuilds.auraspend.ui.core.UiError
 
 import android.Manifest
@@ -123,6 +124,8 @@ class ClassificationViewModel(
             is ClassificationViewIntent.SaveClassifiedSms -> saveClassifiedSms(intent.smsId)
             is ClassificationViewIntent.SaveAllClassified -> saveAllClassified()
             is ClassificationViewIntent.DismissClassifiedSms -> dismissClassifiedSms(intent.smsId)
+            is ClassificationViewIntent.UndoSaveClassifiedSms -> undoSaveClassifiedSms(intent.smsId)
+            is ClassificationViewIntent.UndoDismissClassifiedSms -> undoDismissClassifiedSms(intent.smsId)
 
             // On-device AI model
             is ClassificationViewIntent.ConsentResult -> {
@@ -482,6 +485,51 @@ class ClassificationViewModel(
             val row = dao.getById(smsId) ?: return@launch
             if (row.status != SmsMessageStatus.SAVED.name) {
                 dao.update(row.copy(status = SmsMessageStatus.SKIPPED.name, updatedAt = System.currentTimeMillis()))
+            }
+        }
+    }
+
+    /**
+     * Undo a triage save: drop the transaction it created and put the message
+     * back in the queue. Without this, a mis-swipe silently added a transaction
+     * the user never chose — the exact class of mistake handoff 0013 spent a
+     * whole session eliminating from the classifier.
+     */
+    private fun undoSaveClassifiedSms(smsId: String) {
+        viewModelScope.launch {
+            boundary(TAG, Unit) {
+                val app = context.applicationContext as? AuraSpendApp ?: return@boundary
+                val db = app.database
+                db.transactionDao().getTransactionBySourceSmsId(smsId)?.let { row ->
+                    db.transactionDao().deleteTransactionById(row.id)
+                }
+                db.smsMessageDao().getById(smsId)?.let { row ->
+                    db.smsMessageDao().update(
+                        row.copy(
+                            status = SmsMessageStatus.PROCESSED.name,
+                            amount = null, type = null, merchant = null,
+                            categoryId = null, confidence = 0f,
+                            updatedAt = System.currentTimeMillis()
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    /** Undo a triage dismiss: return the message to the queue unchanged. */
+    private fun undoDismissClassifiedSms(smsId: String) {
+        viewModelScope.launch {
+            boundary(TAG, Unit) {
+                val app = context.applicationContext as? AuraSpendApp ?: return@boundary
+                app.database.smsMessageDao().getById(smsId)?.let { row ->
+                    app.database.smsMessageDao().update(
+                        row.copy(
+                            status = SmsMessageStatus.PROCESSED.name,
+                            updatedAt = System.currentTimeMillis()
+                        )
+                    )
+                }
             }
         }
     }

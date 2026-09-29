@@ -123,6 +123,18 @@ diff) when you intentionally fix or add lint suppressions.
    must pass before a handoff. Never commit red.
 7. **One phase per branch** (`phase-N-name`), small commits, conventional
    commit subjects (`feat:`, `fix:`, `chore:`, `docs:`, `perf:`, `refactor:`).
+8. **Compiler warnings are triage items, not noise.** Read every `w:` line in
+   a build before moving on. Two user-visible bugs in this project were caused
+   by deprecation warnings that were present in a green build and read past
+   twice: `rememberSwipeToDismissBoxState(confirmValueChange = ...)` is
+   *deprecated without replacement*, so the callback stopped being called
+   entirely — swipe-to-save and swipe-to-delete both became silent no-ops that
+   still animated and still showed their coloured backgrounds, so the UI looked
+   alive while doing nothing. A warning that says "deprecated without
+   replacement" is a behaviour change, not a style note. Fix it, suppress it
+   with a written reason, or record why it is safe — never just scroll past.
+   `./gradlew :app:compileFreeDebugKotlin --rerun-tasks 2>&1 | grep "^w:"` lists
+   them.
 
 ## Design system quick reference
 
