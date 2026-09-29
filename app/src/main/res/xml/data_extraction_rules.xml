@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ backup/transfer rules. Mirrors res/xml/backup_rules.xml: the finance
+  database, the raw bank-SMS queue and app preferences are excluded from both
+  cloud backup and device-to-device transfer. Users restore explicitly from their
+  own Google Drive instead.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="database" path="auraspend_db" />
+        <exclude domain="database" path="auraspend_db-wal" />
+        <exclude domain="database" path="auraspend_db-shm" />
+        <exclude domain="sharedpref" path="auraspend_prefs.xml" />
+        <exclude domain="file" path="models" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="database" path="auraspend_db" />
+        <exclude domain="database" path="auraspend_db-wal" />
+        <exclude domain="database" path="auraspend_db-shm" />
+        <exclude domain="sharedpref" path="auraspend_prefs.xml" />
+        <exclude domain="file" path="models" />
+    </device-transfer>
+</data-extraction-rules>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AuraSpend is local-first: the promise on the onboarding screen is that financial data
+  stays on the device unless the user explicitly backs it up to their own Drive.
+
+  Without these rules, android:allowBackup="true" made the ENTIRE Room database eligible
+  for Android Auto Backup — transactions, sms_messages (raw bank message bodies and
+  sender addresses) and classification_memory. That contradicted the app's own privacy
+  posture, and the user had no way to opt out.
+
+  Drive backup remains available as an explicit, user-initiated action.
+-->
+<full-backup-content>
+    <!-- Never auto-back the finance database or the raw SMS queue. -->
+    <exclude domain="database" path="auraspend_db" />
+    <exclude domain="database" path="auraspend_db-wal" />
+    <exclude domain="database" path="auraspend_db-shm" />
+    <exclude domain="sharedpref" path="auraspend_prefs.xml" />
+    <!-- The on-device LLM is a multi-hundred-MB file; never ship it through backup. -->
+    <exclude domain="file" path="models" />
+</full-backup-content>

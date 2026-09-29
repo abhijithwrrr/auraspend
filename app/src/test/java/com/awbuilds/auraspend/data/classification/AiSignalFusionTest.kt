@@ -1,10 +1,11 @@
 package com.awbuilds.auraspend.data.classification
 
-import com.awbuilds.auraspend.data.ai.AiCategorisation
+import com.awbuilds.auraspend.data.ai.SmsExtraction
 import com.awbuilds.auraspend.domain.model.ParsedBankMessage
 import com.awbuilds.auraspend.domain.model.TransactionType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -31,8 +32,12 @@ class AiSignalFusionTest {
         type: TransactionType? = TransactionType.EXPENSE,
         categoryId: String? = "cat_food",
         isSubscription: Boolean = false,
-        merchant: String? = null
-    ) = AiCategorisation(isTransaction, type, categoryId, isSubscription, merchant, "{}")
+        merchant: String? = null,
+        probability: Float? = null
+    ) = SmsExtraction(
+        isTransaction, type, categoryId, merchant, isSubscription, "{}",
+        confidence = null, isTransactionProbability = probability
+    )
 
     @Test
     fun `llm veto wipes amount and type`() {
@@ -41,6 +46,60 @@ class AiSignalFusionTest {
         assertNull(fused.parsed.type)
         assertFalse(fused.isSubscription)
         assertTrue(fused.usedAi)
+    }
+
+    @Test
+    fun `an unsure model verdict must not discard a transaction`() {
+        val fused = AiSignalFusion.fuse(
+            parsed(),
+            ai(isTransaction = false, probability = 0.4f)
+        )
+        assertNotNull(
+            "a 0.4-confidence veto must not delete a parsed transaction",
+            fused.parsed.amount
+        )
+        assertNotNull(fused.parsed.type)
+    }
+
+    @Test
+    fun `a confident model verdict still cannot delete a parsed transaction`() {
+        // Even a 0.99 veto is refused here, because the regex layer *did* read
+        // this message. Confidence alone is not enough; the parser's success is
+        // the second, independent condition.
+        val fused = AiSignalFusion.fuse(
+            parsed(),
+            ai(isTransaction = false, probability = 0.99f)
+        )
+        assertNotNull(fused.parsed.amount)
+    }
+
+    @Test
+    fun `a confident veto may discard a message the parser could not read`() {
+        val fused = AiSignalFusion.fuse(
+            parsed(amount = null, type = null, raw = "Your OTP is 482913 do not share"),
+            ai(isTransaction = false, probability = 0.99f)
+        )
+        assertNull("a 0.99 veto on an unreadable message may discard it", fused.parsed.amount)
+    }
+
+    @Test
+    fun `a confident veto may discard a message the parser read with no amount`() {
+        // The parser recognised the message but found no money in it, so there
+        // is nothing to protect.
+        val fused = AiSignalFusion.fuse(
+            parsed(amount = null, raw = "Avl balance Rs 25,000.00 - SBI"),
+            ai(isTransaction = false, probability = 0.95f)
+        )
+        assertTrue("usedAi should still be reported", fused.usedAi)
+    }
+
+    @Test
+    fun `a runtime with no calibrated head keeps the previous unconditional veto`() {
+        // Qwen reports no probability, so null means "no opinion" and today's
+        // behaviour must be preserved exactly. This is the control that makes
+        // the seam change behaviour-preserving for the shipped model.
+        val fused = AiSignalFusion.fuse(parsed(), ai(isTransaction = false, probability = null))
+        assertNull("an uncalibrated runtime must still veto", fused.parsed.amount)
     }
 
     @Test
