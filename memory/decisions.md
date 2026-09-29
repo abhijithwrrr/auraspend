@@ -2,6 +2,22 @@
 
 Durable decisions with context. Latest first.
 
+## D11 — Play's Feb 2027 R8 thresholds do not bind, and here is the number (2026-09-29)
+Google requires ≥25% optimization/obfuscation/shrinking from Feb 2027, but only for
+bundles over **10 MB uncompressed DEX**. AuraSpend's release bundle is **3.68 MB**
+(R8 takes the debug build's 71.5 MB down to that), so the requirement does not apply —
+and it clears the thresholds anyway at ~99% each. Verified by
+`tools/verify_r8_release.sh`, which also confirms 16 KB alignment and that the JNI
+classes survive un-renamed. Re-run it after touching dependencies or keep rules; it is
+**not** in CI yet, deliberately deferred.
+
+Corollary worth keeping: **the ONNX Runtime AAR ships no consumer ProGuard rules and
+registers its natives dynamically in `JNI_OnLoad`**, which looks like a guaranteed
+release crash. It is not — AGP's default file keeps any class declaring a `native`
+method, names included. Do **not** "fix" this with a broad
+`-keep class ai.onnxruntime.** { *; }`; it would suppress the obfuscation score for
+nothing. Note the package is `ai.onnxruntime`, not `com.microsoft.onnxruntime`.
+
 ## D10 — Score the system, never the model (2026-09-29)
 The measured lesson of the runtime bake-off, and the one most likely to be
 relearned expensively. Qwen and SmolLM2 both scored **29.2% standalone** and
