@@ -65,7 +65,10 @@ fun AnimatedMoney(
     }
 
     val displayed = if (animate) from.value + (amount - from.value) * progress.value else amount
-    val sign = if (signed) if (amount < 0) "-" else "+" else ""
+    // Sign comes from the shared money helpers so the glyph is identical to every
+    // other amount in the app. Kept as a prefix because the magnitude is animated
+    // independently of the sign, which the sign of `displayed` would flicker with.
+    val sign = if (signed && amount >= 0) "+" else ""
     val magnitude = if (signed) abs(displayed) else displayed
     val text = sign + formatMoney(magnitude, currency, locale)
 

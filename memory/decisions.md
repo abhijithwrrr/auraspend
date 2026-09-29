@@ -2,6 +2,23 @@
 
 Durable decisions with context. Latest first.
 
+## D13 — Consent is a tap, never a `LaunchedEffect` (2026-09-29)
+`ClassificationScreen` once ran `LaunchedEffect { ConsentResult(true) }` the instant
+`consentRequired` became true. On a fresh install, opening Smart Add silently
+downloaded the 22 MB model, enabled the `AutoDetect` auto-read toggle and ran an inbox
+scan — with nothing rendered. Verified on device: 23,026,053 bytes in `files/models`
+after one tap, no prompt on screen. It also broke the promise ADR 0008 is built on.
+Consent is now a rendered inline card with a real **Not now** / **Add** action, and
+declining clears the offer *without* recording consent. Reusable rule: **never
+auto-accept on the user's behalf, and never let a `LaunchedEffect` stand in for a UI
+affordance** — if a string exists to explain something, something has to be shown.
+
+Corollary from the same review, worth as much as the bug: **a screenshot is a
+hypothesis, not a measurement.** Three "findings" that looked clear in a screenshot
+were wrong — the release build looked to have zero ONNX classes (wrong package name),
+the minus glyph looked inconsistent (a font-size difference), and a form field looked
+unreachable (it scrolled fine). Two were caught only by going back to the bytes.
+
 ## D12 — Two ABIs, and ChromeOS is deliberately unsupported (2026-09-29)
 The app's size is native library, not code: ONNX Runtime's `.so` was 71.8 MB of
 a 78.8 MB APK while the DEX was 3.7 MB, so the ABI list is the only size lever

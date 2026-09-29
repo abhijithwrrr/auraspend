@@ -96,6 +96,39 @@ object MoneyConfig {
  * @param fractionDigits null keeps the currency's own convention (JPY has none,
  *   most others two), which is what a user expects from a money column.
  */
+/**
+ * Typographic minus (U+2212), not a hyphen-minus.
+ *
+ * A hyphen is a shorter glyph that sits too high next to digits; the minus sign
+ * is the same width as a digit and aligns with it. At the large sizes the
+ * balance card renders, the difference is obvious, and mixing the two across
+ * screens reads as a rendering bug even though both are correct characters.
+ *
+ * Every sign in the app comes from here — [formatMoney] and [formatSignedMoney]
+ * below — so no call site re-derives one by hand.
+ */
+const val MINUS_SIGN = "\u2212"
+
+/** Leading sign for a money value: [MINUS_SIGN] when negative, empty otherwise. */
+fun moneySign(value: Double): String = if (value < 0) MINUS_SIGN else ""
+
+/**
+ * An explicitly signed amount, for deltas where a leading `+` is meaningful
+ * (a day's net, a comparison between two periods).
+ *
+ * Negative values get [MINUS_SIGN] from [formatMoney] itself, so they are
+ * rendered here without prepending a second sign.
+ */
+fun formatSignedMoney(
+    value: Double,
+    style: CurrencyStyle = MoneyConfig.current,
+    locale: Locale = Locale.getDefault(),
+    fractionDigits: Int? = null
+): String = when {
+    value > 0 -> "+" + formatMoney(value, style, locale, fractionDigits)
+    else -> formatMoney(value, style, locale, fractionDigits)
+}
+
 fun formatMoney(
     value: Double,
     style: CurrencyStyle = MoneyConfig.current,
@@ -120,7 +153,7 @@ fun formatMoney(
             it[0].replace(",", "") to it.getOrNull(1)?.padEnd(digits, '0')?.take(digits).orEmpty()
         }
         val grouped = indianGroup(whole)
-        val sign = if (value < 0) "-" else ""
+        val sign = if (value < 0) MINUS_SIGN else ""
         return "$sign${style.symbol}$grouped${if (decimals.isEmpty()) "" else ".$decimals"}"
     }
 

@@ -77,6 +77,13 @@ sealed class ClassificationViewIntent {
 
     // On-device AI model
     data class ConsentResult(val accepted: Boolean) : ClassificationViewIntent()
+
+    /**
+     * User declined the categoriser for now. Clears the offer **without** recording
+     * consent, so it is not re-asked on this screen, but the model is still
+     * downloadable later from Settings.
+     */
+    object DismissModelConsent : ClassificationViewIntent()
     object StartModelDownload : ClassificationViewIntent()
     object CancelModelDownload : ClassificationViewIntent()
     object RefreshAiModelState : ClassificationViewIntent()

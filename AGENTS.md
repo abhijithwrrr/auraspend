@@ -3,7 +3,16 @@
 > Read this file and the latest file in `docs/handoffs/` before touching anything.
 > Update both (plus `CLAUDE.md` / `memory/` when you learn something durable) before ending a session.
 >
-> Latest: `docs/handoffs/0014-r8-play-requirements.md` — R8 / Play technical
+> Latest: `docs/handoffs/0015-ui-review-fixes.md` — on-device UI review. Fixed a
+> consent bug where a fresh install **silently downloaded the 22 MB model** and enabled
+> auto-read with no prompt; a transparent `TransactionEntryRow` that let the
+> swipe-to-delete background show through on every Activity row; a stale
+> `spentAmount` column that made Plan report ₹0 while Dashboard reported real spend;
+> and unguarded `Enum.valueOf` in `Mappers.kt` where one bad string bricked the
+> dashboard. **Consent must be a tap, never a `LaunchedEffect`** (ADR 0008 depends on
+> it). A screenshot is a hypothesis, not a measurement.
+>
+> Before: `docs/handoffs/0014-r8-play-requirements.md` — R8 / Play technical
 > requirements. Measured: release bundle is **3.68 MB** uncompressed DEX, so Play's
 > Feb 2027 ≥25% optimization/obfuscation/shrinking floor **does not bind** (app clears
 > it at ~99% anyway); APK is 16 KB aligned; the JNI classes survive R8 un-renamed.

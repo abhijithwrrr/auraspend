@@ -26,7 +26,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.awbuilds.auraspend.R
+import com.awbuilds.auraspend.domain.model.BudgetSpending
 import com.awbuilds.auraspend.domain.model.RecurrenceFrequency
+import com.awbuilds.auraspend.domain.model.RecurringCost
 import com.awbuilds.auraspend.domain.repository.TransactionRepository
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
 import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
@@ -50,22 +52,26 @@ fun PlanHubScreen(
     onOpenCategories: () -> Unit,
     onOpenSettings: () -> Unit = {}
 ) {
-    val budgets by repository.getAllBudgets().collectAsState(initial = emptyList())
+    val storedBudgets by repository.getAllBudgets().collectAsState(initial = emptyList())
     val subscriptions by repository.getActiveSubscriptions().collectAsState(initial = emptyList())
     val goals by repository.getAllSavingsGoals().collectAsState(initial = emptyList())
+
+    // `spentAmount` is a denormalised column that nothing ever writes back — the
+    // Budget row stores 0.0 at creation and only BudgetViewModel recomputes it in
+    // memory. Reading the stored column here made this hub report "₹0 of ₹26,000,
+    // 0% used" while the Dashboard, using the same budgets, showed real spend.
+    // Recompute from transactions through the same helper the Budgets screen uses,
+    // so the two screens cannot disagree.
+    val transactions by repository.getAllTransactions().collectAsState(initial = emptyList())
+    val budgets = remember(storedBudgets, transactions) {
+        BudgetSpending.withFreshSpent(storedBudgets, transactions)
+    }
 
     val totalLimit = remember(budgets) { budgets.sumOf { it.limitAmount } }
     val totalSpent = remember(budgets) { budgets.sumOf { it.spentAmount } }
     val budgetProgress = if (totalLimit > 0) (totalSpent / totalLimit).toFloat().coerceIn(0f, 1f) else 0f
     val monthlySubscriptions = remember(subscriptions) {
-        subscriptions.sumOf { sub ->
-            sub.amount * when (sub.billingCycle) {
-                RecurrenceFrequency.DAILY -> 30.0
-                RecurrenceFrequency.WEEKLY -> 52.0 / 12.0
-                RecurrenceFrequency.MONTHLY -> 1.0
-                RecurrenceFrequency.YEARLY -> 1.0 / 12.0
-            }
-        }
+        RecurringCost.monthlyTotal(subscriptions)
     }
 
     Column(
@@ -143,7 +149,10 @@ fun PlanHubScreen(
             )
             Spacer(modifier = Modifier.height(AuraSpacing.xs))
             Text(
-                stringResource(R.string.plan_monthly_recurring, formatMoney(monthlySubscriptions)),
+                stringResource(
+                    R.string.plan_monthly_recurring,
+                    formatMoney(monthlySubscriptions, fractionDigits = 0)
+                ),
                 style = AuraType.moneyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )

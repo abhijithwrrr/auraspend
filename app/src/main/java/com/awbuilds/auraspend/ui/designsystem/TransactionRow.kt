@@ -1,5 +1,6 @@
 package com.awbuilds.auraspend.ui.designsystem
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -65,6 +66,20 @@ fun TransactionEntryRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            // Opaque on purpose, and not a style choice.
+            //
+            // On Activity this row is the foreground of a SwipeToDismissBox whose
+            // backgroundContent is a red errorContainer plus a delete icon. A
+            // transparent foreground cannot hide its own background, so the delete
+            // state showed through on every row at rest and the trash icon landed
+            // on top of the amount. Found on-device 2026-09-29: all 32 rows dark
+            // red with unreadable amounts.
+            //
+            // Both call sites sit directly on the page background (neither is
+            // wrapped in a card), so painting it is correct in both. A new call
+            // site inside a card must pass its own container colour via [modifier]
+            // rather than relying on this being transparent.
+            .background(MaterialTheme.colorScheme.background)
             .semantics(mergeDescendants = true) {}
             .then(
                 if (onClick != null) {
@@ -107,7 +122,10 @@ fun TransactionEntryRow(
         }
         Spacer(modifier = Modifier.width(AuraSpacing.sm))
         Text(
-            "${if (transaction.type == TransactionType.EXPENSE) "-" else "+"}${formatMoney(transaction.amount)}",
+            formatSignedMoney(
+                if (transaction.type == TransactionType.EXPENSE) -transaction.amount
+                else transaction.amount
+            ),
             style = AuraType.moneySmall,
             color = amountColor
         )
