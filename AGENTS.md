@@ -2,6 +2,12 @@
 
 > Read this file and the latest file in `docs/handoffs/` before touching anything.
 > Update both (plus `CLAUDE.md` / `memory/` when you learn something durable) before ending a session.
+>
+> Latest: `docs/handoffs/0014-r8-play-requirements.md` — R8 / Play technical
+> requirements. Measured: release bundle is **3.68 MB** uncompressed DEX, so Play's
+> Feb 2027 ≥25% optimization/obfuscation/shrinking floor **does not bind** (app clears
+> it at ~99% anyway); APK is 16 KB aligned; the JNI classes survive R8 un-renamed.
+> Re-run `tools/verify_r8_release.sh` after touching dependencies or keep rules.
 
 ## What this project is
 

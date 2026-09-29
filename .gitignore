@@ -14,10 +14,23 @@ captures
 *.jks
 *.hprof
 *.log
+
+# Per-variant output directories. These are NOT named "build", so the build/
+# rule above does not cover them. /app/release/ was listed but /app/free/ and
+# /app/play/ were not, which left a 79MB app-play-release.apk and its baseline
+# profiles one `git add -A` away from being committed. *.apk and *.aab below
+# cover the artifact itself but not output-metadata.json or the .dm profiles.
+# These are output dirs, not source sets — the flavor sources live in
+# app/src/free/ and app/src/play/, which these patterns do not touch.
+/app/free/
+/app/play/
 /app/release/
 
-# Host venv for tools/needle_eval.py (41MB, reproducible from the appendix)
-.zcode/          # host venvs, downloaded models, scratch build dirs
+# Host venvs, downloaded models and scratch build dirs.
+# NOTE: the comment must be on its own line. A trailing "# ..." after a pattern
+# is part of the pattern, not a comment -- which silently made the rule below
+# inert and left ~40MB of venv plus ONNX weights stageable.
+.zcode/
 
 # Python bytecode from tools/ scripts
 tools/__pycache__/

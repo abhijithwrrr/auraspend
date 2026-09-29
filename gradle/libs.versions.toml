@@ -61,10 +61,16 @@ androidx-compose-foundation = { group = "androidx.compose.foundation", name = "f
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
  # ONNX Runtime Mobile. Ships prebuilt native .so files, so it is covered by
  # tools/audit_native_runtime.sh like any other prebuilt binary. Pinned rather
- # than latest, for two measured reasons: 1.30 ships a 50 MB AAR against this
- # one's 27 MB for no capability this app uses, and 1.20 is rejected outright
- # because its arm64 .so is not 16 KB aligned, which lint fails on devices with
- # 16 KB pages.
+ # than latest: 1.30 ships a ~50 MB AAR against this one's 27.2 MB for no
+ # capability this app uses.
+ #
+ # An earlier version of this comment claimed 1.20 was "rejected outright"
+ # because its arm64 .so was not 16 KB aligned. That was never verified and is
+ # not true. Measured 2026-09-29: 1.20.0 and 1.22.0 both have PT_LOAD align
+ # 2**14 (16384) on arm64-v8a, both deflate their .so inside the AAR, and the
+ # packaged release APK passes `zipalign -c -P 16`. The pin stays because 1.22
+ # is the version the golden corpus was measured against — not because 1.20
+ # is broken. Re-derive before changing it.
 onnxruntime-android = { group = "com.microsoft.onnxruntime", name = "onnxruntime-android", version.ref = "onnxruntime" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 
