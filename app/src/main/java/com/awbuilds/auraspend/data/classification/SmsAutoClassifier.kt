@@ -164,13 +164,34 @@ object SmsAutoClassifier {
     internal fun looksLikeBankSender(address: String): Boolean =
         address.isNotBlank() && bankSenderRegex.containsMatchIn(address.trim())
 
+    /** A currency amount written the way banks write it. */
+    private val amountMarker = Regex("""(?:Rs\.?|INR|₹)\s*\d|₹\s*\d|\d+\s*(?:Rs|INR)""")
+
+    /** A verb that means money actually moved. */
+    private val movementVerb = Regex(
+        "(?:debited|credited|spent|paid|transferred|withdrawn)",
+        RegexOption.IGNORE_CASE
+    )
+
+    /** True when the message states both an amount and a movement — i.e. it is a transaction. */
+    private fun looksLikeTransaction(message: String): Boolean =
+        amountMarker.containsMatchIn(message) && movementVerb.containsMatchIn(message)
+
     fun isOtpOrAlertMessage(message: String): Boolean {
-        // OTPs are always skipped.
+        // OTPs are skipped — unless the message is really a debit that happens to
+        // end in an OTP code. "Spent INR 149 at SWIGGY. Your OTP for this
+        // transaction is 445122." is a real transaction, and dropping it silently
+        // loses the user's money entry. The OTP branch used to have no rescue and
+        // lost exactly that case.
         if (otpPatterns.any { it.containsMatchIn(message) }) {
-            return true
+            return !looksLikeTransaction(message)
         }
 
         // Fraud warnings quote amounts and debit verbs to look real — no rescue.
+        // This is deliberate: a phishing SMS ("...Rs.10,000 has been debited?
+        // report cyber fraud... Phishing alert.") parses identically to a genuine
+        // one, so the only thing separating them is this veto. Losing one real
+        // transaction is far cheaper than inventing a phantom one.
         if (hardVetoPatterns.any { it.containsMatchIn(message) }) {
             return true
         }
@@ -178,19 +199,7 @@ object SmsAutoClassifier {
         // Check for alert patterns
         if (alertPatterns.any { it.containsMatchIn(message) }) {
             // But make sure it's not a transaction (has amount + debit/credit pattern)
-            val hasAmount = Regex("""(?:Rs\.?|INR|₹)\s*\d|₹\s*\d|\d+\s*(?:Rs|INR)""").containsMatchIn(message)
-            val hasTransactionKeyword = Regex(
-                "(?:debited|credited|spent|paid|transferred|withdrawn)",
-                RegexOption.IGNORE_CASE
-            ).containsMatchIn(message)
-
-            // If it has both amount and transaction keyword, it's likely a real transaction
-            if (hasAmount && hasTransactionKeyword) {
-                return false
-            }
-
-            // Otherwise it's an alert
-            return true
+            return !looksLikeTransaction(message)
         }
 
         return false

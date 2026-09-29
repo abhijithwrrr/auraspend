@@ -41,6 +41,14 @@ class SmsPipelineProcessor(
     },
     /** Called after a successful save so the classification memory can learn the mapping. */
     private val onSaved: suspend (transaction: com.awbuilds.auraspend.domain.model.Transaction) -> Unit = {},
+    /**
+     * Records a bank message that looks like money moving but that no parser
+     * could read. Defaults to a no-op so existing construction sites and the
+     * pipeline's own tests are unaffected; production wires the real DAO.
+     */
+    private val recordUnrecognized: suspend (
+        id: String, sender: String, body: String, receivedAt: Long
+    ) -> Unit = { _, _, _, _ -> },
     private val maxAttempts: Int = 3,
     /**
      * Pause between messages so a long background batch never saturates the CPU
@@ -66,6 +74,19 @@ class SmsPipelineProcessor(
          */
         const val DUPLICATE_SIMILARITY_THRESHOLD = 0.96f
     }
+
+    /**
+     * True when the message states both an amount and a movement verb — i.e. it
+     * plausibly describes money moving, even if nothing could parse it.
+     *
+     * This is the same test `SmsAutoClassifier` uses to rescue a debit that ends
+     * in an OTP code, and it is deliberately reused rather than reimplemented so
+     * the two cannot disagree about what counts as a transaction.
+     */
+    private fun looksLikeMoneyMovement(body: String): Boolean =
+        Regex("""(?:Rs\.?|INR|₹)\s*\d|₹\s*\d|\d+\s*(?:Rs|INR)""").containsMatchIn(body) &&
+            Regex("(?:debited|credited|spent|paid|transferred|withdrawn)", RegexOption.IGNORE_CASE)
+                .containsMatchIn(body)
 
     /**
      * Layer 1 — identical normalized body already produced a SAVED transaction.
@@ -180,6 +201,19 @@ class SmsPipelineProcessor(
         val enriched = enrich(classified, categories)
 
         if (enriched.parsed.amount == null || enriched.parsed.type == null) {
+            // No amount or no type means nothing saveable. If the message still
+            // *looks* like money moving, it is recorded for the user rather than
+            // dropped: a missing transaction with no explanation is the failure
+            // mode this table exists to prevent. Messages that merely mention a
+            // bank have already been filtered by isOtpOrAlertMessage above.
+            if (looksLikeMoneyMovement(message.body)) {
+                recordUnrecognized(
+                    message.id,
+                    message.address,
+                    message.body,
+                    message.receivedAt
+                )
+            }
             dao.update(message.copy(
                 status = SmsMessageStatus.SKIPPED.name,
                 updatedAt = now

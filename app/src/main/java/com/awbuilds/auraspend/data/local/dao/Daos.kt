@@ -107,6 +107,10 @@ interface TransactionDao {
 
     @Query("DELETE FROM transactions WHERE id = :id")
     suspend fun deleteTransactionById(id: String)
+
+    /** Used only by the atomic Drive restore, which replaces the table wholesale. */
+    @Query("DELETE FROM transactions")
+    suspend fun clear()
 }
 
 /** Aggregate row for a date range: totals plus counts per type. */
@@ -148,6 +152,10 @@ interface CategoryDao {
 
     @Query("DELETE FROM categories WHERE id = :id")
     suspend fun deleteCategoryById(id: String)
+
+    /** Used only by the atomic Drive restore, which replaces the table wholesale. */
+    @Query("DELETE FROM categories")
+    suspend fun clear()
 }
 
 @Dao
@@ -169,6 +177,10 @@ interface BudgetDao {
 
     @Query("UPDATE budgets SET spentAmount = :spent WHERE categoryId = :categoryId")
     suspend fun updateSpentAmount(categoryId: String, spent: Double)
+
+    /** Used only by the atomic Drive restore, which replaces the table wholesale. */
+    @Query("DELETE FROM budgets")
+    suspend fun clear()
 }
 
 @Dao
@@ -187,6 +199,10 @@ interface SavingsGoalDao {
 
     @Update
     suspend fun updateSavingsGoal(goal: SavingsGoalEntity)
+
+    /** Used only by the atomic Drive restore, which replaces the table wholesale. */
+    @Query("DELETE FROM savings_goals")
+    suspend fun clear()
 }
 
 @Dao
@@ -205,6 +221,43 @@ interface SubscriptionDao {
 
     @Query("UPDATE subscriptions SET active = :active WHERE id = :id")
     suspend fun setSubscriptionActive(id: String, active: Boolean)
+
+    /** Used only by the atomic Drive restore, which replaces the table wholesale. */
+    @Query("DELETE FROM subscriptions")
+    suspend fun clear()
+}
+
+/**
+ * Bank messages the app could not turn into a transaction.
+ *
+ * Written only when a message carries a movement verb and an amount marker but
+ * no parser could read it — i.e. the message plausibly is a real transaction.
+ * Pure OTPs and promotions are filtered earlier and never reach this table.
+ */
+@Dao
+interface UnrecognizedSmsDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(messages: List<UnrecognizedSmsEntity>)
+
+    @Query("SELECT * FROM unrecognized_sms ORDER BY receivedAt DESC")
+    fun observeAll(): Flow<List<UnrecognizedSmsEntity>>
+
+    @Query("SELECT COALESCE(COUNT(*), 0) FROM unrecognized_sms")
+    fun observeCount(): Flow<Int>
+
+    @Query("DELETE FROM unrecognized_sms WHERE id = :id")
+    suspend fun delete(id: String)
+
+    @Query("DELETE FROM unrecognized_sms")
+    suspend fun clear()
+
+    /** Retention sweep: rows older than [cutoff] are not worth surfacing. */
+    @Query("DELETE FROM unrecognized_sms WHERE createdAt < :cutoff")
+    suspend fun purgeOlderThan(cutoff: Long)
+
+    @Query("SELECT * FROM unrecognized_sms")
+    suspend fun getAll(): List<UnrecognizedSmsEntity>
 }
 
 @Dao
@@ -228,4 +281,13 @@ interface SmsMessageDao {
 
     @Query("SELECT COALESCE(MAX(receivedAt), 0) FROM sms_messages")
     suspend fun getMaxReceivedAt(): Long
+
+    /**
+     * Used only by the atomic Drive restore. The queue is cleared and re-inserted
+     * so a restored row keeps the status the backup recorded — restoring with
+     * INSERT OR IGNORE would leave locally-newer rows untouched and never retry
+     * messages the backup still had pending.
+     */
+    @Query("DELETE FROM sms_messages")
+    suspend fun clear()
 }
