@@ -12,15 +12,24 @@ Apache-2.0, open source.
 
 ## Current phase
 
-**Aurora rebuild complete; backlog closed** — see
-`docs/handoffs/0006-backlog-completion.md`. Recent: Paging 3 on Activity,
-baseline profile (8,932 rules, generated on-device) + Macrobenchmark module,
-Hindi locale (344 entries), ADRs 0001–0007, committed screenshot baselines
-with a CI drift gate, Smart Add wizard + swipe triage. Classification
-accuracy pass: `docs/handoffs/0007-classification-accuracy.md` (word-boundary
-keywords, noise-tolerant merchant KB). Remaining nice-to-haves:
-physical-device benchmark numbers, full 200% font-scale sweep, more locales,
-a golden-set classification eval script.
+**On-device AI foundation** — latest is
+`docs/handoffs/0011-on-device-ai-foundation.md`. Classification accuracy is now
+*measured* (golden corpus + `ClassificationEval`), the runtime seam is
+`OnDeviceClassifier`, model downloads are SHA-256 verified, and the prebuilt
+Needle library passed a static privacy audit. The Needle swap was then
+**measured and rejected on accuracy** (0/65, `type` inverted on 46/46) — see
+its Appendix A for the failure modes before proposing it again. Before that:
+`0010-ui-revamp.md`.
+Money is locale/currency-correct (explicit lakh-crore grouping), all hardcoded
+font sizes are on the Material 3 scale, `SYSTEM` theme is the default, AMOLED has
+its own semantic colours, there is an error state, all 12 screens carry heading
+semantics, EN/hi have full key parity, and the design-system rules are enforced
+by `DesignSystemGuardTest` + `ErrorStateWiringTest`. `ClassificationScreen` is
+split into three files. Whole-screen visual regression covers `DashboardScreen`
+in all three themes. Before that: `0009-crash-paths-and-safety-nets.md`
+(crash paths, atomic restore, release signing, CI safety nets), then
+`0006`–`0008`. Remaining work is in 0010 §4 — wire `AuraErrorState` into screens,
+fold the hand-rolled stat grids onto `AuraStatTile`, split `ClassificationScreen`.
 Do not start new work without reading the latest handoff.
 
 ## Module map
@@ -47,12 +56,22 @@ Kotlin source root: `app/src/main/java/com/awbuilds/auraspend/`
 ```bash
 ./gradlew :app:compileFreeDebugKotlin      # fast compile check
 ./gradlew testFreeDebugUnitTest            # unit tests (required before handoff)
+./gradlew :app:lintFreeDebug                # new issues fail; 94 pre-existing baselined
 ./gradlew assembleFreeDebug                # APK (native build; slow)
 ./gradlew assemblePlayDebug                # Play flavor
 ```
 
 Flavors: `free` (all features, F-Droid/self-build) and `play` (Play Store).
 The Play paywall was removed in Phase 0 — do not reintroduce premium gating.
+
+**Signed releases:** keystore credentials live in `secrets.properties`
+(gitignored, see `secrets.properties.example`). Without them `assembleFreeRelease`
+still succeeds but produces `app-free-release-unsigned.apk` and logs a warning —
+check the filename before calling a release build shippable.
+
+**Lint:** `app/lint-baseline.xml` pins the 94 pre-existing issues so only *new*
+ones fail CI. Run `./gradlew updateLintBaseline` deliberately (and review the
+diff) when you intentionally fix or add lint suppressions.
 
 ## Hard requirements (non-negotiable)
 
@@ -61,6 +80,10 @@ The Play paywall was removed in Phase 0 — do not reintroduce premium gating.
    `AuraLog`, and degrade to a typed fallback/error state. Never write an empty
    `catch {}`. Always rethrow `CancellationException`. Use the `boundary { }` /
    `boundaryOrNull { }` helpers from `core/AuraLog.kt` for new code.
+   **Never put a raw exception message in screen state** — log the cause, then
+   report a `UiError` (`ui/core/UiError.kt`) and resolve the string from
+   resources. `ErrorStateWiringTest` fails the build if a screen declares an
+   `error` field it never renders.
 2. **No `!!` in new code.** No `lateinit` where a constructor/`requireNotNull`
    with a real error path works.
 3. **Handoff discipline.** Every session ends with a `docs/handoffs/NNNN-*.md`
@@ -69,10 +92,18 @@ The Play paywall was removed in Phase 0 — do not reintroduce premium gating.
    handoff.
 4. **Memory discipline.** Keep `CLAUDE.md` as a ≤100-line hot cache. Durable
    knowledge (decisions, glossary, project state) goes to `memory/`.
+   **Never regress the OTP/alert filter.** `SmsAutoClassifier.isOtpOrAlertMessage`
+   must skip an OTP only when the message has no amount *and* no movement verb —
+   a real debit that ends in an OTP code is a real transaction, and dropping it
+   loses the user's money silently. The hard fraud veto deliberately has *no*
+   rescue, because a phishing lure parses identically to a genuine debit.
 5. **Design system discipline.** Screens use `ui/designsystem` components and
    `ui/theme` tokens. No raw hex colors, no one-off `fontSize =`, no
    `Modifier.shadow` on content surfaces, no new emoji in chrome. New shared
-   UI belongs in `ui/designsystem`, not in a screen file.
+   UI belongs in `ui/designsystem`, not in a screen file. **These are enforced by
+   `DesignSystemGuardTest`** — they fail the build, so a violation is a red test
+   rather than a review comment. Touch targets ≥48dp; anything holding text uses
+   `heightIn`, not a fixed `height`, so it survives 200% font scale.
 6. **Green build.** `:app:compileFreeDebugKotlin` and `testFreeDebugUnitTest`
    must pass before a handoff. Never commit red.
 7. **One phase per branch** (`phase-N-name`), small commits, conventional
@@ -89,6 +120,10 @@ The Play paywall was removed in Phase 0 — do not reintroduce premium gating.
 | Progress / donut / area | `AuraProgressRing`, `AuraDonutChart`, `AuraAreaChart` |
 | Loading placeholder | `AuraSkeleton` |
 | Empty state | `AuraEmptyState` |
+| Error / retry state (no data to show) | `AuraErrorState` |
+| Inline error banner (data still visible) | `AuraErrorBanner` |
+| Metric tile (label + value) | `AuraStatTile` (`contained = false` inside a card) |
+| Money text | `formatMoney` (locale-aware) / `AnimatedMoney` |
 | Spacing | `AuraSpacing.*` (4dp grid, `gutter = 20dp`) |
 | Motion | `AuraMotion.*` (never invent durations) |
 | Brand gradient | `AuraGradients.aurora` |
@@ -96,3 +131,84 @@ The Play paywall was removed in Phase 0 — do not reintroduce premium gating.
 Legacy `ui/core/CashewComponents.kt` is a Phase 0 compatibility shim. Do not
 add new usage; migrate call sites to the design system as each screen is
 rebuilt (P1–P3), then delete the shim.
+
+## Money, theme and i18n invariants
+
+- **Never hardcode a currency symbol or a locale.** Use `formatMoney` /
+  `formatMoneyCompact` from `ui/designsystem/Money.kt`. Indian lakh/crore
+  grouping is implemented by hand on purpose — `NumberFormat` and `#,##,##0` both
+  return *Western* grouping for `en_IN`/`hi_IN` on this project's JDK, so
+  reverting to the platform formatter reintroduces a real bug.
+- **Currency comes from the theme** (`LocalCurrencyStyle` / `MoneyConfig`), set
+  from the `currency_code` preference and defaulting to the device locale. Do
+  not thread a currency parameter through call sites.
+- **`AppThemeMode.SYSTEM` is the default.** Parse preferences with
+  `AppThemeMode.fromName`, never `valueOf`, which throws on a corrupt value.
+- **Every user-facing string needs both `values/` and `values-hi/`.** Key parity
+  is checked; a new string without its Hindi twin is a defect.
+- **Localize `contentDescription`.** Hardcoded English in chrome is untranslatable.
+- **Apostrophes in `strings.xml` must be escaped as `\'`** (Android syntax).
+  A bare `'` or a `&#39;` entity fails the resource build with a misleading
+  "Invalid unicode escape sequence" error.
+
+## Storage and restore invariants
+
+- **Never write to public/external storage.** `minSdk = 30` forbids it without
+  `MANAGE_EXTERNAL_STORAGE`; use the Storage Access Framework uri directly
+  (see `CsvManager.exportToCsv`).
+- **Drive restore is a replace, not a merge**, and it runs inside one
+  `BackupRestoreManager` Room transaction. Do not "restore" by calling repository
+  save methods directly from a composable.
+- **`BackupData` must carry every user-owned table** (transactions, categories,
+  budgets, subscriptions, SMS queue, savings goals, classification memory).
+  Format is v3; deserialization must stay tolerant of missing/legacy fields.
+- **Auto Backup is off for the DB.** `res/xml/backup_rules.xml` and
+  `data_extraction_rules.xml` exclude `auraspend_db`, prefs and the model
+  directory; keep them that way — the app promises data stays on-device.
+- **Every write path goes through `TransactionRepositoryImpl.sanitized()`**, the
+  single `SensitiveDataMasker` choke-point. New write paths must not bypass it.
+
+## On-device AI invariants
+
+- **The runtime seam is `OnDeviceClassifier`** (`data/ai/OnDeviceClassifier.kt`),
+  which describes the *job*, not a mechanism: `extract(smsBody, categoryIdByName)
+  -> SmsExtraction?`. Do not widen it back to prompt-in/text-out — a
+  grammar-constrained runtime has no meaningful "prompt", and its parse guarantee
+  and calibrated score cannot cross such an interface. `LocalLlmProvider` is the
+  only place a backend is chosen, and `UnavailableClassifier` is the only
+  degradation path.
+- **`SmsExtraction.confidence` is nullable and must stay honest.** null means
+  the runtime has no calibrated head (llama.cpp). Never fabricate a score.
+- **Any new runtime must beat the measured floor** before it can replace an
+  existing one. Baseline with the model switched off: **13.8 % exact match**,
+  type 95.4 %, category 36.9 % (`RegexBaselineEval`, `./gradlew
+  :app:classificationBaseline`). `RegexBaselineEvalTest` fails if the regex layer
+  regresses. The one alternative runtime that has been measured — Needle 3, base
+  model — scores **0 % exact, `type` 0/46, `category` 2/46**, and its own
+  calibration head withheld **all 65** extractions at median confidence 0.017.
+  It is rejected; reproduce with `tools/needle_eval.py` rather than restating
+  the number.
+- **A model may never delete a transaction on a bare boolean.** A model "not a
+  transaction" verdict nulls `amount` and `type` in `AiSignalFusion`, and the
+  pipeline's unresolved-fields gate then drops the row — so a false veto
+  *deletes* a real debit rather than mis-filing it. Measured rates: 7/46 real
+  transactions (Qwen2.5-0.5B) and 40/46 (SmolLM2-135M). `mayDiscard` therefore
+  requires **both** `isTransactionProbability >= 0.9` **and** `base.amount ==
+  null`; confidence alone is not enough, because the regex layer reading a
+  message correctly is the stronger signal. A runtime that cannot supply a
+  probability reports `null` and keeps the old behaviour — never fabricate one,
+  since a higher probability is licence to discard.
+- **Classify by sender first.** The SMS sender ID is free, reliable routing
+  metadata (`BankParserRegistry.parserFor`). Per-bank parsers live in
+  `data/classification/bank/`. `CanaraBankParser` must never read the
+  `Dial 1930 to report cyber fraud` footer — it decorates every genuine Canara
+  debit. A message no parser claims but that carries an amount and a movement
+  verb goes to the `unrecognized_sms` table, never silently into the bin.
+- **Model downloads are SHA-256 verified** against a pinned digest in
+  `ModelConstants` before the file is moved into place. A size check alone cannot
+  detect a corrupt or substituted file, and the model is executed on-device.
+- **A prebuilt native library must pass `tools/audit_native_runtime.sh`**
+  (no network imports, no URLs, no `dlopen`, no telemetry strings) before it is
+  wired in, and the audit must be re-run on every version bump — a pass is only
+  valid for the digest it was run against. Beware `grep -E '\b'`: POSIX ERE has
+  no word boundary, so it matches a backspace and silently finds nothing.

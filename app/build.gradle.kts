@@ -1,8 +1,26 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.compose)
 }
+
+// Release signing credentials live in secrets.properties (gitignored). The file is optional:
+// without it the release build still configures, but is explicitly reported as UNSIGNED so a
+// green "assembleFreeRelease" can never be mistaken for a shippable artifact again.
+val secretsFile = rootProject.file("secrets.properties")
+val secrets = Properties().apply {
+    if (secretsFile.exists()) {
+        secretsFile.inputStream().use { stream -> load(stream) }
+    }
+}
+fun secret(key: String): String? = secrets.getProperty(key)?.trim()?.takeIf { it.isNotEmpty() }
+val releaseStorePath = secret("KEYSTORE_PATH")
+val hasReleaseSigning = releaseStorePath != null &&
+    secret("KEYSTORE_PASSWORD") != null &&
+    secret("KEY_ALIAS") != null &&
+    secret("KEY_PASSWORD") != null
 
 android {
     namespace = "com.awbuilds.auraspend"
@@ -30,6 +48,17 @@ android {
         }
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = rootProject.file(releaseStorePath!!)
+                storePassword = secret("KEYSTORE_PASSWORD")
+                keyAlias = secret("KEY_ALIAS")
+                keyPassword = secret("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             // Keep debug builds fast: no shrinking, but still use the same dex pipeline.
@@ -43,6 +72,18 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Previously this type had no signingConfig at all, so `assembleFreeRelease`
+            // produced an uninstallable APK. Now it is signed whenever credentials exist.
+            signingConfig = if (hasReleaseSigning) {
+                signingConfigs.getByName("release")
+            } else {
+                logger.warn(
+                    "AuraSpend: no release keystore in secrets.properties " +
+                        "(KEYSTORE_PATH / KEYSTORE_PASSWORD / KEY_ALIAS / KEY_PASSWORD) — " +
+                        "release builds will be UNSIGNED."
+                )
+                null
+            }
         }
         // Release-like build for Macrobenchmark / baseline profiles.
         create("benchmark") {
@@ -52,6 +93,32 @@ android {
             isDebuggable = false
         }
     }
+    // Static analysis. There was no lint configuration at all, which is how the
+    // scoped-storage CSV crash and the unguarded enum valueOf calls slipped through
+    // a "green" build. The 100+ pre-existing issues are pinned in
+    // app/lint-baseline.xml; anything new fails the build.
+    // Prints the accuracy floor for the golden corpus (regex only, no on-device AI).
+    // Any runtime swap is judged against this number, so it has to be cheap to read.
+    tasks.register("classificationBaseline") {
+        group = "verification"
+        description = "Run the golden SMS corpus through the regex path and print per-field accuracy."
+        dependsOn("testFreeDebugUnitTest")
+        doLast {
+            logger.lifecycle("See the REGEX-ONLY BASELINE block in the test output for :app:testFreeDebugUnitTest")
+        }
+    }
+
+    lint {
+        abortOnError = true
+        warningsAsErrors = true
+        checkDependencies = true
+        checkReleaseBuilds = true
+        explainIssues = true
+        xmlReport = true
+        htmlReport = true
+        baseline = file("lint-baseline.xml")
+    }
+
     // Unit tests exercise JVM-only logic; unmocked android.framework calls (e.g. Log) no-op.
     testOptions {
         unitTests.isReturnDefaultValues = true
@@ -97,6 +164,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    // viewModel() + ViewModelStoreOwner-scoped factories (survives rotation).
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     // Foreground/background process detection for background classification.
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.lifecycle.runtime.compose)

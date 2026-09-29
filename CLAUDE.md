@@ -29,7 +29,39 @@ Repo: `github.com/abhijithwrrr/auraspend`. Branch strategy: one phase per branch
 |------|-------|
 | **Aurora rebuild + backlog** | ✅ Complete — `docs/handoffs/0006-backlog-completion.md` |
 | **Classification accuracy pass** | ✅ Complete — `docs/handoffs/0007-classification-accuracy.md` |
-| **Nice-to-haves** | physical-device benchmarks · 200% font sweep · more locales · golden-set eval script |
+| **Crash paths + CI safety nets** | ✅ Complete — `docs/handoffs/0009-crash-paths-and-safety-nets.md` |
+| **UI revamp (locale/type/theme/states/a11y)** | ✅ Complete — `docs/handoffs/0010-ui-revamp.md` |
+| **On-device AI: eval + seam + download integrity** | ✅ Complete — `docs/handoffs/0011-on-device-ai-foundation.md` |
+| **Needle runtime swap** | ❌ **No-go, measured** — 0/65 exact, `type` 0/46, engine withheld all 65 calls at median confidence 0.017. See 0011 App. A/B |
+| **Typed-decision classification** | ✅ Tasks 1–4 shipped — 0012. Calibrated veto seam, sender-routed bank parsers (Axis/Canara/SBI), keyword category map, unrecognized-SMS table. **278 tests green** |
+| **Next: error-handling debt** | `CancellationException` swallowed at most catch sites; `runBlocking` in `LlamaCppLlm`; dead duplicate-SMS guard; no DAO/migration tests (`exportSchema = false`) |
+
+## Hard-won invariants (do not regress)
+- **CSV export writes to the SAF uri, never public Downloads** (minSdk 30 forbids it).
+- **Drive restore = atomic replace** via `BackupRestoreManager` (`withTransaction`).
+  Not a merge. `BackupData` is format v3 and must carry every user-owned table.
+- **Auto Backup excludes `auraspend_db`** (`res/xml/backup_rules.xml`) — the app
+  promises data stays on-device.
+- **Every write path goes through `TransactionRepositoryImpl.sanitized()`**
+  (the only `SensitiveDataMasker` choke-point). Restore re-masks too.
+- **ViewModels use `viewModel(factory = ...)`**, never `remember { }` — see the
+  `factoryOf` helper in `NavGraph.kt`.
+- **`assembleFreeRelease` is only shippable if the APK is not `-unsigned`**
+  (keystore in gitignored `secrets.properties`).
+- **Lint:** 81 pre-existing issues are baselined in `app/lint-baseline.xml`;
+  new ones fail CI. Do not casually run `updateLintBaseline`.
+- **Money is never hardcoded.** `formatMoney` (`ui/designsystem/Money.kt`)
+  implements Indian lakh/crore grouping by hand — `NumberFormat` returns Western
+  grouping for `en_IN`/`hi_IN` on this JDK. Currency comes from the theme.
+- **Design-system rules are build-enforced** by `DesignSystemGuardTest`
+  (no raw colors/fontSize/shadow/emoji, missing error state, empty catch) and
+  `ErrorStateWiringTest` (a screen must render the `error` it declares; no raw
+  `.message` in state — errors are typed `UiError`, logged via `AuraLog`, and
+  resolved from `strings.xml` at render time).
+- **`strings.xml` needs `\'` for apostrophes** — a bare `'` fails the resource
+  build with a misleading "Invalid unicode escape sequence".
+- **Theme default is `SYSTEM`**; parse prefs with `AppThemeMode.fromName`.
+- **Every string needs a Hindi twin** in `values-hi/strings.xml`.
 
 ## Classification hot spots
 - `keywordCategoryFor` (DefaultCategories.kt) — word-boundary, longest-key
@@ -40,12 +72,13 @@ Repo: `github.com/abhijithwrrr/auraspend`. Branch strategy: one phase per branch
   purpose (they forced wrong categories).
 
 ## Tooling
-- Screenshot baselines: `app/src/test/screenshots/` (committed; CI drift gate)
+- Screenshot baselines: `app/src/test/screenshots/` (committed; CI drift gate) —
+  component gallery, empty/error/stats states, full `DashboardScreen`, 3 themes.
 - Benchmarks: `./gradlew :benchmark:connectedFreeBenchmarkAndroidTest`
 - Baseline profile: `app/src/main/baseline-prof.txt` (generate via the `:benchmark` BaselineProfileGenerator)
 - Design system: `ui/designsystem/`; ADRs in `docs/adr/`
-| **Paywall removal** | Done in P0 (PremiumGate, PremiumUpgradeScreen, BillingManager deleted) |
-| **Master plan** | `docs/handoffs/0000-master-plan.md` |
+- Master plan: `docs/handoffs/0000-master-plan.md`. Paywall removed in P0
+  (PremiumGate, PremiumUpgradeScreen, BillingManager deleted).
 
 ## Locked decisions
 - Aurora purple brand (matches app icon + landing page), not Cashew blue.
@@ -55,10 +88,25 @@ Repo: `github.com/abhijithwrrr/auraspend`. Branch strategy: one phase per branch
 - Try/catch at every boundary is a hard rule (see `AGENTS.md`).
 
 ## Preferences / rules
-- Verify with `./gradlew :app:compileFreeDebugKotlin` + `testFreeDebugUnitTest`.
+- Verify with `./gradlew :app:compileFreeDebugKotlin` + `testFreeDebugUnitTest` +
+  `:app:lintFreeDebug` before claiming done.
 - Visual changes are not "done" until screenshots are captured in all 3 themes.
-- No raw colors/font sizes/shadows in screens — design system or nothing.
 - Keep commits small and conventional; never commit a red build.
+- CI (`.github/workflows/pr_check.yml`) runs tests, both lints, both debug
+  assembles, and `:benchmark` — keep it green, not just locally.
+- **On-device AI:** `OnDeviceClassifier` is the only runtime seam. Accuracy floor
+  with no model is **13.8 % exact match** (`./gradlew :app:classificationBaseline`);
+  any new runtime must beat it. Golden corpus:
+  `app/src/test/resources/golden/sms_corpus.jsonl`. Prebuilt native libs must
+  pass `tools/audit_native_runtime.sh`.
+- **Needle was measured and rejected — do not re-litigate from the summary.**
+  `tools/needle_eval.py` reproduces 0/65 and names the failure modes. Re-run it
+  before proposing the swap again; a new argument needs a new number.
+- **Score the SYSTEM, never the model.** A standalone model score and a fused
+  one can point opposite ways: Qwen and SmolLM2 both score 29.2 % standalone
+  and one is mildly harmful while the other is catastrophic. `FusedAiEval` runs
+  the production path; `tools/gguf_eval.py` runs a real GGUF host-side. Both
+  exist because a green unit suite proves the *parser*, never the *model*.
 
 → Full glossary: `memory/glossary.md` · Phases: `memory/projects/aurora-rebuild.md`
 → Stack + commands: `memory/context/tech-stack.md` · Decisions: `memory/decisions.md`

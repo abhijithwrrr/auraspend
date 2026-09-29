@@ -1,0 +1,1702 @@
+{
+  "schema": "v2",
+  "elapsed": 6.5128467082977295,
+  "rows": [
+    {
+      "id": "axis_multiline_yasar",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "merchant": "INR 25",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "axis_classic_sil",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "merchant": "INR 2299",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "axis_mcdonalds",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "merchant": "MCDONALDS KORAMANGALA",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "axis_yas_mart",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "merchant": "XX9054 16-08-26 11:33:30",
+        "category": "cat_subscription",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "canara_neft_credit",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "merchant": "XXXX0007",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "canara_debit_cyber_fraud",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_healthcare",
+        "merchant": "XXXX0007",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "canara_debit_10000",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "merchant": "Bank",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "emoney_recharge_promo",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_food",
+        "merchant": "706.82",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "bill_pay_today",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "hash_merchant_rejected",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "merchant": "0cd87d2e3e094eb78d56d4d283530a04",
+        "category": "cat_food",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "phishing_alert",
+      "conf": null,
+      "args": {
+        "isTransaction": false,
+        "type": "income",
+        "category": "cat_healthcare",
+        "merchant": "Fraud",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "otp_message",
+      "conf": null,
+      "args": {
+        "isTransaction": false,
+        "type": "expense",
+        "category": "cat_food",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      }
+    },
+    {
+      "id": "balance_alert",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_healthcare",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "promo_offer",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "emande_registered",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "merchant": "Microsoft Businesses",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "installment_due",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "mandate_upcoming",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "swiggy_debit",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "merchant": "SWIGGY",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "upi_transfer_out",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_food",
+        "merchant": "HDFC Bank",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "salary_credit",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_healthcare",
+        "merchant": "A/c XX1234",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "refund_zomato",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "autopay_netflix",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_food",
+        "merchant": "AutoPay",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "fuel_pump",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_healthcare",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "spotify_autodebit",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_subscription",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": true,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "amazon_prime_renewal",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "merchant": "Amazon Prime",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      }
+    },
+    {
+      "id": "atm_withdrawal",
+      "conf": null,
+      "args": {
+        "isTransaction": false,
+        "type": "expense",
+        "merchant": "ATM",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "cashback_credit",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "transfer",
+        "category": "cat_shopping",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      }
+    },
+    {
+      "id": "own_account_transfer",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "transfer",
+        "merchant": "SBI",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "electricity_bill",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "medical_pharmacy",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "merchant": "APOLLO PHARMACY",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "school_fees",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "failed_payment",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "card_declined",
+      "conf": null,
+      "args": {
+        "isTransaction": false,
+        "type": "expense",
+        "merchant": "DECATHLON",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "kyc_notice",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "card_added_notice",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_food",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      }
+    },
+    {
+      "id": "cashback_announcement",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "emi_loan_disbursed",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_food",
+        "merchant": "Rs 500000",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "dividend_credit",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_food",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "grocery_bigbasket",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "restaurant_zomato",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "merchant": "ZOMATO",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "uber_cab",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_food",
+        "merchant": "UBER",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "metro_recharge",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_food",
+        "merchant": "Delhi Metro",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "insurance_premium",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_healthcare",
+        "merchant": "LIC insurance premium",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "gym_membership",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      }
+    },
+    {
+      "id": "cloud_storage",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_subscription",
+        "merchant": "iCloud storage",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": true,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": true,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "failed_refund",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "otp_amount_decoy",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_food",
+        "merchant": "772914",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "balance_with_amount",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "merchant": "15-09-2026",
+        "category": "cat_subscription",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "due_reminder_utility",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "cashback_credited",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_food",
+        "merchant": "cashback",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "recharge_bill_paid",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "donation",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_healthcare",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "interest_credit",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_salary",
+        "merchant": "savings account",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "rent_payment",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "flight_booking",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "cigarette_purchase",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_food",
+        "merchant": "general store",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "coupon_applied",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    },
+    {
+      "id": "prepaid_mobile",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_food",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      }
+    },
+    {
+      "id": "subscription_cancelled",
+      "conf": null,
+      "args": {
+        "isTransaction": false,
+        "type": "expense",
+        "subscription": false,
+        "merchant": "Netflix"
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "autopay_failed",
+      "conf": null,
+      "args": null,
+      "refused": true,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": true,
+        "category": false,
+        "merchant": true,
+        "subscription": false
+      }
+    },
+    {
+      "id": "otp_in_transaction_sms",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "merchant": "SWIGGY",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "axis_balance_only",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_food",
+        "merchant": "Axis Bank Card",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": false,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "salary_advance",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "expense",
+        "category": "cat_healthcare",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": true,
+        "subscription": true
+      }
+    },
+    {
+      "id": "merchant_name_numbers",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "category": "cat_food",
+        "merchant": "SHOP 123",
+        "subscription": false
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": true
+      }
+    },
+    {
+      "id": "multi_txn_single_sms",
+      "conf": null,
+      "args": {
+        "isTransaction": true,
+        "type": "income",
+        "merchant": "SWIGGY",
+        "subscription": true
+      },
+      "refused": false,
+      "strict": false,
+      "credited": false,
+      "strict_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      },
+      "credited_fields": {
+        "isTransaction": true,
+        "type": false,
+        "category": false,
+        "merchant": false,
+        "subscription": false
+      }
+    }
+  ]
+}
