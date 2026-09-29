@@ -42,20 +42,17 @@ android {
         //   arm64-v8a     17.5 MB   real consumer hardware
         //   armeabi-v7a   12.7 MB   32-bit low-end hardware still ships
         //   x86           20.6 MB   dropped — no device or current emulator
-        //   x86_64        21.0 MB   emulators and ChromeOS
+        //   x86_64        21.0 MB   dropped — no Chromebooks, no emulators
         //
-        // Dropping 32-bit x86 takes the release AAB from 35.4 MB to ~28 MB for
-        // hardware that does not exist: Android Studio no longer ships an x86
-        // image, and no consumer phone uses it. Play's 64-bit requirement is
-        // met by arm64-v8a.
+        // Play's 64-bit requirement is met by arm64-v8a. The cost is 21 MB of
+        // native payload, which takes the release AAB from 35.4 MB to 20.5 MB.
         //
-        // x86_64 STAYS, and not for emulator convenience. ChromeOS runs Android
-        // apps on x86_64, so dropping it makes the app uninstallable on
-        // Chromebooks — a user-facing loss, not a developer one. Lint enforces
-        // this: `ChromeOsAbiSupport` fails the build without it. Do not
-        // suppress that check to save the ~8 MB.
+        // **ChromeOS is not a supported form factor.** Dropping x86_64 makes the
+        // app uninstallable on Chromebooks. That is deliberate, not an
+        // oversight — see the `ChromeOsAbiSupport` suppression in `lint` below,
+        // which is the place to change your mind.
         ndk {
-            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
         }
     }
 
@@ -140,6 +137,17 @@ android {
         xmlReport = true
         htmlReport = true
         baseline = file("lint-baseline.xml")
+
+        // AuraSpend does not support ChromeOS, by decision rather than oversight.
+        // Chromebooks run Android apps on x86_64, so removing that ABI from
+        // `abiFilters` (which saves 21 MB of ONNX Runtime native payload and
+        // takes the release AAB from 35.4 MB to 20.5 MB) also makes the app
+        // uninstallable there. Lint flags that combination by default; the
+        // check is disabled deliberately rather than worked around.
+        //
+        // To change this: add "x86_64" back to `abiFilters` and delete this line.
+        // Do not suppress any other check to recover the size.
+        disable += "ChromeOsAbiSupport"
     }
 
     // Unit tests exercise JVM-only logic; unmocked android.framework calls (e.g. Log) no-op.

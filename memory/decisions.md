@@ -2,15 +2,22 @@
 
 Durable decisions with context. Latest first.
 
-## D12 — Ship three ABIs, not four (2026-09-29)
-The app's size is native library, not code: ONNX Runtime's `.so` was 71.8 MB of a
-78.8 MB APK while the DEX was 3.7 MB. So the ABI list is the only size lever that
-matters. **32-bit `x86` is dropped** (20.6 MB) — no device, and Android Studio no
-longer ships an x86 image. AAB 35.4 → 28.0 MB. **`x86_64` stays**: ChromeOS runs
-Android apps on it, so dropping it makes the app uninstallable on Chromebooks. Lint's
-`ChromeOsAbiSupport` fails the build without it — do not suppress that check to save
-~8 MB. Generalisation worth keeping: a lost ABI is not always a lost developer
-convenience; check whether it is a lost *user* before treating the size as free.
+## D12 — Two ABIs, and ChromeOS is deliberately unsupported (2026-09-29)
+The app's size is native library, not code: ONNX Runtime's `.so` was 71.8 MB of
+a 78.8 MB APK while the DEX was 3.7 MB, so the ABI list is the only size lever
+that matters. Shipping **arm64-v8a + armeabi-v7a only** takes the release AAB
+from 35.4 MB to **20.5 MB**. Dropped: 32-bit `x86` (no device, Android Studio no
+longer ships an x86 image) and **`x86_64`, which means the app is uninstallable
+on Chromebooks** — ChromeOS runs Android apps on x86_64, and that is a supported-
+form-factor decision, not an oversight. Lint's `ChromeOsAbiSupport` is disabled
+deliberately to express it; the comment in `build.gradle.kts` gives the two-step
+way to reverse it. Real per-device download is unaffected (~23 MB) because Play
+serves arm64 only — the saving is for F-Droid and universal APKs.
+
+The generalisation, learned the hard way: **a dropped ABI is not always a lost
+developer convenience.** My first pass framed the x86_64 removal as "emulators vs.
+size" and was wrong; the emulator half was convenience, the ChromeOS half was
+users. Check which one you are actually trading away before treating size as free.
 
 ## D11 — Play's Feb 2027 R8 thresholds do not bind, and here is the number (2026-09-29)
 Google requires ≥25% optimization/obfuscation/shrinking from Feb 2027, but only for
