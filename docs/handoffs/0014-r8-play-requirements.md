@@ -76,29 +76,36 @@ Per-ABI native payload, measured:
 |---|---|---|
 | arm64-v8a | 17.5 MB | yes — consumer hardware |
 | armeabi-v7a | 12.7 MB | yes — 32-bit low-end hardware still ships |
-| x86_64 | 21.0 MB | yes — emulators **and ChromeOS** |
-| x86 | 20.6 MB | **dropped** |
+| x86_64 | 21.0 MB | **no — ChromeOS is not a supported form factor** |
+| x86 | 20.6 MB | **no — no device or current emulator** |
 
-**Result: AAB 35.4 → 28.0 MB, APK 78.8 → 58.2 MB.**
+**Result: AAB 35.4 → 20.5 MB, APK 78.8 → 37.2 MB.**
 
-### The first attempt was wrong, and lint said so
+### How this decision actually went
 
-The instruction was to drop both x86 and x86_64. That produced a 20.5 MB AAB and a **red
-build**:
+It took three passes, and the record matters because the first two were both wrong in
+opposite directions.
 
-```
-app/build.gradle.kts:56: Error: Missing x86_64 ABI support for ChromeOS [ChromeOsAbiSupport]
-```
+1. **Drop both x86 and x86_64** (the original instruction). Gave a 20.5 MB AAB — and a red
+   build: `ChromeOsAbiSupport: Missing x86_64 ABI support for ChromeOS`. I under-called
+   that. ChromeOS runs Android apps on x86_64, so the app becomes uninstallable on
+   Chromebooks. I had framed the trade as "emulators vs. size" when the emulator half was
+   convenience and the ChromeOS half is users. That was my error, and the build caught it.
+2. **Add x86_64 back, drop only x86.** 28.0 MB AAB. Lint green, everything else unchanged.
+   Recommended, and the user agreed.
+3. **Drop x86_64 again, deliberately**, on the basis that nobody will use Chromebooks. The
+   `ChromeOsAbiSupport` check is now **explicitly disabled** in `lint`, with the reason
+   written down.
 
-That is a real loss and not a developer-ergonomics one. **ChromeOS runs Android apps on
-x86_64**, so dropping it makes the app uninstallable on Chromebooks. Under-calling it was
-my error: I framed the trade as "emulators vs. size" when the emulator half was merely
-convenience and the ChromeOS half is users.
+Step 3 is the one that matters for the record: the suppression is *narrow and attributed*,
+not a workaround for a check that was inconvenient. The comment states the decision, the
+cost, and the exact two-step way to reverse it (add `x86_64` back to `abiFilters`, delete
+the `disable`), and says not to suppress anything else to recover the size. It also notes
+the check was tried and reverted once already, so nobody re-derives it from scratch.
 
-Dropping only 32-bit **x86** costs nothing real — Android Studio no longer ships an x86
-image and no consumer phone uses it — and still removes 20.6 MB. The comment in
-`app/build.gradle.kts` now records the per-ABI numbers, why x86_64 stays, and an explicit
-instruction not to suppress `ChromeOsAbiSupport` to save the remaining ~8 MB.
+Real per-device download is **unchanged at ~23 MB** throughout: Play has always served
+arm64 only, so none of this moves the Play number. The saving lands on F-Droid and any
+universal-APK install.
 
 ## 5. The JNI finding, and why it went the other way
 
