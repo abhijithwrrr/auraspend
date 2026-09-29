@@ -76,13 +76,22 @@ object AiSignalFusion {
             )
         val isSubscription = (ai?.isSubscription == true) || recurringByKeyword || subscriptionMerchant
 
+        val resolvedMerchant = base.merchant ?: ai?.merchant
+
+        // Precedence is deliberate and one-directional: a category the parser or
+        // the user already resolved always wins, and the keyword map is consulted
+        // only after the model, because a whole-word scan over a closed merchant
+        // vocabulary is more reliable than a 0.5B model's guess. The map can
+        // therefore only ever fill a gap, never override.
         val resolvedCategory = when {
             isSubscription -> "cat_subscription"
             base.categoryId != null -> base.categoryId
             else -> ai?.category
+                ?: CategoryKeywordMap.resolve(
+                    resolvedMerchant,
+                    resolvedType == TransactionType.EXPENSE
+                )
         }
-
-        val resolvedMerchant = base.merchant ?: ai?.merchant
 
         val confidence = computeConfidence(base.confidence, base.type, resolvedType, ai)
 
