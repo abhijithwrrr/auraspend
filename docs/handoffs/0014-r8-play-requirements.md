@@ -63,7 +63,44 @@ native-runtime rule in the file, which made the JNI story look handled locally.
 **`docs/superpowers/plans/2026-09-29-r8-play-requirements.md`** — the plan, with
 measured results filled in.
 
-## 4. The JNI finding, and why it went the other way
+## 4. Release artifact size, and the ABI trim
+
+Asked how big the release artifacts are. They were **78.8 MB (APK) / 35.4 MB (AAB)**, and
+the reason was not the app: native libraries were **71.8 MB of the 78.8 MB**, while all of
+the app's own code — the DEX — was **3.7 MB**. A 20:1 ratio, entirely ONNX Runtime's
+prebuilt `.so`.
+
+Per-ABI native payload, measured:
+
+| ABI | Native | Kept? |
+|---|---|---|
+| arm64-v8a | 17.5 MB | yes — consumer hardware |
+| armeabi-v7a | 12.7 MB | yes — 32-bit low-end hardware still ships |
+| x86_64 | 21.0 MB | yes — emulators **and ChromeOS** |
+| x86 | 20.6 MB | **dropped** |
+
+**Result: AAB 35.4 → 28.0 MB, APK 78.8 → 58.2 MB.**
+
+### The first attempt was wrong, and lint said so
+
+The instruction was to drop both x86 and x86_64. That produced a 20.5 MB AAB and a **red
+build**:
+
+```
+app/build.gradle.kts:56: Error: Missing x86_64 ABI support for ChromeOS [ChromeOsAbiSupport]
+```
+
+That is a real loss and not a developer-ergonomics one. **ChromeOS runs Android apps on
+x86_64**, so dropping it makes the app uninstallable on Chromebooks. Under-calling it was
+my error: I framed the trade as "emulators vs. size" when the emulator half was merely
+convenience and the ChromeOS half is users.
+
+Dropping only 32-bit **x86** costs nothing real — Android Studio no longer ships an x86
+image and no consumer phone uses it — and still removes 20.6 MB. The comment in
+`app/build.gradle.kts` now records the per-ABI numbers, why x86_64 stays, and an explicit
+instruction not to suppress `ChromeOsAbiSupport` to save the remaining ~8 MB.
+
+## 5. The JNI finding, and why it went the other way
 
 ONNX Runtime's AAR ships **no consumer ProGuard rules**, and
 `libonnxruntime4j_jni.so` exports **zero** `Java_com_microsoft_onnxruntime_*` symbols —
@@ -89,7 +126,7 @@ replaceable comment warns **against** adding a broad
 `-keep class ai.onnxruntime.** { *; }`, which would suppress the obfuscation score for
 nothing.
 
-## 5. Corrections to the record
+## 6. Corrections to the record
 
 **The 16 KB claim about ONNX 1.20 was false.** `libs.versions.toml` said 1.20 was
 "rejected outright because its arm64 .so is not 16 KB aligned". Measured: 1.20.0 and
@@ -105,7 +142,7 @@ ships 18 MB of native library and none of the Java API that loads it". The packa
 present and un-renamed. The false alarm was mine, from a wrong package name, and it
 nearly became a reported defect.
 
-## 6. Tooling problems found
+## 7. Tooling problems found
 
 **`.gitignore` line 20 was inert.** It read:
 
@@ -133,7 +170,7 @@ screenshot baselines included — against a shrunk build, and would break the do
 gate in `AGENTS.md` and the CI workflow. Caught by the build gate, reverted, and the
 reason recorded in the test's KDoc so the next person does not repeat it.
 
-## 7. Verification
+## 8. Verification
 
 ```
 ./tools/verify_r8_release.sh free                 # all checks passed, exit 0
@@ -160,7 +197,7 @@ total JNI failure therefore degrades **silently** — the app looks fine and has
 lost its AI path. A "nothing threw" test would pass. Every assertion checks that work
 actually happened.
 
-## 8. Open
+## 9. Open
 
 - **`verify_r8_release.sh` is manual.** Per instruction, CI gates were not part of this
   pass. Nothing prevents a future release from regressing the DEX size, the 16 KB
@@ -171,7 +208,7 @@ actually happened.
   behaviour on a 16 KB page-size device is untested; that needs Android 15+ hardware.
 - **The F-Droid signed-release check still needs the keystore** (handoff 0013, open).
 
-## 9. Memory
+## 10. Memory
 
-- `memory/decisions.md` D11 — the flavor/Play requirements position, and the
+- `memory/decisions.md` D11 (Play requirements) and D12 (ABI trim) — the flavor/Play requirements position, and the
   measurement that settled it.
