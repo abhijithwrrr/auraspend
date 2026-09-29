@@ -247,4 +247,49 @@ class BackupSerializerToleranceTest {
         assertTrue(result.savingsGoals.isEmpty())
         assertTrue(result.classificationMemory.isEmpty())
     }
+
+    @Test
+    fun `a v3 backup predating the unrecognized-sms table still restores`() {
+        // v4 added `unrecognizedSms`. A v3 payload has no such key, and restore
+        // is user-initiated: it must load cleanly with an empty list rather than
+        // throw, exactly as every earlier version bump behaved.
+        val v3 = """
+            {"version":3,"transactions":[$validTransaction],"categories":[],
+             "budgets":[],"subscriptions":[],"smsMessages":[],"savingsGoals":[],
+             "classificationMemory":[]}
+        """.trimIndent()
+        val result = BackupSerializer.deserialize(v3)
+        assertEquals(1, result.transactions.size)
+        assertTrue("missing section must default to empty", result.unrecognizedSms.isEmpty())
+    }
+
+    @Test
+    fun `unrecognized sms entries round trip`() {
+        val payload = json(
+            "version" to "4",
+            "transactions" to "[]",
+            "unrecognizedSms" to """[
+                {"id":"sms-1","sender":"AXISBK","body":"Spent INR 25 at Yasar",
+                 "receivedAt":1755300000000,"createdAt":1755300001000}
+            ]"""
+        )
+        val result = BackupSerializer.deserialize(payload)
+        assertEquals(1, result.unrecognizedSms.size)
+        val u = result.unrecognizedSms.first()
+        assertEquals("sms-1", u.id)
+        assertEquals("AXISBK", u.sender)
+        assertEquals("Spent INR 25 at Yasar", u.body)
+        assertEquals(1755300000000L, u.receivedAt)
+    }
+
+    @Test
+    fun `an unrecognized sms entry missing its body is skipped, not thrown on`() {
+        val payload = json(
+            "version" to "4",
+            "transactions" to "[]",
+            "unrecognizedSms" to """[{"id":"sms-1","sender":"AXISBK"}]"""
+        )
+        val result = BackupSerializer.deserialize(payload)
+        assertTrue("an entry with no body is unusable and must be dropped", result.unrecognizedSms.isEmpty())
+    }
 }

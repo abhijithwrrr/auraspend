@@ -13,6 +13,8 @@ import com.awbuilds.auraspend.data.privacy.PrivacyBackfill
 import com.awbuilds.auraspend.data.classification.defaultCategories
 import com.awbuilds.auraspend.data.classification.MerchantRepository
 import com.awbuilds.auraspend.data.local.AppDatabase
+import com.awbuilds.auraspend.data.local.BackupRestoreManager
+import com.awbuilds.auraspend.data.local.UnrecognizedSmsRepository
 import com.awbuilds.auraspend.data.local.entities.CategoryEntity
 import com.awbuilds.auraspend.data.remote.DriveSyncManager
 import com.awbuilds.auraspend.data.repository.TransactionRepositoryImpl
@@ -41,8 +43,16 @@ class AuraSpendApp : Application() {
     lateinit var driveSyncManager: DriveSyncManager
         private set
 
+    /** Applies a Drive backup atomically (see [BackupRestoreManager]). */
+    lateinit var backupRestoreManager: BackupRestoreManager
+        private set
+
     /** Shared learned-classification store (merchant -> category) used by the AI pipeline. */
     lateinit var classificationMemory: ClassificationMemory
+        private set
+
+    /** Bank messages no parser could read, surfaced rather than silently dropped. */
+    lateinit var unrecognizedSms: UnrecognizedSmsRepository
         private set
 
     private val applicationScope = CoroutineScope(Dispatchers.IO)
@@ -64,8 +74,10 @@ class AuraSpendApp : Application() {
         saveTransactionUseCase = SaveTransactionUseCase(transactionRepository)
 
         classificationMemory = ClassificationMemory(database.classificationMemoryDao())
+        unrecognizedSms = UnrecognizedSmsRepository(database.unrecognizedSmsDao())
 
         driveSyncManager = DriveSyncManager(this)
+        backupRestoreManager = BackupRestoreManager(database)
 
         LocalLlmProvider.init(this)
 

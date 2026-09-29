@@ -43,6 +43,7 @@ class BackupRestoreManager(private val database: AppDatabase) {
             database.savingsGoalDao().clear()
             database.smsMessageDao().clear()
             database.classificationMemoryDao().clear()
+            database.unrecognizedSmsDao().clear()
 
             database.transactionDao().insertTransactions(
                 backup.transactions.map { it.masked().toEntity() }
@@ -59,6 +60,9 @@ class BackupRestoreManager(private val database: AppDatabase) {
                 database.smsMessageDao().insertAll(backup.smsMessages)
             }
             backup.classificationMemory.forEach { database.classificationMemoryDao().upsert(it) }
+            if (backup.unrecognizedSms.isNotEmpty()) {
+                database.unrecognizedSmsDao().insertAll(backup.unrecognizedSms)
+            }
 
             AuraLog.i(
                 TAG,

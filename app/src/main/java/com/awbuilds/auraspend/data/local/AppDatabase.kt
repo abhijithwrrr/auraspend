@@ -17,9 +17,10 @@ import com.awbuilds.auraspend.data.local.entities.*
         SubscriptionEntity::class,
         SavingsGoalEntity::class,
         SmsMessageEntity::class,
-        ClassificationMemoryEntity::class
+        ClassificationMemoryEntity::class,
+        UnrecognizedSmsEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -30,6 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun savingsGoalDao(): SavingsGoalDao
     abstract fun smsMessageDao(): SmsMessageDao
     abstract fun classificationMemoryDao(): ClassificationMemoryDao
+    abstract fun unrecognizedSmsDao(): UnrecognizedSmsDao
 
     companion object {
         @Volatile
@@ -134,6 +136,29 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v7 -> v8: add the unrecognized-SMS table. Bank messages that carry a
+         * movement verb and an amount but that no parser could read are recorded
+         * here instead of being dropped, so a transaction missing from the
+         * user's history is visible and fileable rather than silently lost.
+         */
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `unrecognized_sms` (
+                        `id` TEXT NOT NULL,
+                        `sender` TEXT NOT NULL,
+                        `body` TEXT NOT NULL,
+                        `receivedAt` INTEGER NOT NULL,
+                        `createdAt` INTEGER NOT NULL,
+                        PRIMARY KEY(`id`)
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -141,7 +166,10 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "auraspend_db"
                 )
-                    .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                    .addMigrations(
+                        MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6,
+                        MIGRATION_6_7, MIGRATION_7_8
+                    )
                     .fallbackToDestructiveMigration(false)
                     // Write-ahead logging lets dashboard reads proceed while the
                     // SMS pipeline writes transactions — no lock contention.

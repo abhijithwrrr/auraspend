@@ -93,7 +93,23 @@ class AutoClassificationWorker(
                 }
             },
             // Breathing room between LLM generations keeps the UI at full frame rate.
-            interMessageDelayMs = INTER_MESSAGE_DELAY_MS
+            interMessageDelayMs = INTER_MESSAGE_DELAY_MS,
+            // A bank message that looks like money moving but that no parser could
+            // read is surfaced to the user instead of vanishing. Best-effort: a
+            // failure here must not stop the batch, so the row is simply not
+            // recorded and the message is skipped as before.
+            recordUnrecognized = { id: String, sender: String, body: String, receivedAt: Long ->
+                runCatching {
+                    app.unrecognizedSms.record(id, sender, body, receivedAt)
+                }.onFailure {
+                    com.awbuilds.auraspend.core.AuraLog.w(
+                        "AutoClassificationWorker",
+                        "Failed to record an unrecognized SMS",
+                        it
+                    )
+                }
+                Unit
+            }
         )
         val result = processor.processPending(maxMessages = MAX_BATCH)
 
