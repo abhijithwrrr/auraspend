@@ -12,9 +12,16 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,9 +30,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.awbuilds.auraspend.AuraSpendApp
+import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.data.ai.ModelDownloadManager
 import com.awbuilds.auraspend.data.classification.AutoClassificationWorker
 import com.awbuilds.auraspend.data.classification.AutoDetect
+import com.awbuilds.auraspend.data.classification.DuplicateDetector
+import com.awbuilds.auraspend.core.boundaryOrNull
 import com.awbuilds.auraspend.data.local.BackupSerializer
 import com.awbuilds.auraspend.data.local.CsvManager
 import com.awbuilds.auraspend.domain.model.Transaction
@@ -58,6 +68,7 @@ import com.awbuilds.auraspend.ui.transaction.TransactionListScreen
 import com.awbuilds.auraspend.ui.transaction.TransactionListViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** All navigation routes in one place. */
 object Routes {
@@ -85,9 +96,24 @@ object Routes {
     val topLevel = setOf(HOME, ACTIVITY, PLAN, INSIGHTS)
 }
 
+/**
+ * Builds a [ViewModelProvider.Factory] for a ViewModel that takes constructor arguments.
+ *
+ * Screens used to call `remember { DashboardViewModel(repository) }` directly, which meant the
+ * ViewModel was *not* retained across configuration change: every rotation reset filters,
+ * paging position and in-flight work, `onCleared()` never ran, and the internal coroutine
+ * scope leaked for the life of the process. `viewModel(factory = ...)` scopes the instance to
+ * the NavBackStackEntry, so state survives rotation and is cleared when the entry leaves
+ * the back stack.
+ */
+private inline fun <reified VM : ViewModel> factoryOf(
+    crossinline create: () -> VM
+): ViewModelProvider.Factory = viewModelFactory {
+    initializer { create() }
+}
+
 /** Premium-feeling screen transition: subtle horizontal push + fade. */
 private const val TRANSITION_MS = 260
-
 private val pushEnter: EnterTransition =
     fadeIn(tween(TRANSITION_MS)) + slideInHorizontally(tween(TRANSITION_MS)) { it / 8 }
 
@@ -169,7 +195,9 @@ fun AuraSpendNavHost(
             // ── Top-level destinations ────────────────────────────────────────
 
             composable(Routes.HOME) {
-                val dashboardViewModel = remember { DashboardViewModel(repository) }
+                val dashboardViewModel = viewModel<DashboardViewModel>(
+                    factory = factoryOf { DashboardViewModel(repository) }
+                )
                 DashboardScreen(
                     viewModel = dashboardViewModel,
                     onNavigateToTransactions = { navController.navigateToTab(Routes.ACTIVITY) },
@@ -186,7 +214,9 @@ fun AuraSpendNavHost(
             }
 
             composable(Routes.ACTIVITY) {
-                val viewModel = remember { TransactionListViewModel(repository) }
+                val viewModel = viewModel<TransactionListViewModel>(
+                    factory = factoryOf { TransactionListViewModel(repository) }
+                )
                 val categories by repository.getAllCategories()
                     .collectAsState(initial = emptyList())
 
@@ -250,13 +280,18 @@ fun AuraSpendNavHost(
             ) {
                 val categories by repository.getAllCategories()
                     .collectAsState(initial = emptyList())
-                val viewModel = remember {
-                    ClassificationViewModel(
-                        classifyMessageUseCase = ClassifyMessageUseCase(),
-                        saveTransactionUseCase = SaveTransactionUseCase(repository),
-                        context = context
-                    )
-                }
+                val viewModel = viewModel<ClassificationViewModel>(
+                    factory = factoryOf {
+                        ClassificationViewModel(
+                            classifyMessageUseCase = ClassifyMessageUseCase(),
+                            saveTransactionUseCase = SaveTransactionUseCase(repository),
+                            // applicationContext, not the Activity: this ViewModel is now
+                            // retained across configuration changes, so holding the Activity
+                            // would leak it for as long as the screen is in the back stack.
+                            context = context.applicationContext
+                        )
+                    }
+                )
                 LaunchedEffect(categories) {
                     if (categories.isNotEmpty()) {
                         viewModel.handleIntent(ClassificationViewIntent.SetCategories(categories))
@@ -275,7 +310,9 @@ fun AuraSpendNavHost(
                 popEnterTransition = { popEnter },
                 popExitTransition = { popExit }
             ) {
-                val viewModel = remember { BudgetViewModel(repository) }
+                val viewModel = viewModel<BudgetViewModel>(
+                    factory = factoryOf { BudgetViewModel(repository) }
+                )
                 BudgetScreen(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() }
@@ -407,6 +444,12 @@ private fun OnboardingFlow(
     val prefs = context.getSharedPreferences("auraspend_prefs", Context.MODE_PRIVATE)
     val scope = rememberCoroutineScope()
 
+    // Resolved in composition so the text tracks configuration changes
+    // (and the locale) rather than being read off LocalContext later.
+    val signInFailedMessage = stringResource(R.string.onboarding_restore_signin_failed)
+    val noBackupMessage = stringResource(R.string.onboarding_restore_no_backup)
+    val restoreFailedMessage = stringResource(R.string.onboarding_restore_failed)
+
     var isRestoring by remember { mutableStateOf(false) }
     var restoreError by remember { mutableStateOf<String?>(null) }
 
@@ -415,26 +458,38 @@ private fun OnboardingFlow(
     ) { result ->
         scope.launch {
             val signedIn = driveSyncManager.handleSignInResult(result.data)
-            if (signedIn) {
-                isRestoring = true
-                val json = driveSyncManager.restoreLocalData()
-                if (json != null) {
-                    val backupData = BackupSerializer.deserialize(json)
-                    repository.saveTransactions(backupData.transactions)
-                    repository.saveCategories(backupData.categories)
-                    backupData.budgets.forEach { repository.saveBudget(it) }
-                    backupData.subscriptions.forEach { repository.saveSubscription(it) }
-                    val smsDao = app.database.smsMessageDao()
-                    backupData.smsMessages.forEach { smsDao.insertAll(listOf(it)) }
-                    isRestoring = false
-                    prefs.edit().putBoolean("onboarding_completed", true).apply()
-                    onFinished()
-                } else {
-                    isRestoring = false
-                    restoreError = "No backup found or restore failed"
+            if (!signedIn) {
+                restoreError = signInFailedMessage
+                return@launch
+            }
+
+            isRestoring = true
+            // Every step below is a boundary: a malformed backup, a revoked Drive
+            // grant or a full disk must leave the user on onboarding with a message,
+            // never a crash. BackupRestoreManager applies the whole replace inside a
+            // single Room transaction, so a failure leaves the database untouched.
+            val errorMessage: String? = run {
+                val json = boundaryOrNull("DriveRestore") { driveSyncManager.restoreLocalData() }
+                when {
+                    json == null -> noBackupMessage
+                    else -> {
+                        val backup = boundaryOrNull("DriveRestore") { BackupSerializer.deserialize(json) }
+                        val summary = backup?.let { app.backupRestoreManager.restore(it) }
+                        when {
+                            summary == null -> restoreFailedMessage
+                            else -> {
+                                prefs.edit().putBoolean("onboarding_completed", true).apply()
+                                null
+                            }
+                        }
+                    }
                 }
+            }
+            isRestoring = false
+            if (errorMessage != null) {
+                restoreError = errorMessage
             } else {
-                restoreError = "Sign-in failed"
+                onFinished()
             }
         }
     }
@@ -463,16 +518,34 @@ private fun SettingsDestination(
     val transactions by repository.getAllTransactions().collectAsState(initial = emptyList())
     val aiModelState by ModelDownloadManager.state.collectAsState()
     val notificationPermissionLauncher = rememberNotificationPermissionLauncher()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Message templates are resolved in composition (so they follow the locale) and
+    // formatted with the runtime counts inside the coroutine.
+    val exportSuccessTemplate = stringResource(R.string.csv_export_success)
+    val exportFailedMessage = stringResource(R.string.csv_export_failed)
+    val importFailedMessage = stringResource(R.string.csv_import_failed)
+    val importAllDuplicatesMessage = stringResource(R.string.csv_import_all_duplicates)
+    val importPartialTemplate = stringResource(R.string.csv_import_partial)
+    val importSuccessTemplate = stringResource(R.string.csv_import_success)
 
     val csvLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/csv")
     ) { uri ->
         if (uri != null) {
             scope.launch {
-                val file = CsvManager.exportToCsv(context, transactions)
-                context.contentResolver.openOutputStream(uri)?.use { out ->
-                    file.inputStream().use { it.copyTo(out) }
+                // Written straight to the SAF uri. The previous version staged the file
+                // in the public Downloads directory first, which cannot succeed on
+                // API 30+ and threw out of this unguarded coroutine.
+                val rows = withContext(Dispatchers.IO) {
+                    CsvManager.exportToCsv(context, transactions, uri)
                 }
+                val message = if (rows >= 0) {
+                    String.format(exportSuccessTemplate, rows)
+                } else {
+                    exportFailedMessage
+                }
+                snackbarHostState.showSnackbar(message)
             }
         }
     }
@@ -482,8 +555,23 @@ private fun SettingsDestination(
     ) { uri ->
         if (uri != null) {
             scope.launch {
-                val imported = CsvManager.importFromCsv(context, uri)
-                repository.saveTransactions(imported)
+                val result = withContext(Dispatchers.IO) { CsvManager.importFromCsv(context, uri) }
+                // Re-importing the same file used to duplicate every row: the
+                // duplicate detector was never consulted on this path.
+                val fresh = result.imported.filter { incoming ->
+                    DuplicateDetector.detectDuplicates(incoming, transactions).isEmpty()
+                }
+                if (fresh.isNotEmpty()) {
+                    repository.saveTransactions(fresh)
+                }
+                val message = when {
+                    result.imported.isEmpty() -> importFailedMessage
+                    fresh.isEmpty() -> importAllDuplicatesMessage
+                    result.skippedRows > 0 ->
+                        String.format(importPartialTemplate, fresh.size, result.skippedRows)
+                    else -> String.format(importSuccessTemplate, fresh.size)
+                }
+                snackbarHostState.showSnackbar(message)
             }
         }
     }
@@ -493,6 +581,7 @@ private fun SettingsDestination(
         onThemeChanged = onThemeChanged,
         dynamicColor = dynamicColor,
         onDynamicColorChanged = onDynamicColorChanged,
+        snackbarHostState = snackbarHostState,
         onBack = { navController.popBackStack() },
         onExportCsv = { csvLauncher.launch("AuraSpend_export.csv") },
         onImportCsv = { importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values")) },

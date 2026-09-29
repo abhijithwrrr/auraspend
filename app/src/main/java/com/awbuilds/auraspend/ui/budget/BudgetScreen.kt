@@ -13,6 +13,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
@@ -25,8 +27,10 @@ import com.awbuilds.auraspend.domain.model.BudgetPeriod
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
 import com.awbuilds.auraspend.ui.designsystem.AuraCardStyle
 import com.awbuilds.auraspend.ui.designsystem.AuraEmptyState
+import com.awbuilds.auraspend.ui.designsystem.AuraErrorBanner
 import com.awbuilds.auraspend.ui.designsystem.AuraProgressRing
 import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
+import com.awbuilds.auraspend.ui.designsystem.AuraStatTile
 import com.awbuilds.auraspend.ui.designsystem.AuraType
 import com.awbuilds.auraspend.ui.designsystem.formatMoney
 
@@ -46,7 +50,7 @@ fun BudgetScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.budget_title)) },
+                title = { Text(stringResource(R.string.budget_title), modifier = Modifier.semantics { heading() }) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
@@ -60,7 +64,17 @@ fun BudgetScreen(
             )
         }
     ) { padding ->
-        if (state.budgets.isEmpty()) {
+        // A failed save was set in the ViewModel and then never rendered, so the
+        // sheet simply stopped responding. Surface it inline, keeping the list visible.
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            state.error?.let { error ->
+                AuraErrorBanner(
+                    message = stringResource(error.messageRes),
+                    onDismiss = { viewModel.handleIntent(BudgetViewIntent.ClearError) }
+                )
+                Spacer(modifier = Modifier.height(AuraSpacing.sm))
+            }
+            if (state.budgets.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -77,9 +91,7 @@ fun BudgetScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     horizontal = AuraSpacing.gutter,
                     vertical = AuraSpacing.lg
@@ -106,25 +118,21 @@ fun BudgetScreen(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    stringResource(R.string.budget_all),
-                                    style = AuraType.metricLabel,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(modifier = Modifier.height(AuraSpacing.xs))
-                                Text(
-                                    stringResource(R.string.budget_spent_of, formatMoney(totalSpent), formatMoney(totalLimit)),
-                                    style = AuraType.moneyMedium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Spacer(modifier = Modifier.height(AuraSpacing.xs))
-                                Text(
-                                    pluralStringResource(R.plurals.budget_days_left, daysLeft, daysLeft),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                            // `contained = false`: this tile already lives inside a
+                            // Tonal AuraCard, so it must not draw a second container.
+                            AuraStatTile(
+                                label = stringResource(R.string.budget_all),
+                                value = stringResource(
+                                    R.string.budget_spent_of,
+                                    formatMoney(totalSpent),
+                                    formatMoney(totalLimit)
+                                ),
+                                supporting = pluralStringResource(
+                                    R.plurals.budget_days_left, daysLeft, daysLeft
+                                ),
+                                contained = false,
+                                modifier = Modifier.weight(1f)
+                            )
                             Spacer(modifier = Modifier.width(AuraSpacing.lg))
                             AuraProgressRing(
                                 progress = overall.coerceIn(0f, 1f),
@@ -263,12 +271,25 @@ fun BudgetScreen(
                                     color = MaterialTheme.colorScheme.tertiary,
                                     fontWeight = FontWeight.SemiBold
                                 )
+                            } else {
+                                // The row is SpaceBetween, so without this the
+                                // right half was dead space on every healthy budget.
+                                // Headroom is the number people actually want here.
+                                Text(
+                                    stringResource(
+                                        R.string.budget_remaining,
+                                        formatMoney(budget.limitAmount - budget.spentAmount)
+                                    ),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }
                 }
             }
         }
+    }
     }
 
     if (state.isAdding || state.editingBudget != null) {

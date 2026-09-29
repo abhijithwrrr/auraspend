@@ -53,7 +53,7 @@ fun TransactionEntryRow(
     transaction: Transaction,
     categoryName: String,
     categoryColor: Color,
-    categoryEmoji: String,
+    categoryEmoji: String?,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
@@ -87,8 +87,7 @@ fun TransactionEntryRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 transaction.merchant ?: transaction.note.ifBlank { categoryName },
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -100,7 +99,7 @@ fun TransactionEntryRow(
                         transaction.date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                     )
                 }",
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.bodySmall,
                 color = extended.textLight,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

@@ -15,6 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,7 +44,7 @@ fun ModelConsentDialog(
         onDismissRequest = onDecline,
         shape = RoundedCornerShape(28.dp),
         icon = { Icon(Icons.Filled.Download, contentDescription = null) },
-        title = { Text(stringResource(R.string.consent_title)) },
+        title = { Text(stringResource(R.string.consent_title), modifier = Modifier.semantics { heading() }) },
         text = {
             Column(Modifier.fillMaxWidth()) {
                 Text(

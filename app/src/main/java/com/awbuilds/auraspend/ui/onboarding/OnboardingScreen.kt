@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -20,6 +21,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -136,12 +139,13 @@ fun OnboardingScreen(
                 shape = CircleShape,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    // heightIn, not height: a fixed 52dp clips the label at 200% font scale.
+                    .heightIn(min = 52.dp)
             ) {
                 Text(
                     if (pagerState.currentPage == onboardingPages.size - 1) stringResource(R.string.action_get_started)
                     else stringResource(R.string.action_continue),
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -168,13 +172,13 @@ fun OnboardingScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 stringResource(R.string.onboarding_restore_title),
-                                fontSize = 15.sp,
+                                style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 stringResource(R.string.onboarding_restore_subtitle),
-                                fontSize = 13.sp,
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -252,7 +256,8 @@ private fun OnboardingPageContent(page: OnboardingPage, pageOffset: Float) {
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.semantics { heading() }
         )
 
         Spacer(modifier = Modifier.height(AuraSpacing.md))

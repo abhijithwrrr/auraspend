@@ -19,6 +19,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -67,7 +69,7 @@ fun SavingsGoalsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.savings_title)) },
+                title = { Text(stringResource(R.string.savings_title), modifier = Modifier.semantics { heading() }) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
@@ -132,7 +134,7 @@ fun SavingsGoalsScreen(
                                 )
                                 Text(
                                     stringResource(R.string.savings_of, formatMoney(totalTarget)),
-                                    fontSize = 13.sp,
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.extendedColors.textLight
                                 )
                             }
@@ -148,7 +150,7 @@ fun SavingsGoalsScreen(
                             ) {
                                 Text(
                                     stringResource(R.string.common_percent, (overallProgress * 100).toInt()),
-                                    fontSize = 14.sp,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
@@ -258,8 +260,7 @@ private fun GoalCard(
                 } else {
                     Text(
                         stringResource(R.string.common_percent, (progress.coerceIn(0f, 1f) * 100).toInt()),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -269,8 +270,7 @@ private fun GoalCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         goal.name,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -280,7 +280,7 @@ private fun GoalCard(
                         Spacer(modifier = Modifier.width(AuraSpacing.sm))
                         Text(
                             stringResource(R.string.savings_reached),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.extendedColors.incomeAmount,
                             modifier = Modifier
@@ -299,13 +299,13 @@ private fun GoalCard(
                         formatMoney(goal.currentAmount),
                         formatMoney(goal.targetAmount)
                     ),
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 deadlineLabel?.let {
                     Text(
                         stringResource(R.string.savings_target_date, it),
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.extendedColors.textLight
                     )
                 }
@@ -316,14 +316,22 @@ private fun GoalCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(AuraSpacing.sm)
         ) {
-            Button(
-                onClick = onAddFunds,
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(AuraSpacing.xs))
-                Text(stringResource(R.string.savings_add_funds))
+            // A reached goal has nothing left to fund; offering the button invited
+            // the user to add money to a goal that is already complete.
+            if (!complete) {
+                Button(
+                    onClick = onAddFunds,
+                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(AuraSpacing.xs))
+                    Text(stringResource(R.string.savings_add_funds))
+                }
+            } else {
+                // Keep the edit/delete actions right-aligned instead of leaving
+                // them stranded at the start of an otherwise empty row.
+                Spacer(modifier = Modifier.weight(1f))
             }
             IconButton(onClick = onEdit) {
                 Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.savings_edit_goal))
@@ -374,8 +382,7 @@ private fun GoalEditorSheet(
             Text(
                 if (goal == null) stringResource(R.string.savings_new_goal_title)
                 else stringResource(R.string.savings_edit_goal),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(AuraSpacing.lg))
@@ -479,7 +486,7 @@ private fun AddFundsDialog(
                         formatMoney(goal.currentAmount),
                         formatMoney(goal.targetAmount)
                     ),
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(AuraSpacing.md))

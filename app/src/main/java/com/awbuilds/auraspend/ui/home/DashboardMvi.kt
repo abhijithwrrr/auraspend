@@ -1,5 +1,7 @@
 package com.awbuilds.auraspend.ui.home
 
+import com.awbuilds.auraspend.ui.core.UiError
+
 import com.awbuilds.auraspend.domain.model.Budget
 import com.awbuilds.auraspend.domain.model.Category
 import com.awbuilds.auraspend.domain.model.Subscription
@@ -19,7 +21,7 @@ data class DashboardViewState(
     val dailySpending: List<Pair<Long, Double>> = emptyList(),
     val categoryMonthTotals: List<Pair<String, Double>> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: UiError? = null
 )
 
 sealed class DashboardViewIntent {

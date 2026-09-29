@@ -20,10 +20,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.R
 
 /** Subtle elevation for floating chrome (FAB, sheets) — never content cards. */
 fun Modifier.softShadow(
@@ -59,9 +63,11 @@ fun AuraSectionHeader(
     ) {
         Text(
             title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onBackground
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            // Marked as a heading so TalkBack's heading navigation can jump between
+            // sections instead of reading the screen as one flat run of text.
+            modifier = Modifier.semantics { heading() }
         )
         trailing?.invoke()
     }
@@ -74,6 +80,10 @@ fun HideAmountIconButton(
     onToggle: () -> Unit
 ) {
     val haptics = LocalHapticFeedback.current
+    // Localized, not a hardcoded English literal.
+    val label = stringResource(
+        if (hidden) R.string.a11y_show_amounts else R.string.a11y_hide_amounts
+    )
     IconButton(
         onClick = {
             haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -82,7 +92,7 @@ fun HideAmountIconButton(
     ) {
         Icon(
             imageVector = if (hidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-            contentDescription = if (hidden) "Show amounts" else "Hide amounts",
+            contentDescription = label,
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

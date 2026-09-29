@@ -2,6 +2,7 @@ package com.awbuilds.auraspend.ui.theme
 
 import android.app.Activity
 import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -22,9 +23,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.awbuilds.auraspend.R
+import com.awbuilds.auraspend.ui.designsystem.LocalCurrencyStyle
+import com.awbuilds.auraspend.ui.designsystem.MoneyConfig
+import com.awbuilds.auraspend.ui.designsystem.rememberCurrencyStyle
 
 enum class AppThemeMode {
-    LIGHT, DARK, AMOLED
+    /** Follow the OS. Previously there was no SYSTEM option, so a user with
+     *  system dark mode got a light app on first launch. */
+    SYSTEM, LIGHT, DARK, AMOLED;
+
+    companion object {
+        /** Tolerant parse: a corrupt preference falls back instead of crashing. */
+        fun fromName(value: String?): AppThemeMode =
+            entries.firstOrNull { it.name == value } ?: SYSTEM
+    }
 }
 
 /**
@@ -59,6 +71,17 @@ val DarkExtendedColors = ExtendedColors(
     warningOrange = WarningOrangeDark,
     textLight = DarkOnSurfaceVariant,
     canvasContainer = DarkSurfaceVariant
+)
+
+/** AMOLED needs its own semantic set — see the note in `Color.kt`. */
+val AmoledExtendedColors = ExtendedColors(
+    incomeAmount = IncomeGreenAmoled,
+    expenseAmount = ExpenseRedAmoled,
+    upcoming = UpcomingBlueAmoled,
+    overdue = OverdueIndigoAmoled,
+    warningOrange = WarningOrangeAmoled,
+    textLight = DarkOnSurfaceVariant,
+    canvasContainer = AmoledSurfContainerHigh
 )
 
 val LocalExtendedColors = staticCompositionLocalOf { LightExtendedColors }
@@ -208,31 +231,53 @@ private val AmoledColorScheme = darkColorScheme(
 
 @Composable
 fun AuraSpendTheme(
-    themeMode: AppThemeMode = AppThemeMode.LIGHT,
+    themeMode: AppThemeMode = AppThemeMode.SYSTEM,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
     val dynamicAvailable = dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
-    val colorScheme = when (themeMode) {
-        AppThemeMode.AMOLED -> AmoledColorScheme
-        AppThemeMode.DARK -> if (dynamicAvailable) dynamicDarkColorScheme(context) else DarkColorScheme
-        AppThemeMode.LIGHT -> if (dynamicAvailable) dynamicLightColorScheme(context) else LightColorScheme
+    // Resolve SYSTEM against the OS setting. isSystemInDarkTheme() is reactive, so
+    // the app follows a live configuration change rather than only at launch.
+    val isDark = isSystemInDarkTheme()
+    val resolved = when (themeMode) {
+        AppThemeMode.SYSTEM -> if (isDark) AppThemeMode.DARK else AppThemeMode.LIGHT
+        else -> themeMode
     }
 
-    val extendedColors = if (themeMode == AppThemeMode.LIGHT) LightExtendedColors else DarkExtendedColors
+    val colorScheme = when (resolved) {
+        AppThemeMode.AMOLED -> AmoledColorScheme
+        AppThemeMode.DARK -> if (dynamicAvailable) dynamicDarkColorScheme(context) else DarkColorScheme
+        // AMOLED is dark, so dynamic color would defeat the point of the mode.
+        else -> if (dynamicAvailable) dynamicLightColorScheme(context) else LightColorScheme
+    }
+
+    val extendedColors = when (resolved) {
+        AppThemeMode.LIGHT -> LightExtendedColors
+        AppThemeMode.DARK -> DarkExtendedColors
+        AppThemeMode.AMOLED -> AmoledExtendedColors
+        AppThemeMode.SYSTEM -> if (isDark) DarkExtendedColors else LightExtendedColors
+    }
 
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
-                themeMode == AppThemeMode.LIGHT
+                resolved == AppThemeMode.LIGHT
         }
     }
 
-    CompositionLocalProvider(LocalExtendedColors provides extendedColors) {
+    // Currency is part of the theme so a change in Settings reaches every money
+    // text, chart axis and export without threading a parameter through the UI.
+    val currency = rememberCurrencyStyle()
+    MoneyConfig.update(currency)
+
+    CompositionLocalProvider(
+        LocalExtendedColors provides extendedColors,
+        LocalCurrencyStyle provides currency
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = AuraSpendTypography,

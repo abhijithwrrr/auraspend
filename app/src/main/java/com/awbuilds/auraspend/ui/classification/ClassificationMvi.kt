@@ -1,5 +1,7 @@
 package com.awbuilds.auraspend.ui.classification
 
+import com.awbuilds.auraspend.ui.core.UiError
+
 import com.awbuilds.auraspend.data.ai.AiModelState
 import com.awbuilds.auraspend.data.classification.ClassifiedSms
 import com.awbuilds.auraspend.data.classification.DuplicateTransaction
@@ -21,7 +23,7 @@ data class ClassificationViewState(
     val useManualEntry: Boolean = false,
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
-    val error: String? = null,
+    val error: UiError? = null,
     val smsMessages: List<SmsInfo> = emptyList(),
     val smsPermissionGranted: Boolean = false,
     val classifiedSmsList: List<ClassifiedSms> = emptyList(),
@@ -66,6 +68,7 @@ sealed class ClassificationViewIntent {
     data class SmsSelected(val sms: SmsInfo) : ClassificationViewIntent()
     object SaveTransaction : ClassificationViewIntent()
     object ResetSuccess : ClassificationViewIntent()
+    object ClearError : ClassificationViewIntent()
     data class SetCategories(val categories: List<Category>) : ClassificationViewIntent()
     object LoadAndClassifyAll : ClassificationViewIntent()
     data class SaveClassifiedSms(val smsId: String) : ClassificationViewIntent()

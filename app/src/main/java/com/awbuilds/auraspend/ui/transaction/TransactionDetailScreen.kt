@@ -14,6 +14,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -157,7 +159,7 @@ fun TransactionDetailScreen(
         val current = transaction
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
-            title = { Text(stringResource(R.string.txn_detail_delete_title)) },
+            title = { Text(stringResource(R.string.txn_detail_delete_title), modifier = Modifier.semantics { heading() }) },
             text = {
                 Text(
                     current?.let {
@@ -220,13 +222,12 @@ private fun TransactionDetails(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         category?.name ?: stringResource(R.string.txn_detail_uncategorized),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         if (isExpense) stringResource(R.string.txn_detail_type_expense) else stringResource(R.string.txn_detail_type_income),
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -241,7 +242,7 @@ private fun TransactionDetails(
             Spacer(modifier = Modifier.height(AuraSpacing.xs))
             Text(
                 transaction.date.atZone(ZoneId.systemDefault()).format(dateFormatter),
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -289,13 +290,13 @@ private fun DetailRow(label: String, value: String) {
         Text(
             label,
             modifier = Modifier.width(96.dp),
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             value,
             modifier = Modifier.weight(1f),
-            fontSize = 15.sp,
+            style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.End
         )
