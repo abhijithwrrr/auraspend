@@ -59,6 +59,7 @@ import com.awbuilds.auraspend.ui.home.DashboardViewModel
 import com.awbuilds.auraspend.ui.onboarding.OnboardingScreen
 import com.awbuilds.auraspend.ui.plan.PlanHubScreen
 import com.awbuilds.auraspend.ui.recurring.RecurringScreen
+import com.awbuilds.auraspend.ui.settings.LicenseScreen
 import com.awbuilds.auraspend.ui.settings.SettingsScreen
 import com.awbuilds.auraspend.ui.splash.SplashScreen
 import com.awbuilds.auraspend.ui.theme.AppThemeMode
@@ -90,6 +91,7 @@ object Routes {
     const val BUDGETS = "budgets"
     const val SUBSCRIPTIONS = "subscriptions"
     const val CATEGORIES = "categories"
+    const val LICENSES = "licenses"
     const val GOALS = "goals"
     const val TRANSACTION_DETAIL = "transaction/{transactionId}"
 
@@ -346,6 +348,16 @@ fun AuraSpendNavHost(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() }
                 )
+            }
+
+            composable(
+                route = Routes.LICENSES,
+                enterTransition = { pushEnter },
+                exitTransition = { pushExit },
+                popEnterTransition = { popEnter },
+                popExitTransition = { popExit }
+            ) {
+                LicenseScreen(onBack = { navController.popBackStack() })
             }
 
             composable(
@@ -617,6 +629,7 @@ private fun SettingsDestination(
         onManageCategories = { navController.navigate(Routes.CATEGORIES) },
         onManageSubscriptions = { navController.navigate(Routes.SUBSCRIPTIONS) },
         onManageBudgets = { navController.navigate(Routes.BUDGETS) },
+        onOpenLicenses = { navController.navigate(Routes.LICENSES) },
         aiModelState = aiModelState,
         onDownloadModel = {
             // Downloading from Settings is itself the consent.

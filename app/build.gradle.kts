@@ -30,8 +30,11 @@ android {
         applicationId = "com.awbuilds.auraspend"
         minSdk = 30
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        // 0.1.1 — the AGPL-3.0 relicensing release. versionCode must strictly
+        // increase for every store upload; Play rejects an update that reuses
+        // one, so it is not optional the way the name is.
+        versionCode = 2
+        versionName = "0.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

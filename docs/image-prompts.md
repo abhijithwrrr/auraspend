@@ -63,7 +63,7 @@ A premium Android smartphone floating in center frame, held at a slight 15-degre
 ## 3. OG Social Preview (1200x630px)
 
 ```
-A wide social media banner card with a dark purple gradient background (#1C0E34 to #6750A4). Large bold white text "AuraSpend" centered. Subtitle "Beautiful Expense Management for Android" in light purple (#D0BCFF) below. A subtle glowing aurora/sparkle visual effect behind the text. Bottom line in small text: "Open Source · Apache 2.0". Clean, minimal, premium brand feel. No device mockups or screenshots. Material Design 3 inspired layout.
+A wide social media banner card with a dark purple gradient background (#1C0E34 to #6750A4). Large bold white text "AuraSpend" centered. Subtitle "Beautiful Expense Management for Android" in light purple (#D0BCFF) below. A subtle glowing aurora/sparkle visual effect behind the text. Bottom line in small text: "Open Source · AGPL-3.0". Clean, minimal, premium brand feel. No device mockups or screenshots. Material Design 3 inspired layout.
 ```
 
 ---

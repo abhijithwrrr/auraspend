@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
@@ -39,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.awbuilds.auraspend.BuildConfig
 import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.data.ai.AiModelState
 import com.awbuilds.auraspend.ui.designsystem.AuraCard
@@ -66,6 +68,7 @@ fun SettingsScreen(
     onManageCategories: () -> Unit = {},
     onManageSubscriptions: () -> Unit = {},
     onManageBudgets: () -> Unit = {},
+    onOpenLicenses: () -> Unit = {},
     aiModelState: AiModelState = AiModelState.NotDownloaded,
     onDownloadModel: () -> Unit = {},
     onCancelModelDownload: () -> Unit = {},
@@ -245,6 +248,15 @@ fun SettingsScreen(
 
         SettingsSectionHeader(stringResource(R.string.settings_about))
         SettingsCard {
+            SettingsRow(
+                icon = Icons.Default.Gavel,
+                title = stringResource(R.string.settings_licenses),
+                subtitle = stringResource(R.string.settings_licenses_subtitle),
+                onClick = onOpenLicenses
+            )
+            Spacer(modifier = Modifier.height(AuraSpacing.sm))
+            DividerSpacer()
+            Spacer(modifier = Modifier.height(AuraSpacing.sm))
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -256,7 +268,7 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    stringResource(R.string.settings_about_version),
+                    stringResource(R.string.settings_about_version, BuildConfig.VERSION_NAME),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.extendedColors.textLight
                 )

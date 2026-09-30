@@ -44,6 +44,12 @@ jobs:
       - name: Unit tests
         run: ./gradlew testFreeDebugUnitTest
 
+      # Cheap, and it is the only thing standing between a relicensing mistake
+      # and a shipped APK that misstates its own licence. It has already caught
+      # one: the licence had silently drifted across eleven files.
+      - name: Verify licence metadata and third-party attributions
+        run: ./tools/check_license.sh
+
       - name: Verify Aurora screenshots
         run: |
           changes=$(git status --porcelain -- app/src/test/screenshots)

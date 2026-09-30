@@ -3,7 +3,13 @@
 > Read this file and the latest file in `docs/handoffs/` before touching anything.
 > Update both (plus `CLAUDE.md` / `memory/` when you learn something durable) before ending a session.
 >
-> Latest: `docs/handoffs/0015-ui-review-fixes.md` — on-device UI review. Fixed a
+> Latest: `docs/handoffs/0016-agpl-3.0-relicensing.md` — relicensed to
+> **AGPL-3.0-or-later** and cut as 0.1.1. New in-app open-source licenses
+> screen (an AGPL §4 requirement the app did not meet), a CLA with copyright
+> assignment, `tools/check_license.sh` in CI, and `CHANGELOG.md`. **Do not
+> weaken the copyleft, and do not "fix" third-party Apache-2.0 mentions**
+> — they are correct. Before: `docs/handoffs/0015-ui-review-fixes.md` —
+> on-device UI review. Fixed a
 > consent bug where a fresh install **silently downloaded the 22 MB model** and enabled
 > auto-read with no prompt; a transparent `TransactionEntryRow` that let the
 > swipe-to-delete background show through on every Activity row; a stale
@@ -50,6 +56,7 @@ Do not start new work without reading the latest handoff.
 | Module | What lives there |
 |---|---|
 | `:app` | Everything (UI, domain, data) |
+| `:benchmark` | Macrobenchmark module for cold-start and baseline-profile generation. Not shipped, not part of the app. |
 
 On-device inference is ONNX Runtime (an AAR, not a module). The `:llama` module
 and the `third_party/llama.cpp` submodule were removed in handoff 0013 along with
@@ -135,6 +142,29 @@ diff) when you intentionally fix or add lint suppressions.
    with a written reason, or record why it is safe — never just scroll past.
    `./gradlew :app:compileFreeDebugKotlin --rerun-tasks 2>&1 | grep "^w:"` lists
    them.
+9. **AuraSpend is AGPL-3.0-or-later. Do not weaken the copyleft.** The project
+   relicensed from Apache-2.0 in 0.1.1 (ADR 0009). Two things follow, and both
+   are easy to violate by accident:
+   - **A new dependency must be AGPL-3.0-compatible.** Everything currently in
+     the graph is Apache-2.0 or MIT, which flows one-way into AGPLv3. A GPL-2.0-
+     only or non-commercial dependency would make the app undistributable, so
+     check the candidate's licence *when it is proposed*, not at merge time.
+     Apache-2.0 and MIT are fine.
+   - **Never strip the notice.** A derivative work must keep the notices and add
+     its own statement of modification (AGPL §4/§5). `docs/terms.html` used to
+     carry an Apache-era clause forbidding reverse engineering; that clause was
+     **removed** because AGPL §3 forbids anti-circumvention restrictions, and it
+     must not come back. The trademark paragraph is separate and does stand.
+   Run `./tools/check_license.sh` after touching anything licence-adjacent. It
+   fails if the licence string is inconsistent across `LICENSE`, `README`, both
+   string locales, the splash footer, the website and the legal pages, or if a
+   dependency has no third-party attribution. The licence had silently drifted
+   across eleven files before that check existed, so it is worth trusting it over
+   your memory of where the licence is mentioned. **A mention of "Apache-2.0"
+   about a dependency is correct and must not be "fixed"** — the bundled font is
+   OFL, ONNX Runtime is MIT, Lottie and AndroidX and the Google libraries are
+   Apache-2.0, and the runtime-downloaded model is Apache-2.0. A global
+   find-and-replace makes false licensing claims about third parties.
 
 ## Design system quick reference
 
