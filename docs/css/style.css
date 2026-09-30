@@ -654,6 +654,18 @@ nav .container {
     margin-bottom: 4px;
 }
 
+/* Aside for places where the legal text has to correct an assumption a reader
+   would otherwise carry in — e.g. that reverse engineering is restricted.
+   Uses existing tokens so it follows the dark-mode overrides for free. */
+.legal-page p.note {
+    border-left: 3px solid var(--primary);
+    background: var(--primary-bg);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
 /* CTA Section */
 .cta-section {
     background: linear-gradient(135deg, var(--primary) 0%, #F59E0B 100%);

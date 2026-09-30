@@ -5,7 +5,9 @@ Hot cache for agents. Keep this under ~100 lines. Deep detail lives in `memory/`
 
 ## Project
 AuraSpend — offline-first Android expense manager (Kotlin, Jetpack Compose,
-Room, a 22 MB on-device encoder via ONNX Runtime). Apache-2.0.
+Room, a 22 MB on-device encoder via ONNX Runtime). **AGPL-3.0-or-later** as of
+0.1.1 (was Apache-2.0; see ADR 0009). Do not weaken the copyleft, and do not
+"fix" third-party Apache-2.0 mentions — those are correct.
 Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
 
 ## Glossary

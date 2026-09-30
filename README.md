@@ -1,6 +1,6 @@
 # AuraSpend
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-AGPL%20v3-orange.svg)](LICENSE)
 [![Min SDK](https://img.shields.io/badge/minSdk-30-green)](app/build.gradle.kts)
 [![Target SDK](https://img.shields.io/badge/targetSdk-37-green)](app/build.gradle.kts)
 [![AGP](https://img.shields.io/badge/AGP-9.3.1-blue)](build.gradle.kts)
@@ -264,35 +264,111 @@ file — contributions welcome.
 
 ## Contributing
 
-Contributions are welcome! See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for:
+Issues and pull requests are welcome! See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for:
 
 - Build flavor system explained
 - Code style guide
 - Pull request process
 - Issue reporting guidelines
 
+Contributions must carry a **copyright assignment**. This is not a formality
+under AGPL: it is what keeps the project relicensable as a whole. The 0.1.1
+relicensing from Apache-2.0 was only possible because there was a single
+copyright holder, and that stops being true the moment a second person
+contributes. If you would rather not assign copyright, open an issue describing
+your idea instead — it costs you nothing and the work still gets done.
+
 **First-time contributors**: Look for issues labeled `good first issue` or `help wanted`.
 
 **Release process**: Every merge to `main` updates a draft release via [Release Drafter](.github/release-drafter.yml), grouping PRs by label. When ready to ship, publish the draft and tag it `vX.Y.Z` — the version is auto-bumped based on the highest priority label (`breaking` → major, `enhancement`/`feature` → minor, `bug`/`fix` → patch).
+
+## Code of Conduct
+
+Participation is governed by [CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md).
+Reports go to the address listed there and are handled confidentially.
 
 ## Security
 
 See [SECURITY.md](.github/SECURITY.md) for reporting vulnerabilities.
 
+## Support
+
+- **Bugs and feature requests:** the issue templates. Please include device
+  model, Android version, and steps to reproduce — see
+  [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+- **Security:** do not open a public issue. Use
+  [SECURITY.md](.github/SECURITY.md).
+- **Anything else:** `awbuilds.support@gmail.com`.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md), which follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Releases are drafted
+automatically from merged pull requests.
+
+## Roadmap
+
+[ROADMAP.md](ROADMAP.md) holds the planned work. The decision log lives in
+[docs/adr/](docs/adr/README.md) — short, durable records of why the project is
+shaped the way it is, which is usually more informative than the roadmap.
+
+## Acknowledgements
+
+- **Jetpack Compose, AndroidX, Room, ONNX Runtime** and the rest of the
+  dependency graph — see the attribution table below.
+- **[Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans)**,
+  under the SIL Open Font License, for the typeface.
+- **[all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)**,
+  Apache-2.0, for the sentence encoder that powers on-device categorisation.
+- **[Lottie](https://airbnb.io/lottie/)**, Apache-2.0, for the onboarding and
+  splash animations.
+- Everyone who has filed an issue. The bug list this project grew from was
+  largely other people's reports.
+
 ## License
 
-```
 Copyright 2026 AuraSpend
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+AuraSpend is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
 
-    http://www.apache.org/licenses/LICENSE-2.0
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+You should have received a copy of the GNU Affero General Public License along
+with this program. If not, see <https://www.gnu.org/licenses/>.
+
+AuraSpend is also distributed on Google Play and F-Droid. The full license text
+is in [`LICENSE`](LICENSE) and is readable in the app under
+**Settings → About → Open-source licenses**.
+
+### Why AGPL rather than Apache-2.0
+
+AuraSpend was Apache-2.0 until 0.1.1. It moved to AGPL-3.0 for one reason: to
+make sure that a modified AuraSpend offered to users over a network has to offer
+its source too. Apache-2.0 permits exactly that — a proprietary hosted fork is
+lawful — and AGPL-3.0 section 13 does not.
+
+See [ADR 0009](docs/adr/0009-agpl-3.0-relicensing.md) for the full reasoning,
+including what AGPL does *not* buy this project.
+
+### Third-party components
+
+AuraSpend bundles or downloads work under other licenses. These remain under
+their own terms — the AGPL covers AuraSpend's own source, not theirs:
+
+| Component | License | Notes |
+|---|---|---|
+| [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) | SIL OFL 1.1 | Bundled font, `app/src/main/res/font/` |
+| [ONNX Runtime](https://onnxruntime.ai/) (Android) | MIT | Native inference runtime, Maven AAR |
+| [Lottie](https://airbnb.io/lottie/) | Apache-2.0 | Bundled onboarding/splash animations |
+| AndroidX (Room, Compose, Lifecycle, Work, Navigation) | Apache-2.0 | |
+| Google API Client, Google Drive API, play-services-auth | Apache-2.0 | Drive backup only |
+| OkHttp, Guava | Apache-2.0 | Transitive |
+| [`all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) | Apache-2.0 | **Downloaded at runtime**, not bundled |
+
+The full texts are in [`docs/licenses/`](docs/licenses/) and in the app under
+**Settings → About → Open-source licenses**.

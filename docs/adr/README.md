@@ -12,3 +12,5 @@ the next number. Status values: `Accepted`, `Superseded`, `Proposed`.
 | [0005](0005-screenshot-testing.md) | Robolectric + Roborazzi screenshot tests | Accepted |
 | [0006](0006-localization-strategy.md) | String resources and Hindi as first locale | Accepted |
 | [0007](0007-no-paywall.md) | No paywall in the open-source app | Accepted |
+| [0008](0008-distribution-flavors.md) | Distribution flavors carry no features, no analytics, no ads | Accepted |
+| [0009](0009-agpl-3.0-relicensing.md) | Relicensing to AGPL-3.0 | Accepted |

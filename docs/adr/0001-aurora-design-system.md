@@ -1,6 +1,6 @@
 # ADR 0001 — Adopt the Aurora design system
 
-**Status:** Accepted · 2026-09
+**Status:** Accepted · 2026-09 · licence note: written under Apache-2.0; see ADR 0009 for the AGPL-3.0 relicensing
 
 ## Context
 

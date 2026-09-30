@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import com.awbuilds.auraspend.R
 import com.awbuilds.auraspend.ui.designsystem.AuraGradients
 import com.awbuilds.auraspend.ui.designsystem.AuraSpacing
@@ -128,7 +129,7 @@ fun SplashScreen(onAnimationFinished: () -> Unit) {
                 .padding(bottom = AuraSpacing.xxxl)
         ) {
             Text(
-                "Open source · Apache-2.0",
+                stringResource(R.string.splash_open_source_license),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )

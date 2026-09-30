@@ -119,9 +119,11 @@ used.
 
 ## D4 — No paywall anywhere (2026-09-12)
 PremiumGate, PremiumUpgradeScreen and the BillingManager stubs were unused or
-stubbed; the free flavor unlocked everything already. For an Apache-2.0 project
-the paywall undermined trust. Removed. `free`/`play` flavors remain for
-distribution differences.
+stubbed; the free flavor unlocked everything already. For a free-software
+project the paywall undermined trust. Removed. `free`/`play` flavors remain for
+distribution differences. (Written when the licence was Apache-2.0; the project
+relicensed to AGPL-3.0 in 0.1.1 — see ADR 0009. The conclusion is unchanged and
+in fact stronger under copyleft.)
 
 ## D5 — Try/catch at every boundary is a hard rule (2026-09-12)
 Every IO/platform call must catch exceptions, log via `AuraLog`, and degrade to
