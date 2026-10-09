@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!--
+  AuraSpend Play Store feature graphic source (1024x500).
+  Render with headless Chrome from the repo root:
+
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+      --headless=new --disable-gpu --hide-scrollbars --allow-file-access-from-files \
+      --force-device-scale-factor=1 --window-size=1024,500 \
+      --screenshot=docs/store/feature-1024x500.png \
+      "file://$PWD/docs/store/feature-graphic.html"
+
+  Paths are relative to this file, so it keeps working after moves.
+  If the screenshot it embeds changes, point the .phonewrap img at the new file.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: 'PlusJakarta';
+    src: url('../../app/src/main/res/font/plus_jakarta_sans.ttf');
+    font-weight: 100 900;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1024px; height: 500px; overflow: hidden; }
+  body {
+    font-family: 'PlusJakarta', -apple-system, 'Helvetica Neue', sans-serif;
+    background: #0E0A16;
+    position: relative;
+  }
+  .glow1 {
+    position: absolute; left: -140px; top: -160px; width: 620px; height: 620px;
+    background: radial-gradient(circle, rgba(139,92,246,0.55) 0%, rgba(139,92,246,0.18) 40%, rgba(139,92,246,0) 70%);
+  }
+  .glow2 {
+    position: absolute; right: -100px; bottom: -220px; width: 640px; height: 640px;
+    background: radial-gradient(circle, rgba(45,212,191,0.40) 0%, rgba(45,212,191,0.12) 42%, rgba(45,212,191,0) 70%);
+  }
+  .glow3 {
+    position: absolute; left: 300px; bottom: -260px; width: 560px; height: 560px;
+    background: radial-gradient(circle, rgba(94,58,139,0.55) 0%, rgba(94,58,139,0.15) 45%, rgba(94,58,139,0) 72%);
+  }
+  .content { position: absolute; inset: 0; display: flex; align-items: center; }
+  .left { padding-left: 62px; width: 620px; }
+  .brandrow { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; }
+  .appicon {
+    width: 76px; height: 76px; border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.09);
+  }
+  .wordmark { font-size: 58px; font-weight: 800; letter-spacing: -1.5px; color: #FFFFFF; line-height: 1; }
+  .wordmark span { color: #C4A6E6; }
+  .tagline { font-size: 25px; font-weight: 600; color: #D9CCF0; letter-spacing: 0.1px; margin-bottom: 26px; }
+  .chips { display: flex; gap: 12px; }
+  .chip {
+    font-size: 15px; font-weight: 600; color: #E9DFF8;
+    border: 1px solid rgba(196,166,230,0.45); border-radius: 999px;
+    padding: 8px 16px; background: rgba(139,92,246,0.10);
+  }
+  .phonewrap {
+    position: absolute; right: 78px; top: 26px; width: 252px; height: 474px;
+    border-radius: 40px; background: #05030A;
+    border: 2px solid rgba(255,255,255,0.16);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.65), 0 0 60px rgba(139,92,246,0.35);
+    overflow: hidden;
+  }
+  .phonewrap img {
+    position: absolute; top: -2px; left: -2px; width: 256px; display: block;
+  }
+</style>
+</head>
+<body>
+  <div class="glow1"></div>
+  <div class="glow2"></div>
+  <div class="glow3"></div>
+  <div class="content">
+    <div class="left">
+      <div class="brandrow">
+        <img class="appicon" src="../../app/src/main/res/drawable/app_icon.png">
+        <div class="wordmark">Aura<span>Spend</span></div>
+      </div>
+      <div class="tagline">Smart expense tracking.<br>On your device. Ad-free.</div>
+      <div class="chips">
+        <div class="chip">Bank SMS → transactions</div>
+        <div class="chip">Budgets &amp; insights</div>
+        <div class="chip">Open source</div>
+      </div>
+    </div>
+    <div class="phonewrap">
+      <img src="screenshots/01-home.png">
+    </div>
+  </div>
+</body>
+</html>

@@ -38,6 +38,7 @@ Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
 | **Typed-decision classification** | ✅ Tasks 1–4 shipped — 0012. Calibrated veto seam, sender-routed bank parsers (Axis/Canara/SBI), keyword category map, unrecognized-SMS table |
 | **Encoder replaces the generator** | ✅ 0013 — MiniLM-L6-v2 int8 (22 MB) on ONNX Runtime replaces Qwen 468 MB. **Zero transactions destroyed, 4 rescued.** llama.cpp removed. Not yet run on-device |
 | **Next: error-handling debt** | `CancellationException` swallowed at most catch sites; `runBlocking` in `LlamaCppLlm`; dead duplicate-SMS guard; no DAO/migration tests (`exportSchema = false`) |
+| **Play Store (0.1.1)** | ✅ Staged, **not submitted** — see `docs/handoffs/0017-play-console-setup.md`. Launch needs: send-for-review → SMS permission justification at review → 12 testers × 14 days → apply for production. Listing assets + strings: `docs/store/` |
 
 ## Hard-won invariants (do not regress)
 - **CSV export writes to the SAF uri, never public Downloads** (minSdk 30 forbids it).

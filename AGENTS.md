@@ -3,7 +3,14 @@
 > Read this file and the latest file in `docs/handoffs/` before touching anything.
 > Update both (plus `CLAUDE.md` / `memory/` when you learn something durable) before ending a session.
 >
-> Latest: `docs/handoffs/0016-agpl-3.0-relicensing.md` — relicensed to
+> Latest: `docs/handoffs/0017-play-console-setup.md` — 0.1.1 fully **staged** on
+> Play (store listing, all 10 app-content declarations, closed test with a draft
+> release carrying the signed AAB) but **not sent for review**, by instruction.
+> Launch now waits on: send-for-review, the SMS permission declaration that will
+> surface during review, 12 testers × 14 days, then "Apply for production".
+> Screenshots for Play must be 16:9 or 9:16 — the old `docs/screenshots/*`
+> (9:20) are not; the Play-compliant set + listing assets live in `docs/store/`.
+> Before: `docs/handoffs/0016-agpl-3.0-relicensing.md` — relicensed to
 > **AGPL-3.0-or-later** and cut as 0.1.1. New in-app open-source licenses
 > screen (an AGPL §4 requirement the app did not meet), a CLA with copyright
 > assignment, `tools/check_license.sh` in CI, and `CHANGELOG.md`. **Do not
