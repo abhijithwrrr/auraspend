@@ -13,10 +13,10 @@
 #      JNI_OnLoad? A rename here is a release-only UnsatisfiedLinkError.
 #   4. Is anything unsigned or missing from the bundle?
 #
-# Usage: tools/verify_r8_release.sh [variant]   (default: free)
+# Usage: tools/verify_r8_release.sh [variant]   (default: prod; dev also works)
 set -uo pipefail
 
-VARIANT="${1:-free}"
+VARIANT="${1:-prod}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT" || exit 1
 

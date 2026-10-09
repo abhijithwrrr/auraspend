@@ -51,26 +51,26 @@ jobs:
       # screenshot baselines, the baseline profile and the test suite could all
       # break without a single red build.
 
-      - name: Unit tests (free debug)
-        run: ./gradlew testFreeDebugUnitTest
+      - name: Unit tests (prod debug)
+        run: ./gradlew testProdDebugUnitTest
 
-      - name: Lint (free debug)
-        run: ./gradlew :app:lintFreeDebug
+      - name: Lint (dev debug)
+        run: ./gradlew :app:lintDevDebug
 
-      - name: Lint (play debug)
-        run: ./gradlew :app:lintPlayDebug
+      - name: Lint (prod debug)
+        run: ./gradlew :app:lintProdDebug
 
-      - name: Build free flavor
-        run: ./gradlew assembleFreeDebug
+      - name: Build dev flavor
+        run: ./gradlew assembleDevDebug
 
-      - name: Build play flavor
-        run: ./gradlew assemblePlayDebug
+      - name: Build prod flavor
+        run: ./gradlew assembleProdDebug
 
-      # Compiles the Macrobenchmark module and the R8-minified benchmark variant,
+      # Compiles the Macrobenchmark module and the R8-minified release variant,
       # which is what actually consumes app/src/main/baseline-prof.txt. Without
       # this, profile drift is invisible until someone runs it by hand.
       - name: Build benchmark variant + module
-        run: ./gradlew :app:assembleFreeBenchmark :benchmark:assemble
+        run: ./gradlew :app:assembleProdRelease :benchmark:assemble
 
       - name: Upload lint reports
         if: always()

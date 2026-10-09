@@ -4,18 +4,17 @@ Thanks for your interest! Here's how to get started.
 
 ## Build Flavors
 
-AuraSpend uses two build flavors, and they are **identical in features**:
+AuraSpend uses two flavors, and they are **identical in features**:
 
 | Flavor | Command | Use Case |
 |--------|---------|----------|
-| `free` | `./gradlew assembleFreeDebug` | Development, F-Droid, self-build |
-| `play` | `./gradlew assemblePlayDebug` | Play Store release |
+| `dev` | `./gradlew assembleDevDebug` | Development / QA — `.dev` id, "AuraSpend Dev" label |
+| `prod` | `./gradlew assembleProdDebug` | The build that ships (`com.awbuilds.auraspend`) |
 
 **Every feature ships in both flavors, and neither build carries analytics or
-ads.** The flavors exist for distribution configuration only — signing, listing
-metadata, and a distribution-specific permission if one is ever needed. See
-[ADR 0007](../docs/adr/0007-no-paywall.md) and
-[ADR 0008](../docs/adr/0008-distribution-flavors.md).
+ads.** The flavors exist for configuration only — application-id suffix, label,
+signing. See [ADR 0007](../docs/adr/0007-no-paywall.md) and
+[ADR 0010](../docs/adr/0010-dev-prod-flavors.md).
 
 ### The invariant to preserve
 
@@ -30,7 +29,7 @@ in `main` behind a runtime check instead.
 
 ### Screenshot baselines are platform-dependent
 
-`testFreeDebugUnitTest` **rewrites** `app/src/test/screenshots/*.png` — it does
+`testProdDebugUnitTest` **rewrites** `app/src/test/screenshots/*.png` — it does
 not compare against them. CI then fails the build if that directory is dirty,
 which is a real drift gate. But Robolectric rasterises on the host JDK and OS,
 so a macOS run produces byte-different PNGs from the Linux ones committed here.
@@ -58,7 +57,7 @@ it is the platform, not your change — revert them.
 ## Pull Request Process
 
 1. Fork the repo and create a branch from `main`
-2. Run `./gradlew assembleFreeDebug` — it must build clean
+2. Run `./gradlew assembleProdDebug` — it must build clean
 3. Update docs if needed
 4. Open a PR with a clear title and description
 5. A maintainer will review

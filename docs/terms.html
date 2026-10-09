@@ -114,13 +114,13 @@
                 <h3>5.1 No Purchase Required</h3>
                 <p>AuraSpend has <strong>no paywall and no in-app purchases</strong>. Every feature of the Application is available in every build at no cost, and no functionality is unlocked by payment. This is a deliberate project decision, not a temporary promotion &mdash; see ADR 0007 in the project repository.</p>
 
-                <h3>5.2 Build Flavors</h3>
-                <p>AuraSpend is distributed in two build flavors, which are <strong>identical in features</strong> and differ only in distribution configuration:</p>
+                <h3>5.2 Build Variants</h3>
+                <p>AuraSpend ships as a single production build, with the full source available so you can build it yourself. A development variant exists for testing and is not distributed:</p>
                 <ul>
-                    <li><strong>Free Flavor:</strong> Available by building from source or downloading from F-Droid. All features unlocked at no cost.</li>
-                    <li><strong>Play Store Flavor:</strong> Available on the Google Play Store. The same features, the same code, at no cost.</li>
+                    <li><strong>Prod build:</strong> The build distributed on the Google Play Store — and the build you produce yourself from source. All features, at no cost.</li>
+                    <li><strong>Dev build:</strong> An internal development variant (separate application id, "AuraSpend Dev") used while developing the app. Same features; not distributed to users.</li>
                 </ul>
-                <p>Neither flavor includes analytics, advertising, or telemetry of any kind. The Application does not contain any advertising or analytics SDK in any build.</p>
+                <p>No variant includes analytics, advertising, or telemetry of any kind. The Application does not contain any advertising or analytics SDK in any build.</p>
 
                 <h3>5.3 Supporting the Project</h3>
                 <p>Because the Application has no purchases, the only way to support its development is voluntary: contributions to the open-source repository, or a donation through a channel we may list in the project README. Any future monetization would be a supporter tier that unlocks <strong>nothing</strong>, and we would not gate existing functionality behind payment.</p>

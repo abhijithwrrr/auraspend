@@ -28,7 +28,7 @@ Full decoder ring for AuraSpend. Promote frequently used terms to `CLAUDE.md`.
 | AuraLog | Single logging entry point (`core/AuraLog.kt`) |
 | Pipeline | SMS → `SmsIngestor` → queue → classifier → `ClassificationMemory` → transaction |
 | Fusion | `AiSignalFusion` — combines regex + LLM + keyword signals with confidence |
-| Flavor | `free` (all unlocked) / `play` (Play Store build) |
+| Flavor | `dev` (development, `.dev` id, "AuraSpend Dev" label) / `prod` (the build that ships) |
 
 ## Navigation & IA (target, P1)
 | Term | Meaning |

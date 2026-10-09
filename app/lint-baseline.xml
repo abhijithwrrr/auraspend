@@ -8,7 +8,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/data/ai/ModelDownloadManager.kt"
-            line="259"
+            line="337"
             column="13"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/data/ai/ModelDownloadManager.kt"
-            line="273"
+            line="351"
             column="13"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/data/ai/ModelDownloadManager.kt"
-            line="287"
+            line="365"
             column="13"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/ui/classification/ClassificationViewModel.kt"
-            line="483"
+            line="549"
             column="13"/>
     </issue>
 
@@ -80,7 +80,7 @@
 
     <issue
         id="AndroidGradlePluginVersion"
-        message="A newer version of Gradle than 9.5.0 is available: 9.8.0"
+        message="A newer version of Gradle than 9.5.0 is available: 9.8.1"
         errorLine1="distributionUrl=https://services.gradle.org/distributions/gradle-9.5.0-bin.zip"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -109,28 +109,6 @@
             file="../gradle/libs.versions.toml"
             line="6"
             column="7"/>
-    </issue>
-
-    <issue
-        id="GradleDependency"
-        message="A newer version of `compileSdk` than 36 is available: 37"
-        errorLine1="    compileSdk = 36"
-        errorLine2="    ~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle.kts"
-            line="10"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="GradleDependency"
-        message="A newer version of androidx.core:core-ktx than 1.13.1 is available: 1.19.1"
-        errorLine1="    implementation(&quot;androidx.core:core-ktx:1.13.1&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle.kts"
-            line="57"
-            column="20"/>
     </issue>
 
     <issue
@@ -179,6 +157,17 @@
 
     <issue
         id="GradleDependency"
+        message="A newer version of androidx.paging:paging-compose than 3.5.1 is available: 3.5.2"
+        errorLine1="paging = &quot;3.5.1&quot;"
+        errorLine2="         ~~~~~~~">
+        <location
+            file="../gradle/libs.versions.toml"
+            line="29"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
         message="A newer version of androidx.test.espresso:espresso-core than 3.5.1 is available: 3.7.0"
         errorLine1="espresso = &quot;3.5.1&quot;"
         errorLine2="           ~~~~~~~">
@@ -190,29 +179,18 @@
 
     <issue
         id="NewerVersionAvailable"
-        message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-android than 1.8.1 is available: 1.11.0"
-        errorLine1="    implementation(&quot;org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle.kts"
-            line="56"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="NewerVersionAvailable"
         message="A newer version of org.json:json than 20240303 is available: 20260814"
         errorLine1="    testImplementation(&quot;org.json:json:20240303&quot;)"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="190"
+            line="243"
             column="24"/>
     </issue>
 
     <issue
         id="NewerVersionAvailable"
-        message="A newer version of org.jetbrains.kotlin.plugin.compose than 2.2.10 is available: 2.4.20"
+        message="A newer version of org.jetbrains.kotlin.plugin.compose than 2.2.10 is available: 2.4.21"
         errorLine1="kotlin = &quot;2.2.10&quot;"
         errorLine2="         ~~~~~~~~">
         <location
@@ -267,7 +245,7 @@
 
     <issue
         id="NewerVersionAvailable"
-        message="A newer version of com.google.guava:guava than 33.0.0-android is available: 33.7.1-android"
+        message="A newer version of com.google.guava:guava than 33.0.0-android is available: 33.7.2-android"
         errorLine1="guava = &quot;33.0.0-android&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
@@ -278,7 +256,7 @@
 
     <issue
         id="NewerVersionAvailable"
-        message="A newer version of io.github.takahirom.roborazzi:roborazzi than 1.74.0 is available: 1.75.0"
+        message="A newer version of io.github.takahirom.roborazzi:roborazzi than 1.74.0 is available: 1.76.0"
         errorLine1="roborazzi = &quot;1.74.0&quot;"
         errorLine2="            ~~~~~~~~">
         <location
@@ -289,13 +267,24 @@
 
     <issue
         id="NewerVersionAvailable"
-        message="A newer version of io.github.takahirom.roborazzi:roborazzi-compose than 1.74.0 is available: 1.75.0"
+        message="A newer version of io.github.takahirom.roborazzi:roborazzi-compose than 1.74.0 is available: 1.76.0"
         errorLine1="roborazzi = &quot;1.74.0&quot;"
         errorLine2="            ~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
             line="34"
             column="13"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.microsoft.onnxruntime:onnxruntime-android than 1.22.0 is available: 1.31.0"
+        errorLine1="onnxruntime = &quot;1.22.0&quot;"
+        errorLine2="              ~~~~~~~~">
+        <location
+            file="../gradle/libs.versions.toml"
+            line="41"
+            column="15"/>
     </issue>
 
     <issue
@@ -316,7 +305,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="253"
+            line="266"
             column="5"/>
     </issue>
 
@@ -327,7 +316,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="256"
+            line="269"
             column="5"/>
     </issue>
 
@@ -338,7 +327,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="284"
+            line="297"
             column="5"/>
     </issue>
 
@@ -349,7 +338,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="288"
+            line="301"
             column="5"/>
     </issue>
 
@@ -360,7 +349,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="290"
+            line="303"
             column="5"/>
     </issue>
 
@@ -371,7 +360,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="291"
+            line="304"
             column="5"/>
     </issue>
 
@@ -407,7 +396,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/data/classification/AutoClassificationWorker.kt"
-            line="114"
+            line="130"
             column="13"/>
     </issue>
 
@@ -418,7 +407,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/data/ai/ModelDownloadManager.kt"
-            line="230"
+            line="308"
             column="13"/>
     </issue>
 
@@ -436,7 +425,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/ui/classification/ClassificationViewModel.kt"
-            line="43"
+            line="48"
             column="5"/>
     </issue>
 
@@ -447,7 +436,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/ui/onboarding/OnboardingScreen.kt"
-            line="112"
+            line="113"
             column="66"/>
     </issue>
 
@@ -458,7 +447,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/ui/designsystem/AnimatedMoney.kt"
-            line="82"
+            line="88"
             column="18"/>
     </issue>
 
@@ -536,17 +525,6 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.string.action_retry` appears to be unused"
-        errorLine1="    &lt;string name=&quot;action_retry&quot;>Retry&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="11"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.string.action_close` appears to be unused"
         errorLine1="    &lt;string name=&quot;action_close&quot;>Close&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
@@ -563,7 +541,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="34"
+            line="33"
             column="13"/>
     </issue>
 
@@ -585,7 +563,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="284"
+            line="297"
             column="13"/>
     </issue>
 
@@ -607,7 +585,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="323"
+            line="336"
             column="40"/>
     </issue>
 
@@ -618,7 +596,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="337"
+            line="351"
             column="40"/>
     </issue>
 
@@ -629,7 +607,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="348"
+            line="361"
             column="46"/>
     </issue>
 
@@ -640,7 +618,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="362"
+            line="376"
             column="46"/>
     </issue>
 
@@ -651,7 +629,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="381"
+            line="395"
             column="51"/>
     </issue>
 
@@ -662,7 +640,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="382"
+            line="396"
             column="47"/>
     </issue>
 
@@ -673,7 +651,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="395"
+            line="410"
             column="51"/>
     </issue>
 
@@ -684,7 +662,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="396"
+            line="411"
             column="47"/>
     </issue>
 
@@ -768,7 +746,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/com/awbuilds/auraspend/data/ai/ModelDownloadManager.kt"
-            line="72"
+            line="73"
             column="9"/>
     </issue>
 
@@ -779,7 +757,7 @@
         errorLine2="                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/ui/navigation/NavGraph.kt"
-            line="187"
+            line="191"
             column="25"/>
     </issue>
 
@@ -790,7 +768,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/ui/navigation/NavGraph.kt"
-            line="481"
+            line="522"
             column="33"/>
     </issue>
 
@@ -812,7 +790,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/awbuilds/auraspend/ui/settings/SettingsScreen.kt"
-            line="265"
+            line="285"
             column="56"/>
     </issue>
 
@@ -830,55 +808,12 @@
     <issue
         id="UseTomlInstead"
         message="Use version catalog instead"
-        errorLine1="    implementation(&quot;org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle.kts"
-            line="56"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UseTomlInstead"
-        message="Use version catalog instead (androidx.core:core-ktx is already available as `androidx-core-ktx`, but using version 1.19.0 instead)"
-        errorLine1="    implementation(&quot;androidx.core:core-ktx:1.13.1&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle.kts"
-            line="57"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UseTomlInstead"
-        message="Use the existing version catalog reference (`libs.junit`) instead"
-        errorLine1="    testImplementation(&quot;junit:junit:4.13.2&quot;)"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle.kts"
-            line="59"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UseTomlInstead"
-        message="Use version catalog instead"
         errorLine1="    testImplementation(&quot;org.json:json:20240303&quot;)"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="190"
+            line="243"
             column="24"/>
     </issue>
 
-    <issue
-        id="NewerVersionAvailable"
-        message="A newer version of com.microsoft.onnxruntime:onnxruntime-android than 1.22.0 is available: 1.30.0"
-        errorLine1="onnxruntime-android = { group = &quot;com.microsoft.onnxruntime&quot;, name = &quot;onnxruntime-android&quot;, version.ref = &quot;onnxruntime&quot; }"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="66"
-            column="24"/>
-    </issue>
 </issues>

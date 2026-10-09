@@ -45,7 +45,7 @@ next handoff.
 
 ## Screenshot provenance
 
-Captured from the `free` debug build on the `aura_spike` AVD (Play Store image,
+Captured from a debug build on the `aura_spike` AVD (Play Store image,
 1080×2400), with the display overridden to `1080x1920` (16:9 — the repo's older
 `docs/screenshots/` are 720×1600 i.e. 9:20 and are *not* valid Play sizes), dark
 theme, `en-IN` rupee formatting, and demo data from
@@ -54,5 +54,5 @@ theme, `en-IN` rupee formatting, and demo data from
 database to make the balance positive for the screenshots; it exists only on
 that emulator, not in the seeder or the app.
 
-Note: the `free` and `play` flavors are feature-identical (ADR 0008); the
-screenshots would be pixel-identical on the `play` build.
+Note: the `dev` and `prod` flavors are feature-identical (ADR 0010); the
+screenshots would be pixel-identical on the prod build.

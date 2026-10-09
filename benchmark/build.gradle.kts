@@ -1,7 +1,14 @@
 // Macrobenchmark + Baseline Profile module.
 //
-// Runs against the :app module's `benchmark` build type (release-like,
-// profileable). Flavor dimension mirrors :app so variants line up.
+// Runs against the :app module's `release` build type: the app deliberately
+// has no benchmark build type any more (ADR 0010 keeps :app to exactly four
+// variants — dev/prod × debug/release), so this module's `benchmark` build type
+// declares matchingFallbacks and links against the app's release variant. The
+// release build is profileable and not debuggable, which is what macrobenchmark
+// needs — but it is signed with the *release* keystore, so running benchmarks
+// locally requires secrets.properties (see secrets.properties.example).
+//
+// Flavor dimension mirrors :app so variants line up.
 plugins {
     id("com.android.test")
 }
@@ -22,16 +29,17 @@ android {
     }
 
     // Match the app's flavor dimension.
-    flavorDimensions += "distribution"
+    flavorDimensions += "env"
     productFlavors {
-        create("free") { dimension = "distribution" }
-        create("play") { dimension = "distribution" }
+        create("dev") { dimension = "env" }
+        create("prod") { dimension = "env" }
     }
 
     buildTypes {
         create("benchmark") {
             isDebuggable = true
             signingConfig = signingConfigs.getByName("debug")
+            // The app has no benchmark type; link its release build instead.
             matchingFallbacks += listOf("release")
         }
     }

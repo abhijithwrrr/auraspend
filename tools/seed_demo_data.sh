@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
 # Seed the connected device with demo data and open the app on it.
 #
-# Writes into the app's REAL database via DemoDataSeeder (an instrumentation
-# test), so the data survives after the test APK is removed and you can drive
-# the app normally. Re-runnable: the seeder clears the tables first, so it is
-# safe to run again at any time and always leaves the same state.
+# Drives the **dev** flavor (application id com.awbuilds.auraspend.dev, label
+# "AuraSpend Dev") so it can sit next to a prod install. Writes into the app's
+# REAL database via DemoDataSeeder (an instrumentation test), so the data
+# survives after the test APK is removed and you can drive the app normally.
+# Re-runnable: the seeder clears the tables first, so it is safe to run again
+# at any time and always leaves the same state.
 #
 #   tools/seed_demo_data.sh          # seed + launch
 #   tools/seed_demo_data.sh --wipe   # clear app data first (fresh consent state)
 #
-# To undo: adb shell pm clear com.awbuilds.auraspend
+# To undo: adb shell pm clear com.awbuilds.auraspend.dev
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-PKG=com.awbuilds.auraspend
-TEST_PKG=com.awbuilds.auraspend.test
+PKG=com.awbuilds.auraspend.dev
+TEST_PKG=com.awbuilds.auraspend.dev.test
+# The seeder class keeps its source package; only the application id gains the
+# flavor suffix (applicationIdSuffix), so the class name is NOT derived from PKG.
+SEEDER_CLASS=com.awbuilds.auraspend.DemoDataSeeder
 WIPE=0
 [[ "${1:-}" == "--wipe" ]] && WIPE=1
 
@@ -29,14 +34,14 @@ if [[ $WIPE -eq 1 ]]; then
 fi
 
 echo "==> building the instrumentation APK"
-./gradlew :app:assembleFreeDebug :app:assembleFreeDebugAndroidTest --console=plain -q
+./gradlew :app:assembleDevDebug :app:assembleDevDebugAndroidTest --console=plain -q
 
 # Install with -r so the app's database survives. Plain `connectedAndroidTest`
 # uninstalls both APKs when it finishes, which takes the seeded data with it —
 # that is why this drives `am instrument` directly.
 echo "==> installing"
-adb install -r app/build/outputs/apk/free/debug/app-free-debug.apk >/dev/null
-adb install -r app/build/outputs/apk/androidTest/free/debug/app-free-debug-androidTest.apk >/dev/null
+adb install -r app/build/outputs/apk/dev/debug/app-dev-debug.apk >/dev/null
+adb install -r app/build/outputs/apk/androidTest/dev/debug/app-dev-debug-androidTest.apk >/dev/null
 
 if ! adb shell pm list packages | grep -q "^package:$TEST_PKG$"; then
   echo "test APK not installed"; exit 1
@@ -44,7 +49,7 @@ fi
 
 echo "==> seeding"
 RESULT=$(adb shell am instrument -w -r \
-  -e class "$PKG.DemoDataSeeder" \
+  -e class "$SEEDER_CLASS" \
   "$TEST_PKG/androidx.test.runner.AndroidJUnitRunner" 2>&1)
 
 if grep -q "OK (1 test)" <<<"$RESULT"; then

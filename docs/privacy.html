@@ -57,8 +57,8 @@
                 </ul>
 
                 <h3>1.2 Information Collected Automatically</h3>
-                <p><strong>No build of AuraSpend collects anything automatically.</strong> Neither the <strong>free</strong> (F-Droid / self-build) nor the <strong>Play Store</strong> flavor includes an analytics SDK, an advertising SDK, a crash-reporting framework, or any telemetry. No usage data, device identifiers, advertising identifiers, or diagnostic information is transmitted to us or to any third party.</p>
-                <p>The two builds are <strong>identical in features</strong> and differ only in distribution configuration — see <a href="https://github.com/auraspend/auraspend/blob/main/docs/adr/0008-distribution-flavors.md">ADR 0008</a> for the reasoning.</p>
+                <p><strong>No build of AuraSpend collects anything automatically.</strong> Neither the build distributed on Google Play nor a self-built APK includes an analytics SDK, an advertising SDK, a crash-reporting framework, or any telemetry. No usage data, device identifiers, advertising identifiers, or diagnostic information is transmitted to us or to any third party.</p>
+                <p>Every build is <strong>identical in features</strong>; variants differ only in configuration — see <a href="https://github.com/auraspend/auraspend/blob/main/docs/adr/0010-dev-prod-flavors.md">ADR 0010</a> for the reasoning.</p>
                 <p>AuraSpend does declare the <code>INTERNET</code> permission, because two optional features require a network connection: downloading the on-device model from HuggingFace, and backing up to your own Google Drive account. Neither feature sends us anything. We operate no servers and have no access to your data. The app contacts only the model host (when you download the model) and Google Drive (only if you enable backup), and it makes no other network requests. <strong>No data is transmitted to us or to any advertising or analytics third party.</strong></p>
                 <p>AuraSpend has no in-app purchases and no paywall. Every feature is available in every build.</p>
 

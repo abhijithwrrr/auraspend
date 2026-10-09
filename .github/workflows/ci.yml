@@ -42,7 +42,7 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37" "build-tools;36.0.0" > /dev/null
 
       - name: Unit tests
-        run: ./gradlew testFreeDebugUnitTest
+        run: ./gradlew testProdDebugUnitTest
 
       # Cheap, and it is the only thing standing between a relicensing mistake
       # and a shipped APK that misstates its own licence. It has already caught
@@ -67,11 +67,11 @@ jobs:
           path: app/src/test/screenshots/
           if-no-files-found: ignore
 
-      - name: Build free flavor (debug)
-        run: ./gradlew assembleFreeDebug
+      - name: Build dev flavor (debug)
+        run: ./gradlew assembleDevDebug
 
-      - name: Build play flavor (debug)
-        run: ./gradlew assemblePlayDebug
+      - name: Build prod flavor (debug)
+        run: ./gradlew assembleProdDebug
 
-      - name: Build free release (full R8)
-        run: ./gradlew assembleFreeRelease
+      - name: Build prod release (full R8)
+        run: ./gradlew assembleProdRelease

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dev-flavor override: the label carries a suffix so the side-by-side dev
+     build is unmistakable on the device (applicationId gets ".dev" in Gradle). -->
+<resources>
+    <string name="app_name">AuraSpend Dev</string>
+</resources>

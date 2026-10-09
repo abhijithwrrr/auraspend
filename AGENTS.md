@@ -3,14 +3,21 @@
 > Read this file and the latest file in `docs/handoffs/` before touching anything.
 > Update both (plus `CLAUDE.md` / `memory/` when you learn something durable) before ending a session.
 >
-> Latest: `docs/handoffs/0017-play-console-setup.md` — 0.1.1 fully **staged** on
+> Latest: `docs/handoffs/0018-dev-prod-flavors.md` — flavors renamed
+> `free`/`play` → **`dev`/`prod`**, exactly four variants (the `benchmark` build
+> type is gone; `:benchmark` links prod release), CI/tools/docs updated, and a
+> public-surface audit that removed false F-Droid claims and unused secrets
+> keys. Verified: 274 tests, signed dev+prod artifacts, lint clean on a
+> regenerated 78-entry baseline. Watch for: local benchmarks now need the
+> release keystore; dev Drive sign-in needs its own OAuth client.
+> Before: `docs/handoffs/0017-play-console-setup.md` — 0.1.1 fully **staged** on
 > Play (store listing, all 10 app-content declarations, closed test with a draft
 > release carrying the signed AAB) but **not sent for review**, by instruction.
 > Launch now waits on: send-for-review, the SMS permission declaration that will
 > surface during review, 12 testers × 14 days, then "Apply for production".
 > Screenshots for Play must be 16:9 or 9:16 — the old `docs/screenshots/*`
 > (9:20) are not; the Play-compliant set + listing assets live in `docs/store/`.
-> A tag-driven `release.yml` now builds the **signed** Play AAB + free APK and
+> A tag-driven `release.yml` now builds the **signed** Play AAB + prod APK and
 > attaches them to a GitHub Release (Release Drafter notes; no Play upload).
 > Before: `docs/handoffs/0016-agpl-3.0-relicensing.md` — relicensed to
 > **AGPL-3.0-or-later** and cut as 0.1.1. New in-app open-source licenses
@@ -85,22 +92,23 @@ Kotlin source root: `app/src/main/java/com/awbuilds/auraspend/`
 ## Commands
 
 ```bash
-./gradlew :app:compileFreeDebugKotlin      # fast compile check
-./gradlew testFreeDebugUnitTest            # unit tests (required before handoff)
-./gradlew :app:lintFreeDebug                # new issues fail; 94 pre-existing baselined
-./gradlew assembleFreeDebug                # APK (native build; slow)
-./gradlew assemblePlayDebug                # Play flavor
+./gradlew :app:compileProdDebugKotlin     # fast compile check
+./gradlew testProdDebugUnitTest           # unit tests (required before handoff)
+./gradlew :app:lintProdDebug               # new issues fail; 78 pre-existing baselined
+./gradlew assembleDevDebug                # dev APK (fast inner loop)
+./gradlew assembleProdDebug               # prod APK (what ships; native build)
 ```
 
-Flavors: `free` (all features, F-Droid/self-build) and `play` (Play Store).
+Flavors: `dev` (development — `.dev` application id, "AuraSpend Dev" label) and
+`prod` (the only distributed build). Feature-identical; see ADR 0010.
 The Play paywall was removed in Phase 0 — do not reintroduce premium gating.
 
 **Signed releases:** keystore credentials live in `secrets.properties`
-(gitignored, see `secrets.properties.example`). Without them `assembleFreeRelease`
-still succeeds but produces `app-free-release-unsigned.apk` and logs a warning —
+(gitignored, see `secrets.properties.example`). Without them `assembleProdRelease`
+still succeeds but produces `app-prod-release-unsigned.apk` and logs a warning —
 check the filename before calling a release build shippable.
 
-**Lint:** `app/lint-baseline.xml` pins the 94 pre-existing issues so only *new*
+**Lint:** `app/lint-baseline.xml` pins the 78 pre-existing issues so only *new*
 ones fail CI. Run `./gradlew updateLintBaseline` deliberately (and review the
 diff) when you intentionally fix or add lint suppressions.
 
@@ -135,7 +143,7 @@ diff) when you intentionally fix or add lint suppressions.
    `DesignSystemGuardTest`** — they fail the build, so a violation is a red test
    rather than a review comment. Touch targets ≥48dp; anything holding text uses
    `heightIn`, not a fixed `height`, so it survives 200% font scale.
-6. **Green build.** `:app:compileFreeDebugKotlin` and `testFreeDebugUnitTest`
+6. **Green build.** `:app:compileProdDebugKotlin` and `testProdDebugUnitTest`
    must pass before a handoff. Never commit red.
 7. **One phase per branch** (`phase-N-name`), small commits, conventional
    commit subjects (`feat:`, `fix:`, `chore:`, `docs:`, `perf:`, `refactor:`).
@@ -149,7 +157,7 @@ diff) when you intentionally fix or add lint suppressions.
    alive while doing nothing. A warning that says "deprecated without
    replacement" is a behaviour change, not a style note. Fix it, suppress it
    with a written reason, or record why it is safe — never just scroll past.
-   `./gradlew :app:compileFreeDebugKotlin --rerun-tasks 2>&1 | grep "^w:"` lists
+   `./gradlew :app:compileProdDebugKotlin --rerun-tasks 2>&1 | grep "^w:"` lists
    them.
 9. **AuraSpend is AGPL-3.0-or-later. Do not weaken the copyleft.** The project
    relicensed from Apache-2.0 in 0.1.1 (ADR 0009). Two things follow, and both
@@ -252,14 +260,15 @@ rebuilt (P1–P3), then delete the shim.
   that floor *standalone* may still be worse in the pipeline — Qwen and
   SmolLM2 both score 29.2 % standalone and reached opposite conclusions. Judge
   every candidate with `FusedAiEval`.
-- **The `free`/`play` flavors are distribution-only and feature-identical.** No
-  feature may live in `app/src/play/` that is absent from `app/src/main/`; only
-  services and configuration may differ. **Neither build may carry analytics, ads
-  or any telemetry** — the app's on-screen claim is that bank SMS never leaves
-  the device, and an SDK in one flavor would make that claim false and the store
-  listing self-contradictory. There is no paywall and no in-app purchase; every
-  feature ships in every build. Do not reintroduce premium gating (ADR 0007),
-  and do not add a Play-only capability without superseding ADR 0008.
+- **The `dev`/`prod` flavors are feature-identical.** No feature may live in a
+  flavor source set that is absent from `app/src/main/`; only configuration
+  (application-id suffix, label, signing) may differ. **Neither build may carry
+  analytics, ads or any telemetry** — the app's on-screen claim is that bank SMS
+  never leaves the device, and an SDK in one build would make that claim false
+  and the store listing self-contradictory. There is no paywall and no in-app
+  purchase; every feature ships in every build. Do not reintroduce premium
+  gating (ADR 0007), and do not add a Play-only capability without superseding
+  ADR 0010.
 - **A model may never delete a transaction on a bare boolean.** A model "not a
   transaction" verdict nulls `amount` and `type` in `AiSignalFusion`, and the
   pipeline's unresolved-fields gate then drops the row — so a false veto

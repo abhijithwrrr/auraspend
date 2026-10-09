@@ -11,13 +11,13 @@
 | Room | 2.8.5 |
 | WorkManager | 2.10.0 |
 | Navigation Compose | 2.10.1 |
-| LLM runtime | Vendored llama.cpp (`:llama`), Qwen2.5-0.5B Q4_K_M (~400 MB, downloaded at runtime) |
+| On-device AI | ONNX Runtime (Maven AAR) + int8 `all-MiniLM-L6-v2` encoder (22 MB, downloaded at runtime, SHA-256 verified) |
 
 ## Commands
 ```bash
-./gradlew :app:compileFreeDebugKotlin   # fast compile check (use this constantly)
-./gradlew testFreeDebugUnitTest         # unit tests (required before handoff)
-./gradlew assembleFreeDebug             # APK; triggers native llama build (NDK 29 + CMake >= 3.31.6)
+./gradlew :app:compileProdDebugKotlin  # fast compile check (use this constantly)
+./gradlew testProdDebugUnitTest        # unit tests (required before handoff)
+./gradlew assembleDevDebug              # dev APK (fast inner loop; no native toolchain)
 ```
 
 ## Dependency management
@@ -39,8 +39,8 @@ for the phase that introduces them.
 ## Workflows
 | Task | Command / location |
 |------|--------------------|
-| Screenshot baselines | `./gradlew testFreeDebugUnitTest` → `app/src/test/screenshots/` (committed; CI diffs) |
-| Cold-start benchmark | `./gradlew :benchmark:connectedFreeBenchmarkAndroidTest` |
-| Baseline profile | `:benchmark:connectedFreeBenchmarkAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=…BaselineProfileGenerator` → copy to `app/src/main/baseline-prof.txt` |
+| Screenshot baselines | `./gradlew testProdDebugUnitTest` → `app/src/test/screenshots/` (committed; CI diffs) |
+| Cold-start benchmark | `./gradlew :benchmark:connectedProdBenchmarkAndroidTest` (needs the release keystore) |
+| Baseline profile | `:benchmark:connectedProdBenchmarkAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=…BaselineProfileGenerator` → copy to `app/src/main/baseline-prof.txt` |
 | Localization | `values/strings.xml` + `values-hi/strings.xml`; no literals in screens |
 | Decisions | `docs/adr/` (0001–0007) |

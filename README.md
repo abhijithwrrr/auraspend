@@ -63,13 +63,15 @@ auto-categorization into **subscriptions, categories, income, expense and other*
   hand, rather than silently vanishing from your history.
 - **Learned classification memory**: every save (manual or auto) records a normalized
   merchant/note → category mapping in a local Room table (`classification_memory`). Repeat
-  merchants are categorized **instantly** — the LLM is skipped entirely — and your manual
+  merchants are categorized **instantly** — the model is skipped entirely — and your manual
   corrections always win over automated suggestions. Stored in `classification_memory`, migrated
   safely from previous schema versions (v5 → v6).
-- **Multi-signal fusion** (`AiSignalFusion`): an explicit LLM "not a transaction" verdict vetoes
-  false positives; explicit *credited/debited* keywords beat an LLM type guess on conflict;
-  recurring-payment keywords (auto-debit, NACH, renewal…) force subscription classification even
-  without AI; confidence rises when signals agree and drops when they conflict.
+- **Multi-signal fusion** (`AiSignalFusion`): a calibrated "not a transaction" probability
+  may null out a message only when it is ≥ 0.9 **and** the regex layer found no amount —
+  confidence alone is never licence to discard; explicit *credited/debited* keywords beat a
+  model type guess on conflict; recurring-payment keywords (auto-debit, NACH, renewal…) force
+  subscription classification even without the model; confidence rises when signals agree and
+  drops when they conflict.
 - **Manage it**: the **Smart categories** card in Settings shows status and lets
   you download, cancel and delete the model.
 
@@ -93,7 +95,7 @@ sufficient — the NDK/CMake requirement of earlier releases is gone along with
 
 ```bash
 # no submodule to fetch - the native runtime is a Maven AAR
-./gradlew assembleFreeDebug
+./gradlew assembleDevDebug
 ```
 
 The model is Apache-2.0 licensed (`all-MiniLM-L6-v2`). It is downloaded at
@@ -102,33 +104,41 @@ use.
 
 ## Build Flavors
 
+Two environments, one feature set. `dev` exists so a development build can sit
+next to the store build on one device; `prod` is what ships.
+
 | Flavor | Command | Use Case |
 |--------|---------|----------|
-| `free` | `./gradlew assembleFreeDebug` | Development, self-build, F-Droid |
-| `play` | `./gradlew assemblePlayDebug` | Play Store release |
+| `dev`  | `./gradlew assembleDevDebug` | Development / QA — id `.dev`, label "AuraSpend Dev" |
+| `prod` | `./gradlew assembleProdDebug` | The store build (`com.awbuilds.auraspend`) |
 
 **Every feature is available in both flavors, and neither build carries
 analytics or ads.** AuraSpend has no paywall, no tracking and no ad SDKs — the
 claim that your bank SMS never leaves your phone is true of every build we
 publish.
 
-The flavors separate *distribution* only: signing, listing metadata, and a
-distribution-specific permission if one is ever needed. **No feature may live in
-`app/src/play/` that is absent from `app/src/main/`** — see
-[ADR 0007](docs/adr/0007-no-paywall.md) and
-[ADR 0008](docs/adr/0008-distribution-flavors.md).
+The flavors change configuration only — application-id suffix, label and
+signing. **No feature may live in a flavor source set that is absent from
+`app/src/main/`** — see [ADR 0007](docs/adr/0007-no-paywall.md),
+[ADR 0008](docs/adr/0008-distribution-flavors.md) and
+[ADR 0010](docs/adr/0010-dev-prod-flavors.md).
 
 ### Building a release
 
 ```bash
-./gradlew assembleFreeRelease    # F-Droid / self-build
-./gradlew assemblePlayRelease    # Play Store
+./gradlew assembleProdRelease    # prod APK (self-install / GitHub Releases / website)
+./gradlew bundleProdRelease      # prod AAB (Play Store)
 ```
 
 Release builds require a keystore in `secrets.properties` (see
 `secrets.properties.example`). **Without it the build still succeeds but
-produces an `…-unsigned.apk`**, which both F-Droid and the Play Store will
-reject — check the filename before uploading.
+produces an `…-unsigned.apk`**, which Play and self-installers will reject —
+check the filename before uploading.
+
+Pushing a `v*` tag runs the release workflow, which builds both, verifies the
+signatures, and attaches them to a GitHub Release as
+`AuraSpend-V<version>.Alpha.{aab,apk}` — see
+`.github/workflows/release.yml`. It never uploads to Play.
 
 ## Tech Stack
 
@@ -180,13 +190,15 @@ app/src/
 │   │   ├── theme/            # M3 colors, light/dark/AMOLED
 │   │   └── transaction/      # List + add/edit screens
 │   └── AuraSpendApp.kt       # Application class (DI)
-├── free/                     # Distribution flavor: manifest only, no code
-└── play/                     # Distribution flavor: manifest only, no code
+├── dev/                      # Dev flavor: manifest + "AuraSpend Dev" label only
+└── prod/                     # Prod flavor: manifest only
 ```
 
-The `free` and `play` source sets deliberately contain **no Kotlin**. Every
-feature lives in `main`, so the two published builds are identical — see
-[ADR 0008](docs/adr/0008-distribution-flavors.md).
+The `dev` and `prod` source sets deliberately contain **no Kotlin**. Every
+feature lives in `main`, so both flavors are identical apart from the dev
+app-id suffix, label and signing — see
+[ADR 0008](docs/adr/0008-distribution-flavors.md) and
+[ADR 0010](docs/adr/0010-dev-prod-flavors.md).
 
 ## Getting Started
 
@@ -194,7 +206,7 @@ feature lives in `main`, so the two published builds are identical — see
 
 - Android Studio Koala or newer
 - JDK 17+
-- Android SDK 36
+- Android SDK 37
 
 ### Setup
 
@@ -204,14 +216,14 @@ cd auraspend
 cp secrets.properties.example secrets.properties
 ```
 
-Edit `secrets.properties` with:
-- **WEB_CLIENT_ID**: Google OAuth 2.0 client ID for Drive sync
-- **DRIVE_API_KEY**: Google Drive API key (optional)
+`secrets.properties` only matters for signed release builds — fill in the four
+keystore values (see the comments in the template). Debug builds work without
+it.
 
 Build and run:
 
 ```bash
-./gradlew assembleFreeDebug
+./gradlew assembleDevDebug
 ```
 
 **First launch**: The app auto-seeds 12 default categories and shows the onboarding screen.
@@ -233,13 +245,13 @@ Build and run:
 The UI is built on the **Aurora design system** (`app/src/main/java/com/awbuilds/auraspend/ui/designsystem`):
 brand purple + lavender + teal, Plus Jakarta Sans with tabular figures, hairline
 borders instead of shadows, spring motion tokens and a light / dark / true-black
-AMOLED theme. Screenshots are from the `free` debug build.
+AMOLED theme. Screenshots are from the dev debug build.
 
 ## Testing
 
 ```bash
 # Unit tests (JVM) — includes Robolectric + Roborazzi screenshot tests
-./gradlew testFreeDebugUnitTest
+./gradlew testProdDebugUnitTest
 
 # Aurora screenshot baselines live in app/src/test/screenshots and are
 # regenerated by the test run; CI fails if they change without being committed.
@@ -247,12 +259,13 @@ AMOLED theme. Screenshots are from the `free` debug build.
 # Instrumented tests (requires emulator/device)
 ./gradlew connectedAndroidTest
 
-# Cold-start macrobenchmark (release-like build, requires a device)
-./gradlew :benchmark:connectedFreeBenchmarkAndroidTest
+# Cold-start macrobenchmark (release build, requires a device + the release
+# keystore in secrets.properties)
+./gradlew :benchmark:connectedProdBenchmarkAndroidTest
 
 # Generate a baseline profile (requires a device; copy the produced
 # baseline-prof.txt to app/src/main/baseline-prof.txt and commit)
-./gradlew :benchmark:connectedFreeBenchmarkAndroidTest \
+./gradlew :benchmark:connectedProdBenchmarkAndroidTest \
   -Pandroid.testInstrumentationRunnerArguments.class=com.awbuilds.auraspend.benchmark.BaselineProfileGenerator
 ```
 
@@ -341,9 +354,10 @@ PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>.
 
-AuraSpend is also distributed on Google Play and F-Droid. The full license text
-is in [`LICENSE`](LICENSE) and is readable in the app under
-**Settings → About → Open-source licenses**.
+AuraSpend is also distributed on Google Play, and the prod APK for self-install
+is published on [GitHub Releases](https://github.com/auraspend/auraspend/releases).
+The full license text is in [`LICENSE`](LICENSE) and is readable in the app
+under **Settings → About → Open-source licenses**.
 
 ### Why AGPL rather than Apache-2.0
 

@@ -134,3 +134,13 @@ a typed fallback. `CancellationException` is always rethrown. Helpers live in
 The UI revamp is one phase per branch (P0–P6). Each phase ends with a handoff
 doc and starts only after the previous gate passes. Agent memory
 (`CLAUDE.md` + `memory/`) carries durable context between sessions.
+
+## D7 — Flavors renamed to dev/prod, 4 variants total (2026-10-09)
+`free`/`play` → `dev`/`prod` (dimension `env`), matching the other AW Builds
+apps: dev gets `applicationIdSuffix ".dev"`, `versionNameSuffix "-dev"` and an
+"AuraSpend Dev" label so it can sit beside the store build; prod is the only
+distributed build. The `benchmark` build type was removed from `:app` — the
+macrobenchmark module now links the prod **release** variant via
+`matchingFallbacks` (running benchmarks locally needs the release keystore).
+Feature parity and the no-analytics rule are unchanged; see ADR 0010, which
+supersedes ADR 0008's naming while keeping its substance.

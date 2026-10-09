@@ -10,7 +10,29 @@ internal APIs.
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- **Tag-driven release workflow** (`.github/workflows/release.yml`): pushing a
+  `v*` tag builds the signed Play AAB and prod APK, names them
+  `AuraSpend-V<version>.Alpha.{aab,apk}`, verifies the signatures, writes
+  `SHA256SUMS`, and attaches everything to a GitHub Release. It never uploads
+  to Google Play — sending for review stays a human action.
+
+### Changed
+
+- **Build flavors renamed: `free`/`play` → `dev`/`prod`**, with exactly four
+  variants (dev/prod × debug/release). The dev build has a `.dev` application
+  id and an "AuraSpend Dev" label so it can sit beside the store build; prod is
+  the only distributed build. The `benchmark` build type was removed and the
+  macrobenchmark module now links the prod release variant. See
+  [ADR 0010](docs/adr/0010-dev-prod-flavors.md).
+- **`secrets.properties.example` no longer lists `WEB_CLIENT_ID` /
+  `DRIVE_API_KEY`** — nothing ever read them. Drive backup authenticates with
+  Google Sign-In directly (the OAuth client is matched by package id + signing
+  certificate).
+- **Public docs trued up**: F-Droid distribution claims removed from the
+  README, landing page and terms (the app is not on F-Droid yet); the landing
+  page's SDK stat now says Android 17 (API 37).
 
 ## [0.1.1] — 2026-09-30
 

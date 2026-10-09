@@ -24,7 +24,7 @@ Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
 | **Shim** | `ui/core/CashewComponents.kt` — Phase 0 compat layer, deleted after P3 |
 | **Boundary** | try/catch wrapper (`boundary {}` in `core/AuraLog.kt`) required at every IO edge |
 | **AuraCard / tokens** | Core design-system primitives (`ui/designsystem/`) |
-| **Flavor** | `free` (F-Droid/self-build) / `play` (Play Store) — **distribution-only, feature-identical, no analytics/ads in either** (ADR 0008) |
+| **Flavor** | `dev` (development, `.dev` id, "AuraSpend Dev" label) / `prod` (ships) — **feature-identical, no analytics/ads in either** (ADR 0010) |
 
 ## Active work
 | Item | State |
@@ -39,6 +39,7 @@ Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
 | **Encoder replaces the generator** | ✅ 0013 — MiniLM-L6-v2 int8 (22 MB) on ONNX Runtime replaces Qwen 468 MB. **Zero transactions destroyed, 4 rescued.** llama.cpp removed. Not yet run on-device |
 | **Next: error-handling debt** | `CancellationException` swallowed at most catch sites; `runBlocking` in `LlamaCppLlm`; dead duplicate-SMS guard; no DAO/migration tests (`exportSchema = false`) |
 | **Play Store (0.1.1)** | ✅ Staged, **not submitted** — see `docs/handoffs/0017-play-console-setup.md`. Launch needs: send-for-review → SMS permission justification at review → 12 testers × 14 days → apply for production. Listing assets + strings: `docs/store/` |
+| **dev/prod flavors** | ✅ 0018 — four variants (`devDebug`…`prodRelease`); `benchmark` build type removed (macros run vs prod release); F-Droid/site claims audited |
 
 ## Hard-won invariants (do not regress)
 - **CSV export writes to the SAF uri, never public Downloads** (minSdk 30 forbids it).
@@ -50,9 +51,9 @@ Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
   (the only `SensitiveDataMasker` choke-point). Restore re-masks too.
 - **ViewModels use `viewModel(factory = ...)`**, never `remember { }` — see the
   `factoryOf` helper in `NavGraph.kt`.
-- **`assembleFreeRelease` is only shippable if the APK is not `-unsigned`**
+- **`assembleProdRelease` is only shippable if the APK is not `-unsigned`**
   (keystore in gitignored `secrets.properties`).
-- **Lint:** 81 pre-existing issues are baselined in `app/lint-baseline.xml`;
+- **Lint:** 78 pre-existing issues are baselined in `app/lint-baseline.xml`;
   new ones fail CI. Do not casually run `updateLintBaseline`.
 - **Money is never hardcoded.** `formatMoney` (`ui/designsystem/Money.kt`)
   implements Indian lakh/crore grouping by hand — `NumberFormat` returns Western
@@ -79,13 +80,14 @@ Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
 - Screenshot baselines: `app/src/test/screenshots/` (committed; CI drift gate) —
   component gallery, empty/error/stats states, full `DashboardScreen`, 3 themes.
 - Releases: `.github/workflows/release.yml` — a `v*` tag (or manual dispatch)
-  builds the **signed** Play AAB + free APK, names them
+  builds the **signed** Play AAB + prod APK, names them
   `AuraSpend-V<version>.Alpha.{aab,apk}`, writes `SHA256SUMS`, and attaches
   everything to a GitHub Release via the Release Drafter draft. It **never
   uploads to Google Play** — sending for review stays a human click in the
   console. Signing comes from four repo secrets (`KEYSTORE_BASE64` etc.; the
   upload key, alias `key0`). Next uploaded versionCode after 2 (0.1.1) is **3**.
-- Benchmarks: `./gradlew :benchmark:connectedFreeBenchmarkAndroidTest`
+- Benchmarks: `./gradlew :benchmark:connectedProdBenchmarkAndroidTest`
+  (runs against the prod **release** build; needs the release keystore locally)
 - Baseline profile: `app/src/main/baseline-prof.txt` (generate via the `:benchmark` BaselineProfileGenerator)
 - Design system: `ui/designsystem/`; ADRs in `docs/adr/`
 - Master plan: `docs/handoffs/0000-master-plan.md`. Paywall removed in P0
@@ -97,14 +99,14 @@ Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
 - Aurora purple brand (matches app icon + landing page), not Cashew blue.
 - 4 tabs + center FAB; Settings moves behind header avatar in P1.
 - `material3 1.4.0` stable via Compose BOM `2026.09.00` (Compose UI 1.12.1).
-- No premium/paywall anywhere; `free` and `play` flavors remain for
-  **distribution only** — identical features, and neither build may carry
-  analytics, ads or telemetry (ADR 0007, ADR 0008).
+- No premium/paywall anywhere; `dev` and `prod` flavors remain
+  **feature-identical** — dev only adds a `.dev` id and "AuraSpend Dev" label,
+  and no build may carry analytics, ads or telemetry (ADR 0007, ADR 0010).
 - Try/catch at every boundary is a hard rule (see `AGENTS.md`).
 
 ## Preferences / rules
-- Verify with `./gradlew :app:compileFreeDebugKotlin` + `testFreeDebugUnitTest` +
-  `:app:lintFreeDebug` before claiming done.
+- Verify with `./gradlew :app:compileProdDebugKotlin` + `testProdDebugUnitTest` +
+  `:app:lintProdDebug` before claiming done.
 - Visual changes are not "done" until screenshots are captured in all 3 themes.
 - Keep commits small and conventional; never commit a red build.
 - CI (`.github/workflows/pr_check.yml`) runs tests, both lints, both debug

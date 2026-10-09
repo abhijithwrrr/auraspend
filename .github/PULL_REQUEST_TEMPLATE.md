@@ -12,7 +12,7 @@ Clearly describe the change and why it's needed.
 
 ## Checklist
 
-- [ ] Builds with `./gradlew assembleFreeDebug`
+- [ ] Builds with `./gradlew assembleProdDebug`
 - [ ] Code follows existing style conventions
 - [ ] No hardcoded strings (use string resources)
 - [ ] PR targets `main` branch

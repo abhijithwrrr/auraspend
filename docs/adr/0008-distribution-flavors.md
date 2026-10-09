@@ -2,6 +2,11 @@
 
 **Status:** Accepted · 2026-09-29 · **Reinforces** ADR 0007 (does not supersede it)
 
+> **Update (2026-10-09):** the flavors were renamed `free`/`play` → `dev`/`prod`
+> and the variant count reduced to four — see [ADR 0010](0010-dev-prod-flavors.md).
+> This ADR's substance (no analytics, no ads, feature-identical builds) still
+> stands; its names are kept as written, dated.
+
 ## Context
 
 The question was whether the Play Store build should add analytics, ads and

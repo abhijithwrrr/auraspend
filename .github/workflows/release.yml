@@ -7,7 +7,7 @@ name: Release
 #
 # Release assets are named AuraSpend-V<version>.Alpha.{aab,apk}, e.g.
 #   AuraSpend-V0.1.2.Alpha.aab   (Play — closed-testing / alpha track)
-#   AuraSpend-V0.1.2.Alpha.apk   (free build for F-Droid / self-build / website)
+#   AuraSpend-V0.1.2.Alpha.apk   (prod build for F-Droid / self-install / website)
 # - Play Store: download the AAB from the release assets and upload it on the
 #   closed-testing track in the Play Console. A human decides when to send it
 #   for review; CI never submits.
@@ -83,22 +83,22 @@ jobs:
       - name: Verify licence metadata and third-party attributions
         run: ./tools/check_license.sh
 
-      - name: Build signed Play bundle and free APK
-        run: ./gradlew :app:bundlePlayRelease :app:assembleFreeRelease
+      - name: Build signed Play bundle and prod APK
+        run: ./gradlew :app:bundleProdRelease :app:assembleProdRelease
 
       # AGP names an unsigned build `...-unsigned.apk`, so an existing signed
       # filename is the floor — plus a real signature check on both artifacts.
       - name: Verify artifacts are signed
         run: |
           set -e
-          AAB=app/build/outputs/bundle/playRelease/app-play-release.aab
-          APK=app/build/outputs/apk/free/release/app-free-release.apk
+          AAB=app/build/outputs/bundle/prodRelease/app-prod-release.aab
+          APK=app/build/outputs/apk/prod/release/app-prod-release.apk
           if [ ! -f "$APK" ]; then
-            echo "::error::No signed free APK. An unsigned build is named app-free-release-unsigned.apk — the signing config was not applied."
-            ls -la app/build/outputs/apk/free/release/ || true
+            echo "::error::No signed prod APK. An unsigned build is named app-prod-release-unsigned.apk — the signing config was not applied."
+            ls -la app/build/outputs/apk/prod/release/ || true
             exit 1
           fi
-          test -f "$AAB" || { echo "::error::Play AAB missing"; ls -la app/build/outputs/bundle/playRelease/ || true; exit 1; }
+          test -f "$AAB" || { echo "::error::Play AAB missing"; ls -la app/build/outputs/bundle/prodRelease/ || true; exit 1; }
           jarsigner -verify "$AAB" > /dev/null
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify "$APK" > /dev/null
           echo "Both artifacts verified signed."
@@ -123,8 +123,8 @@ jobs:
           fi
           BASE="AuraSpend-V${VERSION}.Alpha"
           mkdir -p dist
-          cp app/build/outputs/bundle/playRelease/app-play-release.aab "dist/${BASE}.aab"
-          cp app/build/outputs/apk/free/release/app-free-release.apk "dist/${BASE}.apk"
+          cp app/build/outputs/bundle/prodRelease/app-prod-release.aab "dist/${BASE}.aab"
+          cp app/build/outputs/apk/prod/release/app-prod-release.apk "dist/${BASE}.apk"
           (cd dist && sha256sum "${BASE}.aab" "${BASE}.apk" > SHA256SUMS)
           echo "base=${BASE}" >> "$GITHUB_OUTPUT"
           ls -la dist

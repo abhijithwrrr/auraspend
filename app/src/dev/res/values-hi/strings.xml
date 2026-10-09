@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Key parity: every EN string needs a Hindi twin. The product name is not
+     translated, so this is the same text on purpose. -->
+<resources>
+    <string name="app_name">AuraSpend Dev</string>
+</resources>

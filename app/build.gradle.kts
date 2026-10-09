@@ -59,15 +59,21 @@ android {
         }
     }
 
-    flavorDimensions += "distribution"
+    // Two environments, one feature set (ADR 0010). `dev` exists so a
+    // development build can sit next to the store build on one device: it gets
+    // a `.dev` application id and its own "AuraSpend Dev" label. `prod` is the
+    // only distributed flavor — it is what Play receives and what the GitHub
+    // release APK is built from.
+    flavorDimensions += "env"
     productFlavors {
-        create("free") {
-            dimension = "distribution"
-            versionNameSuffix = "-free"
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            // "AuraSpend Dev" label lives in app/src/dev/res (both locales).
         }
-        create("play") {
-            dimension = "distribution"
-            versionNameSuffix = "-play"
+        create("prod") {
+            dimension = "env"
         }
     }
 
@@ -95,7 +101,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Previously this type had no signingConfig at all, so `assembleFreeRelease`
+            // Previously this type had no signingConfig at all, so `assembleProdRelease`
             // produced an uninstallable APK. Now it is signed whenever credentials exist.
             signingConfig = if (hasReleaseSigning) {
                 signingConfigs.getByName("release")
@@ -108,13 +114,6 @@ android {
                 null
             }
         }
-        // Release-like build for Macrobenchmark / baseline profiles.
-        create("benchmark") {
-            initWith(getByName("release"))
-            signingConfig = signingConfigs.getByName("debug")
-            matchingFallbacks += listOf("release")
-            isDebuggable = false
-        }
     }
     // Static analysis. There was no lint configuration at all, which is how the
     // scoped-storage CSV crash and the unguarded enum valueOf calls slipped through
@@ -125,9 +124,9 @@ android {
     tasks.register("classificationBaseline") {
         group = "verification"
         description = "Run the golden SMS corpus through the regex path and print per-field accuracy."
-        dependsOn("testFreeDebugUnitTest")
+        dependsOn("testProdDebugUnitTest")
         doLast {
-            logger.lifecycle("See the REGEX-ONLY BASELINE block in the test output for :app:testFreeDebugUnitTest")
+            logger.lifecycle("See the REGEX-ONLY BASELINE block in the test output for :app:testProdDebugUnitTest")
         }
     }
 
@@ -140,6 +139,13 @@ android {
         xmlReport = true
         htmlReport = true
         baseline = file("lint-baseline.xml")
+
+        // Version-nag checks duplicate Dependabot (which opens PRs weekly for
+        // Gradle deps and monthly for actions) and their messages embed exact
+        // version numbers — so every upstream release re-breaks the baseline
+        // ("...9.8.0" becomes "...9.8.1"). Report them as information instead
+        // of errors; actionable updates stay Dependabot's job.
+        informational += setOf("GradleDependency", "NewerVersionAvailable", "AndroidGradlePluginVersion")
 
         // AuraSpend does not support ChromeOS, by decision rather than oversight.
         // Chromebooks run Android apps on x86_64, so removing that ABI from
