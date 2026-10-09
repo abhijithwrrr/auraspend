@@ -79,11 +79,12 @@ Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
 - Screenshot baselines: `app/src/test/screenshots/` (committed; CI drift gate) —
   component gallery, empty/error/stats states, full `DashboardScreen`, 3 themes.
 - Releases: `.github/workflows/release.yml` — a `v*` tag (or manual dispatch)
-  builds the **signed** Play AAB + free APK, writes `SHA256SUMS`, and attaches
-  them to a GitHub Release via the Release Drafter draft. It **never uploads to
-  Google Play** — sending for review stays a human click in the console. Signing
-  comes from four repo secrets (`KEYSTORE_BASE64` etc.; the upload key, alias
-  `key0`). Next uploaded versionCode after 2 (0.1.1) is **3**.
+  builds the **signed** Play AAB + free APK, names them
+  `AuraSpend-V<version>.Alpha.{aab,apk}`, writes `SHA256SUMS`, and attaches
+  everything to a GitHub Release via the Release Drafter draft. It **never
+  uploads to Google Play** — sending for review stays a human click in the
+  console. Signing comes from four repo secrets (`KEYSTORE_BASE64` etc.; the
+  upload key, alias `key0`). Next uploaded versionCode after 2 (0.1.1) is **3**.
 - Benchmarks: `./gradlew :benchmark:connectedFreeBenchmarkAndroidTest`
 - Baseline profile: `app/src/main/baseline-prof.txt` (generate via the `:benchmark` BaselineProfileGenerator)
 - Design system: `ui/designsystem/`; ADRs in `docs/adr/`

@@ -5,10 +5,12 @@ name: Release
 #
 #   git tag v0.1.2 && git push origin v0.1.2
 #
-# - Play Store: download `app-play-release.aab` from the release assets and
-#   upload it on the closed-testing track in the Play Console. A human decides
-#   when to send it for review; CI never submits.
-# - F-Droid / self-build / website: `app-free-release.apk`.
+# Release assets are named AuraSpend-V<version>.Alpha.{aab,apk}, e.g.
+#   AuraSpend-V0.1.2.Alpha.aab   (Play — closed-testing / alpha track)
+#   AuraSpend-V0.1.2.Alpha.apk   (free build for F-Droid / self-build / website)
+# - Play Store: download the AAB from the release assets and upload it on the
+#   closed-testing track in the Play Console. A human decides when to send it
+#   for review; CI never submits.
 #
 # Signing: the build signs with the *upload key* (auraspend.jks, alias key0)
 # from secrets.properties, which this workflow materialises from four
@@ -99,17 +101,42 @@ jobs:
           test -f "$AAB" || { echo "::error::Play AAB missing"; ls -la app/build/outputs/bundle/playRelease/ || true; exit 1; }
           jarsigner -verify "$AAB" > /dev/null
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify "$APK" > /dev/null
-          sha256sum "$AAB" "$APK" > SHA256SUMS
-          cat SHA256SUMS
+          echo "Both artifacts verified signed."
+
+      # Release convention: AuraSpend-V<version>.Alpha.{aab,apk}, matching the
+      # other AW Builds apps. The version comes from the pushed tag when it
+      # looks like vX.Y.Z; a manual dispatch falls back to versionName in
+      # app/build.gradle.kts. Play itself does not care about the file name.
+      - name: Name artifacts (AuraSpend-V<version>.Alpha)
+        id: names
+        run: |
+          set -e
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          BUILD_VERSION=$(grep -oE 'versionName = "[^"]+"' app/build.gradle.kts | head -1 | sed 's/versionName = "//; s/"$//')
+          if [[ "$TAG_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            VERSION="$TAG_VERSION"
+            if [ "$VERSION" != "$BUILD_VERSION" ]; then
+              echo "::warning::Tag version $VERSION differs from versionName $BUILD_VERSION — the file name follows the tag."
+            fi
+          else
+            VERSION="$BUILD_VERSION"
+          fi
+          BASE="AuraSpend-V${VERSION}.Alpha"
+          mkdir -p dist
+          cp app/build/outputs/bundle/playRelease/app-play-release.aab "dist/${BASE}.aab"
+          cp app/build/outputs/apk/free/release/app-free-release.apk "dist/${BASE}.apk"
+          (cd dist && sha256sum "${BASE}.aab" "${BASE}.apk" > SHA256SUMS)
+          echo "base=${BASE}" >> "$GITHUB_OUTPUT"
+          ls -la dist
 
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: auraspend-release-${{ github.run_number }}.${{ github.run_attempt }}
           path: |
-            app/build/outputs/bundle/playRelease/app-play-release.aab
-            app/build/outputs/apk/free/release/app-free-release.apk
-            SHA256SUMS
+            dist/${{ steps.names.outputs.base }}.aab
+            dist/${{ steps.names.outputs.base }}.apk
+            dist/SHA256SUMS
           if-no-files-found: error
 
       - name: Check whether this tag already has a release
@@ -142,7 +169,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload "$GITHUB_REF_NAME" \
-            app/build/outputs/bundle/playRelease/app-play-release.aab \
-            app/build/outputs/apk/free/release/app-free-release.apk \
-            SHA256SUMS \
+            "dist/${{ steps.names.outputs.base }}.aab" \
+            "dist/${{ steps.names.outputs.base }}.apk" \
+            dist/SHA256SUMS \
             --clobber

@@ -148,10 +148,16 @@ website `https://auraspend.github.io/auraspend/`, external marketing left on
   secret fails the run *before* the build, and the verify step fails on an
   unsigned artifact (`app-free-release-unsigned.apk`, `jarsigner`/`apksigner`
   checks) so a green run can never attach an unsigned binary again.
-- Builds `:app:bundlePlayRelease :app:assembleFreeRelease`, writes
-  `SHA256SUMS`, uploads workflow artifacts, publishes the Release Drafter draft
-  under the tag, and attaches `app-play-release.aab` + `app-free-release.apk` +
-  checksums to the GitHub Release.
+- Builds `:app:bundlePlayRelease :app:assembleFreeRelease`, then renames the
+  outputs to the house convention **`AuraSpend-V<version>.Alpha.{aab,apk}`**
+  (version from the pushed tag, falling back to `versionName` on manual
+  dispatch; a tag/versionName mismatch warns). Writes `SHA256SUMS` over the
+  renamed files, uploads workflow artifacts, publishes the Release Drafter draft
+  under the tag, and attaches the renamed AAB + APK + checksums to the GitHub
+  Release.
+- The Play draft release was renamed to **`AuraSpend-V0.1.1.Alpha`** to match
+  (release names are internal-only; 50-char limit — this is the releaseName
+  the other apps on the account set via GPP).
 - **No Play upload by design.** Sending for review stays a human action:
   download the AAB from the release assets and upload it on the closed-testing
   track. (The service-account API route was considered and deliberately left
