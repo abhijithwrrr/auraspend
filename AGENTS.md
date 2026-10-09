@@ -10,6 +10,8 @@
 > surface during review, 12 testers × 14 days, then "Apply for production".
 > Screenshots for Play must be 16:9 or 9:16 — the old `docs/screenshots/*`
 > (9:20) are not; the Play-compliant set + listing assets live in `docs/store/`.
+> A tag-driven `release.yml` now builds the **signed** Play AAB + free APK and
+> attaches them to a GitHub Release (Release Drafter notes; no Play upload).
 > Before: `docs/handoffs/0016-agpl-3.0-relicensing.md` — relicensed to
 > **AGPL-3.0-or-later** and cut as 0.1.1. New in-app open-source licenses
 > screen (an AGPL §4 requirement the app did not meet), a CLA with copyright

@@ -135,3 +135,29 @@ website `https://auraspend.github.io/auraspend/`, external marketing left on
   graphic, 7 screenshots), the feature-graphic HTML source, and a README with
   the listing strings and regeneration steps.
 - `CLAUDE.md` / `AGENTS.md` — pointer to this handoff.
+
+## Release workflow (same session)
+
+`.github/workflows/release.yml` — tag-driven, **build-only**:
+
+- Triggers: `push` of `v*` tags + `workflow_dispatch`. Never pull requests, so
+  repository secrets cannot reach a fork (GitHub withholds them regardless).
+- Materialises `secrets.properties` from four now-configured repository secrets
+  (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`; set via
+  `gh secret set` as the owner, verified with `gh secret list`). A missing
+  secret fails the run *before* the build, and the verify step fails on an
+  unsigned artifact (`app-free-release-unsigned.apk`, `jarsigner`/`apksigner`
+  checks) so a green run can never attach an unsigned binary again.
+- Builds `:app:bundlePlayRelease :app:assembleFreeRelease`, writes
+  `SHA256SUMS`, uploads workflow artifacts, publishes the Release Drafter draft
+  under the tag, and attaches `app-play-release.aab` + `app-free-release.apk` +
+  checksums to the GitHub Release.
+- **No Play upload by design.** Sending for review stays a human action:
+  download the AAB from the release assets and upload it on the closed-testing
+  track. (The service-account API route was considered and deliberately left
+  out — see the session discussion; a public repo should carry no publishing
+  credential that isn't strictly needed.)
+- Verified locally with the exact commands (file paths, `jarsigner -verify`
+  exit 0 on both artifacts, no `-unsigned` output).
+- Version codes: **2 is used by the staged 0.1.1 draft; the next uploaded
+  build must be versionCode 3** (e.g. 0.1.2). The workflow does not bump it.
