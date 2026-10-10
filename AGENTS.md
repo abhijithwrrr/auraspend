@@ -3,12 +3,16 @@
 > Read this file and the latest file in `docs/handoffs/` before touching anything.
 > Update both (plus `CLAUDE.md` / `memory/` when you learn something durable) before ending a session.
 >
-> Latest: `docs/handoffs/0023-ci-caching.md` — the CI download tax is gone:
+> Latest: `docs/handoffs/0024-screenshots-removed-signed-release.md` — the
+> Robolectric/Roborazzi screenshot tests and the CI drift gate are removed
+> (owner call; 274 → 254 tests, all green) — visual changes are verified by
+> hand again. Signed release pipeline verified end to end: a dispatch of
+> `release.yml` produced a signed AAB + APK (`CN=AuraSpend`) with checksums.
+> Before: `docs/handoffs/0023-ci-caching.md` — the CI download tax is gone:
 > Robolectric jars are now cached (`~/.m2`), wrapper restore keys tightened,
 > setup-gradle bumped to v6 (which renamed cache namespaces and re-seeded
 > them). Caches are written on `main` and read everywhere — a same-commit
-> rerun now completes in ~52 s vs 6–9 min cold. Screenshot tests (20 of 274)
-> stay: the drift gate is the visual-regression net and now costs seconds.
+> rerun now completes in ~52 s vs 6–9 min cold.
 > Before: `docs/handoffs/0022-ci-sdk-package-and-screenshot-gate.md` — CI was
 > red for two independent reasons: `platforms;android-37` no longer resolves
 > (it installs as **`platforms;android-37.0`**), and the byte-exact screenshot
