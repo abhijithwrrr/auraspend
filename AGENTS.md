@@ -9,7 +9,9 @@
 > to Play and saved as draft (**still not sent for review**). Captures redone at
 > native 1080×2400 (the old 9:16 letterboxing explained and dropped); README now
 > documents Drive backup per install source; `tools/seed_demo_data.sh` launch
-> fixed. Watch for: no Hindi screenshot variant yet.
+> fixed. The SMS/Call-log permissions declaration is **filled** (use case "SMS
+> based money management", still not submitted). Watch for: no Hindi screenshot
+> variant yet.
 > Before: `docs/handoffs/0018-dev-prod-flavors.md` — flavors renamed
 > `free`/`play` → **`dev`/`prod`**, exactly four variants (the `benchmark` build
 > type is gone; `:benchmark` links prod release), CI/tools/docs updated, and a

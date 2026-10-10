@@ -62,6 +62,27 @@ source package (`com.awbuilds.auraspend.MainActivity`). The script now carries
 an explicit `MAIN_ACTIVITY` constant. Found while seeding the emulator for the
 new captures; verified on-device afterwards.
 
+### 5. SMS and Call log permissions declaration — filled
+
+The release review flow surfaced the **Permissions declaration form**
+(`App content → SMS and Call log permissions`, tied to
+`releaseId=1&trackId=REDACTED`) because the bundle requests
+`READ_SMS`. Filled with the accurate use case:
+
+- **Core functionality: "SMS based money management"** — the on-device parsing
+  of the user's own bank transaction SMS into expense records. Deliberately
+  *not* "SMS-based financial transactions (5-digit messages)", which is for
+  operator-billing style financial SMS, not a money manager.
+- **Instructions for review (405/500 chars):** states the feature is opt-in
+  (Settings → Smart categories → "Auto-categorize messages", or Smart Add),
+  processed entirely on-device with no servers and nothing transmitted, and
+  that the app is not a default SMS handler and requests no Call log
+  permissions.
+- All four attestations ticked; **saved and verified after reload** (use case
+  selected, instructions present, all declarations checked).
+- The release was **not** sent for review: the track still shows
+  "Preview and confirm the release" as the next, untouched step.
+
 ## Verification (measured)
 
 | Check | Result |
