@@ -50,8 +50,8 @@ website `https://auraspend.github.io/auraspend/`, external marketing left on
 ### 4. Closed testing track
 
 - **Countries:** all 178 countries / regions targeted.
-- **Testers:** the existing Google Group `tester-group@googlegroups.com`
-  (pre-filled by the console; see Decisions) and feedback email
+- **Testers:** a private Google Group used as the tester list (address
+  withheld; pre-filled by the console — see Decisions) and feedback email
   `awbuilds.support@gmail.com`.
 - **Draft release:** AAB `app-play-release.aab` (21,533,826 bytes,
   sha256 `0ff65abd…c51d390`), release notes `<en-US>First closed testing
@@ -78,11 +78,10 @@ website `https://auraspend.github.io/auraspend/`, external marketing left on
    accurate answer; no documentation was required as a result.
 4. **Target audience: 18 and over.** A finance app with no child-directed
    content; avoids Families-policy obligations.
-5. **Tester Google Group reused.** The console pre-filled
-   `tester-group@googlegroups.com` (the account's existing tester group) and
-   it was kept, so the closed test has a live distribution list from day one.
-   **Swap it in the Testers tab before rolling out if AuraSpend testers should
-   be a separate group.**
+5. **Tester Google Group reused.** The console pre-filled the developer
+   account's existing private Google Group and it was kept, so the closed
+   test has a live distribution list from day one. **Swap it in the Testers
+   tab before rolling out if AuraSpend testers should be a separate group.**
 6. **Screenshots re-captured at 1080×1920.** The repo's `docs/screenshots/*`
    are 720×1600 (9:20) and not valid Play sizes (Play requires 16:9/9:16).
    New captures: `aura_spike` AVD (Play image) with `wm size 1080x1920`, dark
@@ -97,7 +96,7 @@ website `https://auraspend.github.io/auraspend/`, external marketing left on
 | Check | Result |
 |---|---|
 | `./gradlew :app:bundlePlayRelease` | BUILD SUCCESSFUL, `:app:signPlayReleaseBundle` ran |
-| Bundle file | 21,533,826 bytes; `jarsigner -verify` → "jar verified", cert CN=AuraSpend (self-signed upload key) |
+| Bundle file | 21,533,826 bytes; `jarsigner -verify` → "jar verified", cert CN=AuraSpend (self-signed upload key; the key was replaced before launch — see handoff 0020) |
 | Upload key | `auraspend.jks`, alias `key0`; passwords fetched from macOS login keychain entries made by Android Studio; `secrets.properties` written locally (gitignored) |
 | Play upload | Console listed `app-play-release.aab`, "1 app bundle uploaded", no warnings; release name auto-filled `2 (0.1.1-play)` |
 | Draft save | "Changes saved. You can now preview your release before sending it for review." |

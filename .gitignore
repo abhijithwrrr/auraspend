@@ -31,6 +31,13 @@ captures
 # is part of the pattern, not a comment -- which silently made the rule below
 # inert and left ~40MB of venv plus ONNX weights stageable.
 .zcode/
+.zcodeignore
+
+# Local AI tooling state (agent settings, sessions).
+.claude/
+
+# Kotlin incremental-compilation state (holds absolute paths).
+/.kotlin/
 
 # Python bytecode from tools/ scripts
 tools/__pycache__/
