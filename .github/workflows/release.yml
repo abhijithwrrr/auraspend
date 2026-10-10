@@ -53,7 +53,7 @@ jobs:
       - name: Accept SDK licenses & install platform 37
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37" "build-tools;36.0.0" > /dev/null
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;36.0.0" > /dev/null
 
       # Fail before building if the four secrets are missing — otherwise the
       # build would "succeed" and silently produce ...-unsigned artifacts.
