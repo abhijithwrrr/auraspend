@@ -3,7 +3,11 @@
 > Read this file and the latest file in `docs/handoffs/` before touching anything.
 > Update both (plus `CLAUDE.md` / `memory/` when you learn something durable) before ending a session.
 >
-> Latest: `docs/handoffs/0020-identity-scrub-and-upload-key.md` — repo moved to
+> Latest: `docs/handoffs/0021-branching-convention.md` — `dev` created from
+> `main` and adopted as the integration branch (`main` stays release-ready,
+> protected and default); CI/PR checks run on both again; work branches are
+> short-lived (`phase-N-name` or `<type>/<topic>`) and deleted once merged.
+> Before: `docs/handoffs/0020-identity-scrub-and-upload-key.md` — repo moved to
 > the **auraspend** org; every personal identifier (name, personal email,
 > GitHub handle, Play IDs, tester group, machine paths) and every **real
 > production SMS** in fixtures/docs/history replaced with synthetic data;
@@ -164,8 +168,12 @@ diff) when you intentionally fix or add lint suppressions.
    `heightIn`, not a fixed `height`, so it survives 200% font scale.
 6. **Green build.** `:app:compileProdDebugKotlin` and `testProdDebugUnitTest`
    must pass before a handoff. Never commit red.
-7. **One phase per branch** (`phase-N-name`), small commits, conventional
-   commit subjects (`feat:`, `fix:`, `chore:`, `docs:`, `perf:`, `refactor:`).
+7. **Branching.** `main` is release-ready, protected and default; day-to-day
+   work lands on `dev`. Work branches are short-lived and come off `dev`:
+   `phase-N-name` for a planned phase, otherwise `<type>/<topic>` with
+   `feat|fix|chore|docs|perf|refactor`. Delete a branch once merged; merge
+   `dev` into `main` for a release. Small commits, conventional commit
+   subjects (`feat:`, `fix:`, `chore:`, `docs:`, `perf:`, `refactor:`).
 8. **Compiler warnings are triage items, not noise.** Read every `w:` line in
    a build before moving on. Two user-visible bugs in this project were caused
    by deprecation warnings that were present in a green build and read past
