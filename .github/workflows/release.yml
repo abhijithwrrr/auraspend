@@ -13,18 +13,21 @@ name: Release
 #   for review; CI never submits.
 #
 # Signing: the build signs with the *upload key* (auraspend.jks, alias key0)
-# from secrets.properties, which this workflow materialises from four
-# repository secrets. The keystore must be the existing upload key — a newly
-# generated keystore is a different key and Play rejects the upload. Secrets:
+# from secrets.properties, which this workflow materialises from four secrets
+# on the `release` GitHub environment. The keystore must be the existing
+# upload key — a newly generated keystore is a different key and Play rejects
+# the upload. Secrets:
 #
 #   KEYSTORE_BASE64    base64 of auraspend.jks
 #   KEYSTORE_PASSWORD  keystore (store) password
 #   KEY_ALIAS          key0
 #   KEY_PASSWORD       key password
 #
-# Anyone can read this workflow; nobody can read the values. GitHub never
-# exposes repository secrets to fork pull requests, and this workflow runs only
-# on tags and manual dispatch.
+# The environment is the gate: it requires a reviewer (every signing run
+# pauses for the maintainer's approval) and only `main` and `v*` tags may use
+# it, so a dispatch from any other branch cannot reach the secrets. Anyone can
+# read this workflow; nobody can read the values, and GitHub never exposes
+# them to forks or fork pull requests.
 
 on:
   push:
@@ -37,6 +40,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Gates the signing secrets: a required reviewer approves every run, and
+    # only `main` and `v*` refs may use the environment.
+    environment: release
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -67,7 +73,7 @@ jobs:
           missing=0
           for name in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
             if [ -z "${!name:-}" ]; then
-              echo "::error::Missing repository secret $name — see the header of this workflow."
+              echo "::error::Missing signing secret $name — see the header of this workflow."
               missing=1
             fi
           done
