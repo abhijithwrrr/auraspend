@@ -41,6 +41,9 @@ jobs:
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;36.0.0" > /dev/null
 
+      - name: Snapshot committed screenshots
+        run: cp -r app/src/test/screenshots "$RUNNER_TEMP/baseline-screenshots"
+
       - name: Unit tests
         run: ./gradlew testProdDebugUnitTest
 
@@ -50,14 +53,15 @@ jobs:
       - name: Verify licence metadata and third-party attributions
         run: ./tools/check_license.sh
 
-      - name: Verify Aurora screenshots
+      - name: Compare Aurora screenshots (drift gate)
         run: |
-          changes=$(git status --porcelain -- app/src/test/screenshots)
-          if [ -n "$changes" ]; then
-            echo "::error::Aurora screenshots changed. Review app/src/test/screenshots and commit the new baselines if the UI change is intentional."
-            echo "$changes"
-            exit 1
-          fi
+          # Tolerance gate, not byte-exact: JVM rendering differs slightly
+          # across CPU architectures (antialiasing noise). See
+          # tools/compare_screenshots.py for the thresholds.
+          python3 -m pip install --quiet --disable-pip-version-check --break-system-packages pillow
+          python3 tools/compare_screenshots.py \
+            --baseline "$RUNNER_TEMP/baseline-screenshots" \
+            --actual app/src/test/screenshots
 
       - name: Upload Aurora screenshots
         if: always()

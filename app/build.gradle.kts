@@ -164,8 +164,10 @@ android {
         unitTests.isReturnDefaultValues = true
         // Robolectric + Roborazzi render real resources (fonts, colors) on the JVM.
         unitTests.isIncludeAndroidResources = true
-        // Screenshot tests record directly into the committed baseline directory;
-        // CI fails if regenerating changes any tracked PNG (git diff).
+        // Screenshot tests record directly into the committed baseline directory.
+        // CI re-records them and runs tools/compare_screenshots.py, a tolerance
+        // gate: byte-exact matching is not achievable across CPU architectures
+        // (antialiasing noise), but structural drift still fails.
         unitTests.all {
             it.systemProperty("roborazzi.test.record", "true")
         }
