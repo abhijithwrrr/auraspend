@@ -3,7 +3,12 @@
 > Read this file and the latest file in `docs/handoffs/` before touching anything.
 > Update both (plus `CLAUDE.md` / `memory/` when you learn something durable) before ending a session.
 >
-> Latest: `docs/handoffs/0021-branching-convention.md` — `dev` created from
+> Latest: `docs/handoffs/0022-ci-sdk-package-and-screenshot-gate.md` — CI was
+> red for two independent reasons: `platforms;android-37` no longer resolves
+> (it installs as **`platforms;android-37.0`**), and the byte-exact screenshot
+> gate cannot survive cross-architecture antialiasing — it is now a tolerance
+> gate (`tools/compare_screenshots.py`). CI green; `main` fast-forwarded.
+> Before: `docs/handoffs/0021-branching-convention.md` — `dev` created from
 > `main` and adopted as the integration branch (`main` stays release-ready,
 > protected and default); CI/PR checks run on both again; work branches are
 > short-lived (`phase-N-name` or `<type>/<topic>`) and deleted once merged.
