@@ -44,7 +44,15 @@ jobs:
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-wrapper-
-            ${{ runner.os }}-
+
+      - name: Cache Robolectric runtime jars
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository/org/robolectric
+          key: ${{ runner.os }}-robolectric-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-robolectric-
 
       # Previously this workflow only ran two assemble tasks. It never ran the
       # unit tests, never ran lint, and never built :benchmark — so the

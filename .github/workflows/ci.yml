@@ -24,8 +24,15 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
+      # Three caches with different lifecycles:
+      #  * setup-gradle: Gradle User Home (dependencies + build cache), keyed
+      #    per commit with a prefix fallback to the most recent entry.
+      #  * the wrapper cache: the Gradle distribution itself — setup-gradle
+      #    does not include ~/.gradle/wrapper/dists.
+      #  * the Robolectric cache: the android-all runtime jars Robolectric
+      #    downloads (hundreds of MB into ~/.m2) on the first test run.
       - name: Cache Gradle distributions
         uses: actions/cache@v4
         with:
@@ -34,7 +41,15 @@ jobs:
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-wrapper-
-            ${{ runner.os }}-
+
+      - name: Cache Robolectric runtime jars
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository/org/robolectric
+          key: ${{ runner.os }}-robolectric-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-robolectric-
 
       - name: Accept SDK licenses & install platform 37
         run: |
