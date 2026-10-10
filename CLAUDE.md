@@ -46,11 +46,13 @@ key is `CN=AuraSpend`, and commits use `AuraSpend <auraspend@users.noreply.githu
 | **Next: error-handling debt** | `CancellationException` swallowed at most catch sites; `runBlocking` in `LlamaCppLlm`; dead duplicate-SMS guard; no DAO/migration tests (`exportSchema = false`) |
 | **Play Store (0.1.1)** | ✅ Staged, **not submitted** — see `docs/handoffs/0017-play-console-setup.md`. Launch needs: send-for-review → SMS permission justification at review → 12 testers × 14 days → apply for production. Listing assets + strings: `docs/store/` |
 | **dev/prod flavors** | ✅ 0018 — four variants (`devDebug`…`prodRelease`); `benchmark` build type removed (macros run vs prod release); F-Droid/site claims audited |
+| **Drive backup + website redesign** | ✅ 0025 — Settings → Data backup/restore (`BackupCreateManager`); docs site redesigned to Aurora, copy checked against code. **Uncommitted** (owner instruction) |
 
 ## Hard-won invariants (do not regress)
 - **CSV export writes to the SAF uri, never public Downloads** (minSdk 30 forbids it).
-- **Drive restore = atomic replace** via `BackupRestoreManager` (`withTransaction`).
-  Not a merge. `BackupData` is format v3 and must carry every user-owned table.
+- **Drive backup/restore**: `BackupCreateManager` snapshots every table in one
+  `withTransaction`; `BackupRestoreManager` restores as an atomic replace, not a
+  merge. `BackupData` is format v4 and must carry every user-owned table.
 - **Auto Backup excludes `auraspend_db`** (`res/xml/backup_rules.xml`) — the app
   promises data stays on-device.
 - **Every write path goes through `TransactionRepositoryImpl.sanitized()`**

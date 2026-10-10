@@ -3,7 +3,23 @@
 > Read this file and the latest file in `docs/handoffs/` before touching anything.
 > Update both (plus `CLAUDE.md` / `memory/` when you learn something durable) before ending a session.
 >
-> Latest: `docs/handoffs/0024-screenshots-removed-signed-release.md` — the
+> Latest: `docs/handoffs/0025-drive-backup-and-site-redesign.md` — Drive backup
+> now exists in the app: Settings → Data has "Back up to Google Drive" and
+> "Restore from Google Drive" (restore was onboarding-only before, and no
+> screen ever triggered a backup). A new `BackupCreateManager` snapshots every
+> table in one Room transaction; a Robolectric test seeds one row per table so
+> a forgotten section fails the build instead of deleting data on a later
+> restore. 256 tests green, lint clean. The website (`docs/index.html`,
+> `privacy.html`, `terms.html`, `css/`) was redesigned to the app's Aurora
+> purple with real screenshots and copy checked against code. Follow-ups the
+> same session: international hero headline ("Know where your money goes."),
+> device bezels on every phone at the hero's size, a responsive pass (nav
+> collapses at ≤860 px), the real app icon + one-word wordmark, and a
+> light/dark theme toggle with theme-matched phone screenshots. **The whole
+> session is uncommitted — no commits or pushes.** Pending owner calls:
+> publish a GitHub Release before "Download APK" has a target, Play-listing
+> wording, terms' legal positions.
+> Before: `docs/handoffs/0024-screenshots-removed-signed-release.md` — the
 > Robolectric/Roborazzi screenshot tests and the CI drift gate are removed
 > (owner call; 274 → 254 tests, all green) — visual changes are verified by
 > hand again. Signed release pipeline verified end to end: a dispatch of
