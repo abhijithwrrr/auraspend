@@ -9,7 +9,7 @@ versioned source so assets can be changed and re-uploaded later.
 | `icon-512.png` | Store listing icon | 512×512, 32-bit PNG |
 | `feature-1024x500.png` | Feature graphic | 1024×500, PNG/JPEG |
 | `screenshots/01..07` | Phone screenshots, in listing order | 2–8 images, 16:9 or 9:16, 320–3840 px per side |
-| `raw/` | Raw app captures (1080×2400) the composed slides are built around | — |
+| `raw/` | Raw app captures (1080×2400) the composed slides are built around; the `*-light` files pair with their dark twins for the website's theme switch | — |
 | `feature-graphic.html` | Source for the feature graphic (embeds `raw/home-dark.png`) | render with headless Chrome (see below) |
 | `app-store-screenshots.json` | Project state for the screenshot editor that composed the slides | see "Screenshot editor" below |
 

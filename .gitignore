@@ -41,3 +41,6 @@ captures
 
 # Python bytecode from tools/ scripts
 tools/__pycache__/
+
+# OpenChamber tool state (local screenshots / session data).
+/.openchamber/

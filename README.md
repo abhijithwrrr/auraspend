@@ -24,7 +24,7 @@ Made with ❤️ by AW Builds
 | **CSV Export/Import** | Backup and restore your transactions | Free |
 | **Dark & AMOLED Theme** | Light, Dark, and true-black AMOLED modes | Free |
 | **Advanced Analytics** | Canvas pie charts, category breakdowns, merchant insights | Free |
-| **Google Drive Backup** | Cloud sync and restore from onboarding | Free |
+| **Google Drive Backup** | Back up to and restore from your own Google Drive (Settings → Data) | Free |
 
 ## On-Device AI (Local Categorization)
 

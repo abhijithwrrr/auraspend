@@ -13,6 +13,7 @@ import com.awbuilds.auraspend.data.privacy.PrivacyBackfill
 import com.awbuilds.auraspend.data.classification.defaultCategories
 import com.awbuilds.auraspend.data.classification.MerchantRepository
 import com.awbuilds.auraspend.data.local.AppDatabase
+import com.awbuilds.auraspend.data.local.BackupCreateManager
 import com.awbuilds.auraspend.data.local.BackupRestoreManager
 import com.awbuilds.auraspend.data.local.UnrecognizedSmsRepository
 import com.awbuilds.auraspend.data.local.entities.CategoryEntity
@@ -47,6 +48,10 @@ class AuraSpendApp : Application() {
     lateinit var backupRestoreManager: BackupRestoreManager
         private set
 
+    /** Builds the JSON payload a Drive backup uploads (see [BackupCreateManager]). */
+    lateinit var backupCreateManager: BackupCreateManager
+        private set
+
     /** Shared learned-classification store (merchant -> category) used by the AI pipeline. */
     lateinit var classificationMemory: ClassificationMemory
         private set
@@ -78,6 +83,7 @@ class AuraSpendApp : Application() {
 
         driveSyncManager = DriveSyncManager(this)
         backupRestoreManager = BackupRestoreManager(database)
+        backupCreateManager = BackupCreateManager(database)
 
         LocalLlmProvider.init(this)
 
