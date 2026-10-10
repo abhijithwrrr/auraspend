@@ -1,7 +1,8 @@
 name: Release
 
-# Tag-driven release build. Produces the two shippable artifacts and attaches
-# them to a GitHub Release — it does NOT upload anything to Google Play.
+# Release build. Tags publish a GitHub Release with the two shippable
+# artifacts; PRs targeting main run the same signed build as a pre-merge check
+# (workflow artifacts only). It does NOT upload anything to Google Play.
 #
 #   git tag v0.1.2 && git push origin v0.1.2
 #
@@ -23,16 +24,22 @@ name: Release
 #   KEY_ALIAS          key0
 #   KEY_PASSWORD       key password
 #
-# The environment is the gate: it requires a reviewer (every signing run
-# pauses for the maintainer's approval) and only `main` and `v*` tags may use
-# it, so a dispatch from any other branch cannot reach the secrets. Anyone can
-# read this workflow; nobody can read the values, and GitHub never exposes
-# them to forks or fork pull requests.
+# The environment is the gate: it requires a reviewer (the maintainer approves
+# every run that uses it) and only `main`, `v*` tags and main-targeting PRs may
+# reach it — a dispatch from any other branch cannot. PRs targeting main run
+# this workflow as a pre-merge signed build (approval-gated; workflow
+# artifacts only, never a Release — Releases are published by tags). Anyone
+# can read this workflow; nobody can read the values, and GitHub never exposes
+# them to forks or fork pull requests (the build job skips fork PRs entirely).
 
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+  # A PR targeting main gets the same signed build before merge. It is
+  # approval-gated like a release but only uploads workflow artifacts.
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write # publish the Release Drafter draft and attach assets
@@ -41,8 +48,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     # Gates the signing secrets: a required reviewer approves every run, and
-    # only `main` and `v*` refs may use the environment.
+    # only `main`, `v*` tags and main-targeting PRs may use the environment.
     environment: release
+    # Fork PRs can never receive environment secrets; skip the job cleanly
+    # instead of failing the missing-secret guard.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Checkout
         uses: actions/checkout@v6
