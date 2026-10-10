@@ -293,8 +293,9 @@ rebuilt (P1–P3), then delete the shim.
   `BackupRestoreManager` Room transaction. Do not "restore" by calling repository
   save methods directly from a composable.
 - **`BackupData` must carry every user-owned table** (transactions, categories,
-  budgets, subscriptions, SMS queue, savings goals, classification memory).
-  Format is v3; deserialization must stay tolerant of missing/legacy fields.
+  budgets, subscriptions, SMS queue, savings goals, classification memory,
+  unrecognized SMS). Format is v4; deserialization must stay tolerant of
+  missing/legacy fields.
 - **Auto Backup is off for the DB.** `res/xml/backup_rules.xml` and
   `data_extraction_rules.xml` exclude `auraspend_db`, prefs and the model
   directory; keep them that way — the app promises data stays on-device.
