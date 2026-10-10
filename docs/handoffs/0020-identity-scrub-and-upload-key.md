@@ -19,7 +19,7 @@ commits, and in the shipped signing certificate. This handoff records the scrub.
 - Every personal identifier replaced: real name → **AuraSpend**, personal email
   → `auraspend@users.noreply.github.com`, GitHub handle → the `auraspend` org,
   Play Console IDs → `REDACTED`, tester group → "a private Google Group
-  (address withheld)", `~/RealWorldProjects` → `~/projects`. In-app copyright
+  (address withheld)", `~/projects` → `~/projects`. In-app copyright
   strings (EN + HI) and README now read "Copyright 2026 AuraSpend".
 - **Golden corpus + every test/doc/eval that quoted it** moved from real
   production SMS to format-identical synthetic data: card `XX4821`, account
@@ -79,15 +79,17 @@ rename as a conscious relaunch, not a cleanup.
 ## 4. Pending — user actions
 
 1. **Play Console → App integrity → Reset upload key**, upload the new
-   certificate PEM, then replace the AAB in the closed-testing draft with the
-   rebuilt one (`~/RealWorldProjects/auraspend-artifacts-2026-10-10/`) before
-   sending for review.
+   certificate PEM
+   (`~/projects/auraspend-artifacts-2026-10-10/auraspend-upload-cert.pem`),
+   then replace the AAB in the closed-testing draft with the rebuilt one (same
+   folder) before sending for review — the staged AAB predates the scrub and
+   would still render the old copyright line in-app.
 2. **GitHub Support**: ask for unreachable-object cleanup so the old commits
    cached on PR pages #2, #5, #7, #14, #26, #27 stop rendering (their author
    identity is still the old personal one). The request must not be committed
    to the repo — it names the old identity; see the session report.
 3. Delete the local safety mirror
-   `~/RealWorldProjects/auraspend-backup-pre-scrub.git` (contains the old
+   `~/projects/auraspend-backup-pre-scrub.git` (contains the old
    history) once satisfied that nothing needs recovering.
 
 ## 5. Verification evidence
