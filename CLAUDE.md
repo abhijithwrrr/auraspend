@@ -86,6 +86,12 @@ Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
   uploads to Google Play** — sending for review stays a human click in the
   console. Signing comes from four repo secrets (`KEYSTORE_BASE64` etc.; the
   upload key, alias `key0`). Next uploaded versionCode after 2 (0.1.1) is **3**.
+- Store assets: `docs/store/` — the composed Play screenshots (seven 1080×1920
+  ads), feature graphic + its HTML source, raw 1080×2400 captures, and the
+  editor project state (`app-store-screenshots.json`) + deterministic exporter
+  (`export.js`). The editor itself lives at
+  `~/projects/auraspend-store-assets/` (keep it out of `docs/` — that
+  is the Pages root). Re-export with `node tools/export.js android dist/android.zip`.
 - Benchmarks: `./gradlew :benchmark:connectedProdBenchmarkAndroidTest`
   (runs against the prod **release** build; needs the release keystore locally)
 - Baseline profile: `app/src/main/baseline-prof.txt` (generate via the `:benchmark` BaselineProfileGenerator)

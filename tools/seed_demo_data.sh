@@ -19,9 +19,11 @@ cd "$ROOT"
 
 PKG=com.awbuilds.auraspend.dev
 TEST_PKG=com.awbuilds.auraspend.dev.test
-# The seeder class keeps its source package; only the application id gains the
-# flavor suffix (applicationIdSuffix), so the class name is NOT derived from PKG.
+# The seeder class and the activity keep their source package; only the
+# application id gains the flavor suffix (applicationIdSuffix), so neither can
+# be derived from PKG.
 SEEDER_CLASS=com.awbuilds.auraspend.DemoDataSeeder
+MAIN_ACTIVITY=com.awbuilds.auraspend.MainActivity
 WIPE=0
 [[ "${1:-}" == "--wipe" ]] && WIPE=1
 
@@ -64,6 +66,6 @@ fi
 # cleanly rather than leaving a stale Room singleton behind.
 adb shell am force-stop "$PKG"
 sleep 1
-adb shell am start -n "$PKG/.MainActivity" >/dev/null
+adb shell am start -n "$PKG/$MAIN_ACTIVITY" >/dev/null
 echo "==> launched. Screens: Home / Activity / Plan / Insights, + the centre FAB."
 echo "    Undo with: adb shell pm clear $PKG"

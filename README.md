@@ -140,6 +140,23 @@ signatures, and attaches them to a GitHub Release as
 `AuraSpend-V<version>.Alpha.{aab,apk}` — see
 `.github/workflows/release.yml`. It never uploads to Play.
 
+### Google Drive backup
+
+Drive backup is optional and user-owned in every build: the backup lives in
+**your own Google Drive**, and the project operates no servers and never sees
+it.
+
+- **Installed from Google Play** — sign in with your Google account; the
+  Play-signed build is registered for Drive sign-in, so this works out of the
+  box.
+- **Self-built** — Google Sign-In authorizes against an OAuth client
+  registered for the app's package id **and signing certificate**, so a build
+  signed with your own key needs its own OAuth client in a Google Cloud
+  project (type *Android*, your package id + your signing SHA-1). Your backup
+  still goes to your own Drive.
+- **No Google account?** CSV export/import works in every build without any
+  Google service — Settings → Data.
+
 ## Tech Stack
 
 - **Language**: Kotlin

@@ -3,7 +3,14 @@
 > Read this file and the latest file in `docs/handoffs/` before touching anything.
 > Update both (plus `CLAUDE.md` / `memory/` when you learn something durable) before ending a session.
 >
-> Latest: `docs/handoffs/0018-dev-prod-flavors.md` — flavors renamed
+> Latest: `docs/handoffs/0019-play-marketing-assets.md` — the 0.1.1 listing's
+> screenshots are now seven **composed ads** (1080×1920) built with the
+> app-store-screenshots editor, plus a refreshed feature graphic; both uploaded
+> to Play and saved as draft (**still not sent for review**). Captures redone at
+> native 1080×2400 (the old 9:16 letterboxing explained and dropped); README now
+> documents Drive backup per install source; `tools/seed_demo_data.sh` launch
+> fixed. Watch for: no Hindi screenshot variant yet.
+> Before: `docs/handoffs/0018-dev-prod-flavors.md` — flavors renamed
 > `free`/`play` → **`dev`/`prod`**, exactly four variants (the `benchmark` build
 > type is gone; `:benchmark` links prod release), CI/tools/docs updated, and a
 > public-surface audit that removed false F-Droid claims and unused secrets
