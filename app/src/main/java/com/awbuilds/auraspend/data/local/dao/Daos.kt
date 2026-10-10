@@ -117,6 +117,13 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE sourceSmsId = :smsId LIMIT 1")
     suspend fun getTransactionBySourceSmsId(smsId: String): TransactionEntity?
 
+    /**
+     * One-shot snapshot for the Drive backup. The Flow above feeds the UI; a
+     * backup needs one consistent read rather than an observation.
+     */
+    @Query("SELECT * FROM transactions ORDER BY dateTimestamp DESC")
+    suspend fun getAllOnce(): List<TransactionEntity>
+
     /** Used only by the atomic Drive restore, which replaces the table wholesale. */
     @Query("DELETE FROM transactions")
     suspend fun clear()
@@ -147,6 +154,10 @@ interface CategoryDao {
     @Query("SELECT * FROM categories")
     fun getAllCategories(): Flow<List<CategoryEntity>>
 
+    /** One-shot snapshot for the Drive backup. */
+    @Query("SELECT * FROM categories")
+    suspend fun getAllOnce(): List<CategoryEntity>
+
     @Query("SELECT * FROM categories WHERE id = :id")
     suspend fun getCategoryById(id: String): CategoryEntity?
 
@@ -171,6 +182,10 @@ interface CategoryDao {
 interface BudgetDao {
     @Query("SELECT * FROM budgets")
     fun getAllBudgets(): Flow<List<BudgetEntity>>
+
+    /** One-shot snapshot for the Drive backup. */
+    @Query("SELECT * FROM budgets")
+    suspend fun getAllOnce(): List<BudgetEntity>
 
     @Query("SELECT * FROM budgets WHERE categoryId = :categoryId")
     suspend fun getBudgetByCategory(categoryId: String): BudgetEntity?
@@ -197,6 +212,10 @@ interface SavingsGoalDao {
     @Query("SELECT * FROM savings_goals")
     fun getAllSavingsGoals(): Flow<List<SavingsGoalEntity>>
 
+    /** One-shot snapshot for the Drive backup. */
+    @Query("SELECT * FROM savings_goals")
+    suspend fun getAllOnce(): List<SavingsGoalEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSavingsGoal(goal: SavingsGoalEntity)
 
@@ -221,6 +240,10 @@ interface SubscriptionDao {
 
     @Query("SELECT * FROM subscriptions ORDER BY nextBillingDateTimestamp ASC")
     fun getAllSubscriptions(): Flow<List<SubscriptionEntity>>
+
+    /** One-shot snapshot for the Drive backup; includes inactive subscriptions. */
+    @Query("SELECT * FROM subscriptions ORDER BY nextBillingDateTimestamp ASC")
+    suspend fun getAllOnce(): List<SubscriptionEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSubscription(subscription: SubscriptionEntity)
@@ -284,6 +307,10 @@ interface SmsMessageDao {
 
     @Query("SELECT * FROM sms_messages ORDER BY receivedAt DESC")
     fun observeAll(): Flow<List<SmsMessageEntity>>
+
+    /** One-shot snapshot for the Drive backup. */
+    @Query("SELECT * FROM sms_messages ORDER BY receivedAt DESC")
+    suspend fun getAllOnce(): List<SmsMessageEntity>
 
     @Update
     suspend fun update(message: SmsMessageEntity)

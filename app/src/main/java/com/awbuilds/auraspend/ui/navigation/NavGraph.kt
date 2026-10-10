@@ -561,6 +561,76 @@ private fun SettingsDestination(
     val notificationPermissionLauncher = rememberNotificationPermissionLauncher()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // ── Google Drive backup / restore ────────────────────────────────────────
+    // Restore previously existed only in onboarding, so a user could bring data
+    // back but never create a backup in the first place. Both actions live here
+    // now. They share one sign-in launcher: without a signed-in account, the
+    // requested action is remembered, sign-in runs, then the action continues.
+    val app = context.applicationContext as AuraSpendApp
+    val driveSyncManager = app.driveSyncManager
+    val backupCreateManager = app.backupCreateManager
+
+    // Messages are resolved in composition so they follow the locale.
+    val backupDoneMessage = stringResource(R.string.settings_drive_backup_success)
+    val backupFailedMessage = stringResource(R.string.settings_drive_backup_failed)
+    val driveSignInFailedMessage = stringResource(R.string.onboarding_restore_signin_failed)
+    val noBackupMessage = stringResource(R.string.onboarding_restore_no_backup)
+    val restoreFailedMessage = stringResource(R.string.onboarding_restore_failed)
+    val restoreDoneTemplate = stringResource(R.string.onboarding_restore_success)
+
+    var driveBusy by remember { mutableStateOf(false) }
+    var pendingDriveAction by remember { mutableStateOf<DriveAction?>(null) }
+
+    val runDriveBackup: suspend () -> Unit = {
+        driveBusy = true
+        // Serialization and upload catch their own exceptions and report a
+        // boolean, so a failure lands here as a message, never as a crash.
+        val json = backupCreateManager.createBackupJson()
+        val uploaded = json != null && driveSyncManager.backupLocalData(json)
+        driveBusy = false
+        snackbarHostState.showSnackbar(if (uploaded) backupDoneMessage else backupFailedMessage)
+    }
+
+    val runDriveRestore: suspend () -> Unit = {
+        driveBusy = true
+        // Every step is a boundary and the replace itself is atomic, so a
+        // malformed backup or a dropped connection leaves local data intact.
+        val json = boundaryOrNull("DriveRestore") { driveSyncManager.restoreLocalData() }
+        val backup = json?.let { boundaryOrNull("DriveRestore") { BackupSerializer.deserialize(it) } }
+        val summary = backup?.let { app.backupRestoreManager.restore(it) }
+        driveBusy = false
+        val message = when {
+            json == null -> noBackupMessage
+            summary == null -> restoreFailedMessage
+            else -> String.format(
+                restoreDoneTemplate,
+                summary.transactions,
+                summary.categories,
+                summary.savingsGoals
+            )
+        }
+        snackbarHostState.showSnackbar(message)
+    }
+
+    val driveSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        scope.launch {
+            val action = pendingDriveAction
+            pendingDriveAction = null
+            val signedIn = driveSyncManager.handleSignInResult(result.data)
+            when {
+                !signedIn -> {
+                    driveBusy = false
+                    snackbarHostState.showSnackbar(driveSignInFailedMessage)
+                }
+                action == DriveAction.BACKUP -> runDriveBackup()
+                action == DriveAction.RESTORE -> runDriveRestore()
+                else -> driveBusy = false
+            }
+        }
+    }
+
     // Message templates are resolved in composition (so they follow the locale) and
     // formatted with the runtime counts inside the coroutine.
     val exportSuccessTemplate = stringResource(R.string.csv_export_success)
@@ -626,6 +696,31 @@ private fun SettingsDestination(
         onBack = { navController.popBackStack() },
         onExportCsv = { csvLauncher.launch("AuraSpend_export.csv") },
         onImportCsv = { importLauncher.launch(arrayOf("text/csv", "text/comma-separated-values")) },
+        onBackupToDrive = {
+            if (!driveBusy) {
+                if (driveSyncManager.isSignedIn()) {
+                    scope.launch { runDriveBackup() }
+                } else {
+                    // Busy from the tap: the sign-in round trip must not be a
+                    // window where a second tap queues another action.
+                    driveBusy = true
+                    pendingDriveAction = DriveAction.BACKUP
+                    driveSignInLauncher.launch(driveSyncManager.getSignInIntent())
+                }
+            }
+        },
+        onRestoreFromDrive = {
+            if (!driveBusy) {
+                if (driveSyncManager.isSignedIn()) {
+                    scope.launch { runDriveRestore() }
+                } else {
+                    driveBusy = true
+                    pendingDriveAction = DriveAction.RESTORE
+                    driveSignInLauncher.launch(driveSyncManager.getSignInIntent())
+                }
+            }
+        },
+        driveBusy = driveBusy,
         onManageCategories = { navController.navigate(Routes.CATEGORIES) },
         onManageSubscriptions = { navController.navigate(Routes.SUBSCRIPTIONS) },
         onManageBudgets = { navController.navigate(Routes.BUDGETS) },
@@ -655,3 +750,6 @@ private fun SettingsDestination(
         }
     )
 }
+
+/** Which Drive action a sign-in round trip should continue with afterwards. */
+private enum class DriveAction { BACKUP, RESTORE }

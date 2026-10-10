@@ -167,6 +167,15 @@
     <string name="settings_export_csv_subtitle">Save transactions to a CSV file</string>
     <string name="settings_import_csv">Import from CSV</string>
     <string name="settings_import_csv_subtitle">Restore transactions from a CSV file</string>
+    <string name="settings_drive_backup">Back up to Google Drive</string>
+    <string name="settings_drive_backup_subtitle">Save a copy of your data to your Google Drive</string>
+    <string name="settings_drive_restore">Restore from Google Drive</string>
+    <string name="settings_drive_restore_subtitle">Replace everything on this device with a backup</string>
+    <string name="settings_drive_backup_success">Backup saved to Google Drive.</string>
+    <string name="settings_drive_backup_failed">Backup failed. Check your connection and try again.</string>
+    <string name="settings_drive_restore_confirm_title">Restore from Google Drive?</string>
+    <string name="settings_drive_restore_confirm_message">This replaces all transactions, budgets, subscriptions, goals and categories on this device with the backup in your Google Drive. This cannot be undone.</string>
+    <string name="action_restore">Restore</string>
     <string name="settings_finance">Finance</string>
     <string name="settings_categories">Categories</string>
     <string name="settings_categories_subtitle">Add, edit, or organize categories</string>

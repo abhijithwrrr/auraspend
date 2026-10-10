@@ -17,7 +17,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.FileDownload
@@ -65,6 +67,9 @@ fun SettingsScreen(
     onBack: () -> Unit = {},
     onExportCsv: () -> Unit = {},
     onImportCsv: () -> Unit = {},
+    onBackupToDrive: () -> Unit = {},
+    onRestoreFromDrive: () -> Unit = {},
+    driveBusy: Boolean = false,
     onManageCategories: () -> Unit = {},
     onManageSubscriptions: () -> Unit = {},
     onManageBudgets: () -> Unit = {},
@@ -79,6 +84,28 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showRestoreDialog by remember { mutableStateOf(false) }
+
+    // Restore is a replace, not a merge: the confirm step exists because one tap
+    // would otherwise overwrite every local table with the Drive snapshot.
+    if (showRestoreDialog) {
+        AlertDialog(
+            onDismissRequest = { showRestoreDialog = false },
+            title = { Text(stringResource(R.string.settings_drive_restore_confirm_title), modifier = Modifier.semantics { heading() }) },
+            text = { Text(stringResource(R.string.settings_drive_restore_confirm_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showRestoreDialog = false
+                        onRestoreFromDrive()
+                    }
+                ) { Text(stringResource(R.string.action_restore)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRestoreDialog = false }) { Text(stringResource(R.string.action_cancel)) }
+            }
+        )
+    }
 
     if (showDeleteDialog) {
         AlertDialog(
@@ -207,6 +234,22 @@ fun SettingsScreen(
 
         SettingsSectionHeader(stringResource(R.string.settings_data))
         SettingsCard {
+            SettingsRow(
+                icon = Icons.Default.Backup,
+                title = stringResource(R.string.settings_drive_backup),
+                subtitle = stringResource(R.string.settings_drive_backup_subtitle),
+                busy = driveBusy,
+                onClick = onBackupToDrive
+            )
+            DividerSpacer()
+            SettingsRow(
+                icon = Icons.Default.CloudDownload,
+                title = stringResource(R.string.settings_drive_restore),
+                subtitle = stringResource(R.string.settings_drive_restore_subtitle),
+                busy = driveBusy,
+                onClick = { showRestoreDialog = true }
+            )
+            DividerSpacer()
             SettingsRow(
                 icon = Icons.Default.FileDownload,
                 title = stringResource(R.string.settings_export_csv),
@@ -343,12 +386,13 @@ private fun SettingsRow(
     icon: ImageVector,
     title: String,
     subtitle: String,
+    busy: Boolean = false,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(enabled = !busy, onClick = onClick)
             .padding(vertical = AuraSpacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -358,11 +402,15 @@ private fun SettingsRow(
             Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
             Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.extendedColors.textLight)
         }
-        Icon(
-            Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (busy) {
+            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+        } else {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 

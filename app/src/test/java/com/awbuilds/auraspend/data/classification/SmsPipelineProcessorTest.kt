@@ -49,6 +49,9 @@ class SmsPipelineProcessorTest {
 
         // Added for the atomic Drive restore path; unused by these tests.
         override suspend fun clear() = rows.clear()
+
+        // Added for the Drive backup path; unused by these tests.
+        override suspend fun getAllOnce(): List<SmsMessageEntity> = rows.values.toList()
     }
 
     private class FakeTransactionRepository : com.awbuilds.auraspend.TestTransactionRepositoryDefaults {

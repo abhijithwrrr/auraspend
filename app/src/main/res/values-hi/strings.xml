@@ -165,6 +165,15 @@
     <string name="settings_export_csv_subtitle">लेन-देन को CSV फ़ाइल में सहेजें</string>
     <string name="settings_import_csv">CSV से आयात करें</string>
     <string name="settings_import_csv_subtitle">CSV फ़ाइल से लेन-देन पुनर्स्थापित करें</string>
+    <string name="settings_drive_backup">Google Drive पर बैकअप लें</string>
+    <string name="settings_drive_backup_subtitle">अपने डेटा की एक कॉपी Google Drive में सहेजें</string>
+    <string name="settings_drive_restore">Google Drive से रिस्टोर करें</string>
+    <string name="settings_drive_restore_subtitle">इस डिवाइस का डेटा बैकअप से बदलें</string>
+    <string name="settings_drive_backup_success">बैकअप Google Drive में सहेजा गया।</string>
+    <string name="settings_drive_backup_failed">बैकअप विफल रहा। कनेक्शन जाँचें और पुनः प्रयास करें।</string>
+    <string name="settings_drive_restore_confirm_title">Google Drive से रिस्टोर करें?</string>
+    <string name="settings_drive_restore_confirm_message">यह इस डिवाइस के सभी लेन-देन, बजट, सदस्यताएँ, लक्ष्य और श्रेणियाँ Google Drive में मौजूद बैकअप से बदल देगा। इसे पूर्ववत नहीं किया जा सकता।</string>
+    <string name="action_restore">रिस्टोर करें</string>
     <string name="settings_finance">वित्त</string>
     <string name="settings_categories">श्रेणियाँ</string>
     <string name="settings_categories_subtitle">श्रेणियाँ जोड़ें, संपादित करें या व्यवस्थित करें</string>
