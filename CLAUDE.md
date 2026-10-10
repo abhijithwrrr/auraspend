@@ -8,7 +8,8 @@ AuraSpend — offline-first Android expense manager (Kotlin, Jetpack Compose,
 Room, a 22 MB on-device encoder via ONNX Runtime). **AGPL-3.0-or-later** as of
 0.1.1 (was Apache-2.0; see ADR 0009). Do not weaken the copyleft, and do not
 "fix" third-party Apache-2.0 mentions — those are correct.
-Repo: `github.com/auraspend/auraspend`. Branch strategy: one phase per branch.
+Repo: `github.com/auraspend/auraspend`. Branch strategy: `main` is the only
+long-lived branch; phase branches are short-lived and deleted once merged.
 Personal identifiers must never be committed: history is scrubbed, the signing
 key is `CN=AuraSpend`, and commits use `AuraSpend <auraspend@users.noreply.github.com>`
 (handoff 0020).
