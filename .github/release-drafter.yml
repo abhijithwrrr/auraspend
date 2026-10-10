@@ -28,7 +28,7 @@ exclude-labels:
   - "wontfix"
   - "question"
 
-change-template: "- #$NUMBER: $TITLE (@$AUTHOR)"
+change-template: "- #$NUMBER: $TITLE"
 template: |
   ## What's Changed
 

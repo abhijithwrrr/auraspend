@@ -3,7 +3,17 @@
 > Read this file and the latest file in `docs/handoffs/` before touching anything.
 > Update both (plus `CLAUDE.md` / `memory/` when you learn something durable) before ending a session.
 >
-> Latest: `docs/handoffs/0019-play-marketing-assets.md` — the 0.1.1 listing's
+> Latest: `docs/handoffs/0020-identity-scrub-and-upload-key.md` — repo moved to
+> the **auraspend** org; every personal identifier (name, personal email,
+> GitHub handle, Play IDs, tester group, machine paths) and every **real
+> production SMS** in fixtures/docs/history replaced with synthetic data;
+> history rewritten with `git-filter-repo` (author/committer → AuraSpend) and
+> the pack shrunk 696 MB → 19 MB; new upload key `CN=AuraSpend` (the old cert
+> carried the maintainer's name and home city), secrets rotated, signed prod
+> AAB/APK rebuilt. **Pending user actions: Play "Reset upload key" + re-upload
+> the AAB; GitHub Support purge of cached PR commits; delete the local
+> pre-scrub backup.**
+> Before: `docs/handoffs/0019-play-marketing-assets.md` — the 0.1.1 listing's
 > screenshots are now seven **composed ads** (1080×1920) built with the
 > app-store-screenshots editor, plus a refreshed feature graphic; both uploaded
 > to Play and saved as draft (**still not sent for review**). Captures redone at
