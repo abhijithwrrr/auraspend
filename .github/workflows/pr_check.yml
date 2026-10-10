@@ -56,8 +56,8 @@ jobs:
 
       # Previously this workflow only ran two assemble tasks. It never ran the
       # unit tests, never ran lint, and never built :benchmark — so the
-      # screenshot baselines, the baseline profile and the test suite could all
-      # break without a single red build.
+      # baseline profile, the test suite and lint could all break without a
+      # single red build.
 
       - name: Unit tests (prod debug)
         run: ./gradlew testProdDebugUnitTest

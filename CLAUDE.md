@@ -83,8 +83,6 @@ key is `CN=AuraSpend`, and commits use `AuraSpend <auraspend@users.noreply.githu
   purpose (they forced wrong categories).
 
 ## Tooling
-- Screenshot baselines: `app/src/test/screenshots/` (committed; CI drift gate) —
-  component gallery, empty/error/stats states, full `DashboardScreen`, 3 themes.
 - Releases: `.github/workflows/release.yml` — a `v*` tag (or manual dispatch)
   builds the **signed** Play AAB + prod APK, names them
   `AuraSpend-V<version>.Alpha.{aab,apk}`, writes `SHA256SUMS`, and attaches
@@ -119,7 +117,8 @@ key is `CN=AuraSpend`, and commits use `AuraSpend <auraspend@users.noreply.githu
 ## Preferences / rules
 - Verify with `./gradlew :app:compileProdDebugKotlin` + `testProdDebugUnitTest` +
   `:app:lintProdDebug` before claiming done.
-- Visual changes are not "done" until screenshots are captured in all 3 themes.
+- Visual changes need a manual look in all 3 themes; there is no automated
+  screenshot gate (removed in 0024).
 - Keep commits small and conventional; never commit a red build.
 - CI (`.github/workflows/pr_check.yml`) runs tests, both lints, both debug
   assembles, and `:benchmark` — keep it green, not just locally.

@@ -27,18 +27,6 @@ dependencies.
 If you are tempted to add a Play-only capability, it almost certainly belongs
 in `main` behind a runtime check instead.
 
-### Screenshot baselines are platform-dependent
-
-`testProdDebugUnitTest` **rewrites** `app/src/test/screenshots/*.png` — it does
-not compare against them. CI then fails the build if that directory is dirty,
-which is a real drift gate. But Robolectric rasterises on the host JDK and OS,
-so a macOS run produces byte-different PNGs from the Linux ones committed here.
-
-**Consequence: never commit baselines you rendered locally.** Re-render on CI
-(or on Linux) and take the PNGs from the `aurora-screenshots` artifact. If you
-see the dashboard baselines change after a plain test run and you changed no UI,
-it is the platform, not your change — revert them.
-
 ## Development Setup
 
 1. Clone the repo

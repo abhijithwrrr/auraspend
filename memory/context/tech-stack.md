@@ -39,7 +39,6 @@ for the phase that introduces them.
 ## Workflows
 | Task | Command / location |
 |------|--------------------|
-| Screenshot baselines | `./gradlew testProdDebugUnitTest` → `app/src/test/screenshots/` (committed; CI diffs) |
 | Cold-start benchmark | `./gradlew :benchmark:connectedProdBenchmarkAndroidTest` (needs the release keystore) |
 | Baseline profile | `:benchmark:connectedProdBenchmarkAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=…BaselineProfileGenerator` → copy to `app/src/main/baseline-prof.txt` |
 | Localization | `values/strings.xml` + `values-hi/strings.xml`; no literals in screens |

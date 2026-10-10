@@ -1,6 +1,7 @@
 # ADR 0005 — Robolectric + Roborazzi screenshot tests
 
-**Status:** Accepted · 2026-09
+**Status:** Superseded — the screenshot tests were removed in handoff 0024
+(2026-10-10); this ADR records why they existed. · Accepted 2026-09
 
 ## Context
 

@@ -94,8 +94,9 @@ font sizes are on the Material 3 scale, `SYSTEM` theme is the default, AMOLED ha
 its own semantic colours, there is an error state, all 12 screens carry heading
 semantics, EN/hi have full key parity, and the design-system rules are enforced
 by `DesignSystemGuardTest` + `ErrorStateWiringTest`. `ClassificationScreen` is
-split into three files. Whole-screen visual regression covers `DashboardScreen`
-in all three themes. Before that: `0009-crash-paths-and-safety-nets.md`
+split into three files. (Screenshot tests were removed in handoff 0024 — visual
+changes are verified by hand in all three themes.) Before that:
+`0009-crash-paths-and-safety-nets.md`
 (crash paths, atomic restore, release signing, CI safety nets), then
 `0006`–`0008`. Remaining work is in 0010 §4 — wire `AuraErrorState` into screens,
 fold the hand-rolled stat grids onto `AuraStatTile`, split `ClassificationScreen`.

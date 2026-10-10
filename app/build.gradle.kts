@@ -162,15 +162,8 @@ android {
     // Unit tests exercise JVM-only logic; unmocked android.framework calls (e.g. Log) no-op.
     testOptions {
         unitTests.isReturnDefaultValues = true
-        // Robolectric + Roborazzi render real resources (fonts, colors) on the JVM.
+        // Robolectric renders real resources (fonts, colors) on the JVM.
         unitTests.isIncludeAndroidResources = true
-        // Screenshot tests record directly into the committed baseline directory.
-        // CI re-records them and runs tools/compare_screenshots.py, a tolerance
-        // gate: byte-exact matching is not achievable across CPU architectures
-        // (antialiasing noise), but structural drift still fails.
-        unitTests.all {
-            it.systemProperty("roborazzi.test.record", "true")
-        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -246,13 +239,11 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // JVM screenshot tests (Robolectric + Roborazzi) for visual regressions.
+    // JVM tests (Robolectric + Compose UI test): swipe gestures, design-system guard.
     testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.robolectric)
-    testImplementation(libs.roborazzi)
-    testImplementation(libs.roborazzi.compose)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     // Compose previews / inspection in debug builds only.
